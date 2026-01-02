@@ -1,0 +1,16 @@
+{
+  "libraryTitle": "CIQ Presentations",
+  "subtitle": "Strategic Planning & Executive Briefings",
+  "thumbnailSize": {
+    "width": 800,
+    "height": 450
+  },
+  "theme": "dark",
+  "sortBy": "date-desc",
+  "enableSearch": true,
+  "enableTags": true,
+  "github": {
+    "username": "itsocialist",
+    "repo": "presentation-library-builder"
+  }
+}

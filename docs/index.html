@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIQ Presentations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ciq-green: #12A66F;
+            --deep-black: #030712;
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-400: #94A3B8;
+            --slate-200: #E2E8F0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--deep-black);
+            color: var(--slate-400);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: var(--slate-900);
+            border-bottom: 1px solid var(--slate-800);
+            padding: 2rem 3rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: var(--slate-200);
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--slate-400);
+        }
+        
+        .count {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--ciq-green);
+            font-weight: 600;
+        }
+        
+        .search-bar {
+            max-width: 600px;
+            margin: 2rem 0 0 0;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            background: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-left: 3px solid var(--ciq-green);
+            color: var(--slate-200);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-left-width: 4px;
+            background: var(--slate-900);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 3rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+        
+        .presentation-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--slate-800);
+            border-left: 4px solid var(--ciq-green);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .presentation-card:hover {
+            border-left-width: 6px;
+            box-shadow: -6px 0 40px rgba(18, 166, 111, 0.2);
+            transform: translateY(-4px);
+        }
+        
+        .thumbnail {
+            width: 100%;
+            height: 225px;
+            object-fit: cover;
+            border-bottom: 1px solid var(--slate-800);
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--slate-200);
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+        
+        .card-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--slate-400);
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .card-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background: rgba(18, 166, 111, 0.1);
+            color: var(--ciq-green);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            border: 1px solid rgba(18, 166, 111, 0.3);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 3rem;
+            color: var(--slate-700);
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 6rem 2rem;
+            color: var(--slate-400);
+        }
+        
+        .empty-state h2 {
+            font-size: 1.5rem;
+            color: var(--slate-300);
+            margin-bottom: 1rem;
+        }
+        
+        .code-block {
+            background: var(--slate-900);
+            border: 1px solid var(--slate-800);
+            border-left: 3px solid var(--ciq-green);
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--ciq-green);
+            margin: 1rem auto;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CIQ Presentations</h1>
+        <p class="subtitle">
+            <span class="count">1</span> presentation available
+        </p>
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search presentations...">
+        </div>
+    </div>
+    
+    <div class="container">
+        
+        <div class="grid" id="presentationGrid">
+            
+            <a href="presentations/ciq-platform-executive-summary-deck.html" class="presentation-card" data-title="ciq cloud platform stack" data-tags="strategy platform executive">
+                <img src="thumbnails/ciq-platform-executive-summary-deck.png" alt="CIQ Cloud Platform Stack" class="thumbnail" loading="lazy">
+                <div class="card-content">
+                    <div class="card-title">CIQ Cloud Platform Stack</div>
+                    <div class="card-meta">
+                        <span>2024-12-30</span>
+                        <span>•</span>
+                        <span>Brian King, CIQ Product</span>
+                    </div>
+                    
+                    <div class="card-tags">
+                        <span class="tag">strategy</span><span class="tag">platform</span><span class="tag">executive</span>
+                    </div>
+                    
+                </div>
+            </a>
+            
+        </div>
+        
+    </div>
+    
+    <div class="footer">
+        Built with CIQ Presentation Library Builder • Last updated: 1/2/2026
+    </div>
+    
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const grid = document.getElementById('presentationGrid');
+        
+        if (searchInput && grid) {
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const cards = grid.querySelectorAll('.presentation-card');
+                
+                cards.forEach(card => {
+                    const title = card.dataset.title;
+                    const tags = card.dataset.tags;
+                    const matches = title.includes(query) || tags.includes(query);
+                    card.style.display = matches ? 'block' : 'none';
+                });
+            });
+        }
+    </script>
+</body>
+</html>

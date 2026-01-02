@@ -1,0 +1,28 @@
+{
+  "name": "ciq-presentation-library",
+  "version": "1.0.0",
+  "description": "Automated presentation library builder for GitHub Pages",
+  "scripts": {
+    "build": "node build/generate-library.js",
+    "serve": "npx http-server docs -p 8080 -o",
+    "deploy": "npm run build && git add . && git commit -m 'Update presentation library' && git push origin main",
+    "clean": "rm -rf docs/* && mkdir -p docs/presentations docs/thumbnails"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0",
+    "sharp": "^0.33.0",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.10"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "keywords": [
+    "presentations",
+    "github-pages",
+    "automation",
+    "ciq"
+  ],
+  "author": "CIQ",
+  "license": "MIT"
+}

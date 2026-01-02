@@ -1,0 +1,18 @@
+node_modules/
+.DS_Store
+*.log
+npm-debug.log*
+.env
+.env.local
+
+# Don't ignore docs/ - needed for GitHub Pages
+# Don't ignore presentations/ - source files
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
