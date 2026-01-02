@@ -16,11 +16,17 @@ const CONFIG = {
 };
 
 // Extract metadata from HTML file
-function extractMetadata(htmlPath) {
+function extractMetadata(htmlPath, relPath) {
   const html = fs.readFileSync(htmlPath, 'utf-8');
+
+  // Determine folder from relative path
+  const pathParts = relPath.split('/');
+  const folder = pathParts.length > 1 ? pathParts[0] : 'Uncategorized';
 
   const metadata = {
     filename: path.basename(htmlPath),
+    relPath: relPath,  // relative path including folder
+    folder: folder,
     title: path.basename(htmlPath, '.html').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
     date: new Date().toISOString().split('T')[0],
     author: 'CIQ',
@@ -105,8 +111,47 @@ async function generateThumbnail(htmlPath, outputPath) {
   }
 }
 
-// Build the landing page index.html
-function buildLandingPage(presentations) {
+// Build the landing page with collapsible folder sections
+function buildLandingPage(presentationsByFolder, totalCount) {
+  const folderNames = Object.keys(presentationsByFolder).sort((a, b) => {
+    // Put "Uncategorized" at the end
+    if (a === 'Uncategorized') return 1;
+    if (b === 'Uncategorized') return -1;
+    return a.localeCompare(b);
+  });
+
+  const renderCard = (p) => `
+    <a href="presentations/${p.relPath}" class="presentation-card" data-title="${p.title.toLowerCase()}" data-tags="${p.tags.join(' ').toLowerCase()}" data-folder="${p.folder.toLowerCase()}">
+      <img src="thumbnails/${p.relPath.replace(/\//g, '_').replace('.html', '.png')}" alt="${p.title}" class="thumbnail" loading="lazy">
+      <div class="card-content">
+        <div class="card-title">${p.title}</div>
+        <div class="card-meta">
+          <span>${p.date}</span>
+          <span>•</span>
+          <span>${p.author}</span>
+        </div>
+        ${p.tags.length > 0 ? `
+        <div class="card-tags">
+          ${p.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+        </div>
+        ` : ''}
+      </div>
+    </a>`;
+
+  const renderSection = (folderName, presentations) => `
+    <div class="folder-section" data-folder="${folderName.toLowerCase()}">
+      <div class="folder-header" onclick="toggleSection(this)">
+        <span class="folder-icon">▼</span>
+        <h2 class="folder-title">${folderName}</h2>
+        <span class="folder-count">${presentations.length}</span>
+      </div>
+      <div class="folder-content">
+        <div class="grid">
+          ${presentations.map(renderCard).join('')}
+        </div>
+      </div>
+    </div>`;
+
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -125,11 +170,7 @@ function buildLandingPage(presentations) {
             --slate-200: #E2E8F0;
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Inter', sans-serif;
@@ -144,29 +185,11 @@ function buildLandingPage(presentations) {
             padding: 2rem 3rem;
         }
         
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 300;
-            color: var(--slate-200);
-            margin-bottom: 0.5rem;
-        }
+        h1 { font-size: 2.5rem; font-weight: 300; color: var(--slate-200); margin-bottom: 0.5rem; }
+        .subtitle { font-size: 1.1rem; color: var(--slate-400); }
+        .count { font-family: 'JetBrains Mono', monospace; color: var(--ciq-green); font-weight: 600; }
         
-        .subtitle {
-            font-size: 1.1rem;
-            color: var(--slate-400);
-        }
-        
-        .count {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--ciq-green);
-            font-weight: 600;
-        }
-        
-        .search-bar {
-            max-width: 600px;
-            margin: 2rem 0 0 0;
-        }
-        
+        .search-bar { max-width: 600px; margin: 2rem 0 0 0; }
         .search-input {
             width: 100%;
             padding: 0.75rem 1rem;
@@ -177,23 +200,68 @@ function buildLandingPage(presentations) {
             color: var(--slate-200);
             font-family: 'Inter', sans-serif;
         }
+        .search-input:focus { outline: none; border-left-width: 4px; background: var(--slate-900); }
         
-        .search-input:focus {
-            outline: none;
-            border-left-width: 4px;
-            background: var(--slate-900);
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem 3rem; }
+        
+        /* Folder sections */
+        .folder-section {
+            margin-bottom: 2rem;
+            border: 1px solid var(--slate-800);
+            border-radius: 8px;
+            overflow: hidden;
         }
         
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 3rem;
+        .folder-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: var(--slate-900);
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .folder-header:hover { background: var(--slate-800); }
+        
+        .folder-icon {
+            color: var(--ciq-green);
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+        .folder-section.collapsed .folder-icon { transform: rotate(-90deg); }
+        
+        .folder-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--slate-200);
+            flex: 1;
+        }
+        
+        .folder-count {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--ciq-green);
+            background: rgba(18, 166, 111, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+        }
+        
+        .folder-content {
+            padding: 1.5rem;
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s;
+        }
+        .folder-section.collapsed .folder-content {
+            max-height: 0;
+            padding: 0 1.5rem;
         }
         
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
         }
         
         .presentation-card {
@@ -206,93 +274,51 @@ function buildLandingPage(presentations) {
             text-decoration: none;
             display: block;
         }
-        
         .presentation-card:hover {
             border-left-width: 6px;
             box-shadow: -6px 0 40px rgba(18, 166, 111, 0.2);
             transform: translateY(-4px);
         }
+        .presentation-card.hidden { display: none; }
         
         .thumbnail {
             width: 100%;
-            height: 225px;
+            height: 200px;
             object-fit: cover;
             border-bottom: 1px solid var(--slate-800);
         }
         
-        .card-content {
-            padding: 1.5rem;
-        }
-        
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--slate-200);
-            margin-bottom: 0.75rem;
-            line-height: 1.3;
-        }
-        
+        .card-content { padding: 1.25rem; }
+        .card-title { font-size: 1.1rem; font-weight: 600; color: var(--slate-200); margin-bottom: 0.5rem; line-height: 1.3; }
         .card-meta {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--slate-400);
             display: flex;
-            gap: 1rem;
-            margin-bottom: 0.75rem;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
         }
-        
-        .card-tags {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        
+        .card-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
         .tag {
             background: rgba(18, 166, 111, 0.1);
             color: var(--ciq-green);
-            padding: 0.25rem 0.75rem;
-            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.7rem;
             border: 1px solid rgba(18, 166, 111, 0.3);
             font-family: 'JetBrains Mono', monospace;
         }
         
-        .footer {
-            text-align: center;
-            padding: 3rem;
-            color: var(--slate-700);
-            font-size: 0.9rem;
-        }
+        .footer { text-align: center; padding: 3rem; color: var(--slate-700); font-size: 0.9rem; }
         
-        .empty-state {
-            text-align: center;
-            padding: 6rem 2rem;
-            color: var(--slate-400);
-        }
-        
-        .empty-state h2 {
-            font-size: 1.5rem;
-            color: var(--slate-300);
-            margin-bottom: 1rem;
-        }
-        
-        .code-block {
-            background: var(--slate-900);
-            border: 1px solid var(--slate-800);
-            border-left: 3px solid var(--ciq-green);
-            padding: 1rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-            color: var(--ciq-green);
-            margin: 1rem auto;
-            max-width: 600px;
-        }
+        .empty-state { text-align: center; padding: 6rem 2rem; color: var(--slate-400); }
+        .empty-state h2 { font-size: 1.5rem; color: var(--slate-300); margin-bottom: 1rem; }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>${CONFIG.libraryTitle}</h1>
         <p class="subtitle">
-            <span class="count">${presentations.length}</span> presentation${presentations.length !== 1 ? 's' : ''} available
+            <span class="count">${totalCount}</span> presentation${totalCount !== 1 ? 's' : ''} in <span class="count">${folderNames.length}</span> ${folderNames.length !== 1 ? 'categories' : 'category'}
         </p>
         <div class="search-bar">
             <input type="text" class="search-input" id="searchInput" placeholder="Search presentations...">
@@ -300,34 +326,12 @@ function buildLandingPage(presentations) {
     </div>
     
     <div class="container">
-        ${presentations.length === 0 ? `
+        ${totalCount === 0 ? `
         <div class="empty-state">
             <h2>No presentations yet</h2>
-            <p>Drop HTML presentations into the <code>presentations/</code> folder and run:</p>
-            <div class="code-block">npm run build</div>
+            <p>Drop HTML presentations into the <code>presentations/</code> folder and run <code>npm run build</code></p>
         </div>
-        ` : `
-        <div class="grid" id="presentationGrid">
-            ${presentations.map(p => `
-            <a href="presentations/${p.filename}" class="presentation-card" data-title="${p.title.toLowerCase()}" data-tags="${p.tags.join(' ').toLowerCase()}">
-                <img src="thumbnails/${p.filename.replace('.html', '.png')}" alt="${p.title}" class="thumbnail" loading="lazy">
-                <div class="card-content">
-                    <div class="card-title">${p.title}</div>
-                    <div class="card-meta">
-                        <span>${p.date}</span>
-                        <span>•</span>
-                        <span>${p.author}</span>
-                    </div>
-                    ${p.tags.length > 0 ? `
-                    <div class="card-tags">
-                        ${p.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                    </div>
-                    ` : ''}
-                </div>
-            </a>
-            `).join('')}
-        </div>
-        `}
+        ` : folderNames.map(folder => renderSection(folder, presentationsByFolder[folder])).join('')}
     </div>
     
     <div class="footer">
@@ -335,19 +339,36 @@ function buildLandingPage(presentations) {
     </div>
     
     <script>
-        const searchInput = document.getElementById('searchInput');
-        const grid = document.getElementById('presentationGrid');
+        function toggleSection(header) {
+            const section = header.parentElement;
+            section.classList.toggle('collapsed');
+        }
         
-        if (searchInput && grid) {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
             searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase();
-                const cards = grid.querySelectorAll('.presentation-card');
+                const sections = document.querySelectorAll('.folder-section');
                 
-                cards.forEach(card => {
-                    const title = card.dataset.title;
-                    const tags = card.dataset.tags;
-                    const matches = title.includes(query) || tags.includes(query);
-                    card.style.display = matches ? 'block' : 'none';
+                sections.forEach(section => {
+                    const cards = section.querySelectorAll('.presentation-card');
+                    let visibleCount = 0;
+                    
+                    cards.forEach(card => {
+                        const title = card.dataset.title;
+                        const tags = card.dataset.tags;
+                        const folder = card.dataset.folder;
+                        const matches = !query || title.includes(query) || tags.includes(query) || folder.includes(query);
+                        card.classList.toggle('hidden', !matches);
+                        if (matches) visibleCount++;
+                    });
+                    
+                    // Hide entire section if no matches
+                    section.style.display = visibleCount === 0 ? 'none' : 'block';
+                    // Expand sections with matches when searching
+                    if (query && visibleCount > 0) {
+                        section.classList.remove('collapsed');
+                    }
                 });
             });
         }
@@ -360,7 +381,7 @@ function buildLandingPage(presentations) {
 
 // Extract zip files containing presentations with assets
 async function extractZipFiles() {
-  const zipFiles = await glob('*.zip', { cwd: CONFIG.presentationsDir });
+  const zipFiles = await glob('**/*.zip', { cwd: CONFIG.presentationsDir });
 
   if (zipFiles.length === 0) return;
 
@@ -368,7 +389,8 @@ async function extractZipFiles() {
 
   for (const zipFile of zipFiles) {
     const zipPath = path.join(CONFIG.presentationsDir, zipFile);
-    const extractDir = path.join(CONFIG.presentationsDir, path.basename(zipFile, '.zip'));
+    const zipDir = path.dirname(zipPath);
+    const extractDir = path.join(zipDir, path.basename(zipFile, '.zip'));
 
     console.log(`  Extracting: ${zipFile}`);
 
@@ -380,15 +402,15 @@ async function extractZipFiles() {
       .pipe(unzipper.Extract({ path: extractDir }))
       .promise();
 
-    // Move HTML files to presentations root, keep assets in subfolder
+    // Find HTML files in extracted content
     const extractedHtml = await glob('**/*.html', { cwd: extractDir });
     for (const htmlFile of extractedHtml) {
       const srcPath = path.join(extractDir, htmlFile);
-      const destPath = path.join(CONFIG.presentationsDir, path.basename(htmlFile));
+      const destPath = path.join(zipDir, path.basename(htmlFile));
 
-      // If HTML references relative images, we need to copy assets too
+      // If HTML references relative assets, we need to copy assets too
       const htmlContent = await fs.readFile(srcPath, 'utf-8');
-      const assetDir = path.join(CONFIG.docsDir, 'presentations', 'assets', path.basename(htmlFile, '.html'));
+      const assetDir = path.join(CONFIG.docsDir, 'presentations', path.dirname(zipFile), 'assets', path.basename(htmlFile, '.html'));
       await fs.ensureDir(assetDir);
 
       // Copy any assets from the extracted folder (images, styles, scripts, fonts)
@@ -403,8 +425,6 @@ async function extractZipFiles() {
       let updatedHtml = htmlContent;
       for (const asset of assets) {
         const assetName = path.basename(asset);
-        // Replace relative paths with absolute asset paths
-        // We look for the filename in quotes, handling potential relative paths prefix
         updatedHtml = updatedHtml.replace(
           new RegExp(`["']([^"']*${assetName})["']`, 'g'),
           `"assets/${path.basename(htmlFile, '.html')}/${assetName}"`
@@ -436,9 +456,12 @@ async function buildLibrary() {
   await fs.ensureDir(path.join(CONFIG.docsDir, 'presentations'));
   await fs.ensureDir(path.join(CONFIG.docsDir, 'thumbnails'));
 
-  // 2. Find all HTML presentations
+  // 2. Find all HTML presentations (including in subfolders)
   console.log('🔍 Scanning for presentations...');
-  const htmlFiles = await glob('*.html', { cwd: CONFIG.presentationsDir });
+  const htmlFiles = await glob('**/*.html', {
+    cwd: CONFIG.presentationsDir,
+    ignore: ['**/node_modules/**', '**/assets/**']
+  });
   console.log(`   Found ${htmlFiles.length} presentation(s)\n`);
 
   if (htmlFiles.length === 0) {
@@ -446,39 +469,68 @@ async function buildLibrary() {
     console.log('   Add HTML files to presentations/ and run npm run build again\n');
   }
 
-  // 3. Process each presentation
-  const presentations = [];
+  // 3. Process each presentation, grouping by folder
+  const presentationsByFolder = {};
 
-  for (const file of htmlFiles) {
-    console.log(`📄 Processing: ${file}`);
+  for (const relPath of htmlFiles) {
+    console.log(`📄 Processing: ${relPath}`);
 
-    const htmlPath = path.join(CONFIG.presentationsDir, file);
-    const metadata = extractMetadata(htmlPath);
+    const htmlPath = path.join(CONFIG.presentationsDir, relPath);
+    const metadata = extractMetadata(htmlPath, relPath);
 
-    // Copy HTML to docs
-    await fs.copy(htmlPath, path.join(CONFIG.docsDir, 'presentations', file));
-    console.log(`  ✓ Copied to docs/presentations/`);
+    // Ensure folder exists in output
+    const outputDir = path.join(CONFIG.docsDir, 'presentations', path.dirname(relPath));
+    await fs.ensureDir(outputDir);
 
-    // Generate thumbnail
-    const thumbnailPath = path.join(CONFIG.docsDir, 'thumbnails', file.replace('.html', '.png'));
+    // Copy HTML to docs (preserving folder structure)
+    await fs.copy(htmlPath, path.join(CONFIG.docsDir, 'presentations', relPath));
+    console.log(`  ✓ Copied to docs/presentations/${path.dirname(relPath) || '.'}/`);
+
+    // Copy any sibling assets (e.g., images, css in same folder)
+    const siblingAssets = await glob('*.{png,jpg,jpeg,gif,svg,webp,css,js,woff,woff2,ttf}', {
+      cwd: path.dirname(htmlPath)
+    });
+    for (const asset of siblingAssets) {
+      const src = path.join(path.dirname(htmlPath), asset);
+      const dest = path.join(outputDir, asset);
+      await fs.copy(src, dest);
+    }
+
+    // Also copy assets subfolder if it exists
+    const assetsDir = path.join(path.dirname(htmlPath), 'assets');
+    if (fs.existsSync(assetsDir)) {
+      await fs.copy(assetsDir, path.join(outputDir, 'assets'));
+      console.log(`  ✓ Copied assets folder`);
+    }
+
+    // Generate thumbnail (flatten path for thumbnail filename)
+    const thumbnailName = relPath.replace(/\//g, '_').replace('.html', '.png');
+    const thumbnailPath = path.join(CONFIG.docsDir, 'thumbnails', thumbnailName);
     await generateThumbnail(htmlPath, thumbnailPath);
 
-    presentations.push(metadata);
+    // Group by folder
+    if (!presentationsByFolder[metadata.folder]) {
+      presentationsByFolder[metadata.folder] = [];
+    }
+    presentationsByFolder[metadata.folder].push(metadata);
     console.log('');
   }
 
-  // 4. Sort presentations by date (newest first)
-  presentations.sort((a, b) => new Date(b.date) - new Date(a.date));
+  // 4. Sort presentations within each folder by date (newest first)
+  for (const folder of Object.keys(presentationsByFolder)) {
+    presentationsByFolder[folder].sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
 
-  // 5. Generate landing page
-  console.log('🎨 Building landing page...');
-  const indexHtml = buildLandingPage(presentations);
+  // 5. Generate landing page with collapsible sections
+  console.log('🎨 Building landing page with folder sections...');
+  const totalCount = htmlFiles.length;
+  const indexHtml = buildLandingPage(presentationsByFolder, totalCount);
   await fs.writeFile(path.join(CONFIG.docsDir, 'index.html'), indexHtml);
   console.log('  ✓ index.html created\n');
 
   // 6. Summary
   console.log('✅ Build complete!');
-  console.log(`   ${presentations.length} presentation(s) ready`);
+  console.log(`   ${totalCount} presentation(s) in ${Object.keys(presentationsByFolder).length} folder(s)`);
   console.log(`   Output: docs/ directory (ready for GitHub Pages)`);
   console.log('\n📤 Next steps:');
   console.log('   git add .');
