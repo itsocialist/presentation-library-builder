@@ -391,27 +391,28 @@ async function extractZipFiles() {
       const assetDir = path.join(CONFIG.docsDir, 'presentations', 'assets', path.basename(htmlFile, '.html'));
       await fs.ensureDir(assetDir);
 
-      // Copy any images from the extracted folder
-      const images = await glob('**/*.{png,jpg,jpeg,gif,svg,webp}', { cwd: extractDir });
-      for (const img of images) {
-        const imgSrc = path.join(extractDir, img);
-        const imgDest = path.join(assetDir, path.basename(img));
-        await fs.copy(imgSrc, imgDest);
+      // Copy any assets from the extracted folder (images, styles, scripts, fonts)
+      const assets = await glob('**/*.{png,jpg,jpeg,gif,svg,webp,css,js,json,woff,woff2,ttf,otf,eot,mp4,webm,ico}', { cwd: extractDir });
+      for (const asset of assets) {
+        const assetSrc = path.join(extractDir, asset);
+        const assetDest = path.join(assetDir, path.basename(asset));
+        await fs.copy(assetSrc, assetDest);
       }
 
       // Update HTML to reference assets from new location
       let updatedHtml = htmlContent;
-      for (const img of images) {
-        const imgName = path.basename(img);
+      for (const asset of assets) {
+        const assetName = path.basename(asset);
         // Replace relative paths with absolute asset paths
+        // We look for the filename in quotes, handling potential relative paths prefix
         updatedHtml = updatedHtml.replace(
-          new RegExp(`["']([^"']*${imgName})["']`, 'g'),
-          `"assets/${path.basename(htmlFile, '.html')}/${imgName}"`
+          new RegExp(`["']([^"']*${assetName})["']`, 'g'),
+          `"assets/${path.basename(htmlFile, '.html')}/${assetName}"`
         );
       }
 
       await fs.writeFile(destPath, updatedHtml);
-      console.log(`    ✓ Extracted: ${path.basename(htmlFile)} with ${images.length} asset(s)`);
+      console.log(`    ✓ Extracted: ${path.basename(htmlFile)} with ${assets.length} asset(s)`);
     }
 
     // Clean up: remove extracted directory and original zip
