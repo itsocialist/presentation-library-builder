@@ -139,7 +139,7 @@ function buildLandingPage(presentationsByFolder, totalCount) {
     </a>`;
 
   const renderSection = (folderName, presentations) => `
-    <div class="folder-section" data-folder="${folderName.toLowerCase()}">
+    <div class="folder-section collapsed" data-folder="${folderName.toLowerCase()}">
       <div class="folder-header" onclick="toggleSection(this)">
         <span class="folder-icon">▼</span>
         <h2 class="folder-title">${folderName}</h2>
