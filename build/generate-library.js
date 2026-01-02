@@ -5,6 +5,7 @@ const path = require('path');
 const { glob } = require('glob');
 const { chromium } = require('playwright');
 const sharp = require('sharp');
+const unzipper = require('unzipper');
 
 const CONFIG = {
   presentationsDir: path.join(__dirname, '../presentations'),
@@ -17,7 +18,7 @@ const CONFIG = {
 // Extract metadata from HTML file
 function extractMetadata(htmlPath) {
   const html = fs.readFileSync(htmlPath, 'utf-8');
-  
+
   const metadata = {
     filename: path.basename(htmlPath),
     title: path.basename(htmlPath, '.html').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
@@ -25,33 +26,33 @@ function extractMetadata(htmlPath) {
     author: 'CIQ',
     tags: []
   };
-  
+
   // Extract from meta tags
   const titleMatch = html.match(/<meta name="presentation-title" content="([^"]+)"/);
   if (titleMatch) metadata.title = titleMatch[1];
-  
+
   const dateMatch = html.match(/<meta name="presentation-date" content="([^"]+)"/);
   if (dateMatch) metadata.date = dateMatch[1];
-  
+
   const authorMatch = html.match(/<meta name="presentation-author" content="([^"]+)"/);
   if (authorMatch) metadata.author = authorMatch[1];
-  
+
   const tagsMatch = html.match(/<meta name="presentation-tags" content="([^"]+)"/);
   if (tagsMatch) metadata.tags = tagsMatch[1].split(',').map(t => t.trim());
-  
+
   // Fallback: extract from <title> tag
   const htmlTitleMatch = html.match(/<title>([^<]+)<\/title>/);
   if (htmlTitleMatch && metadata.title === metadata.filename) {
     metadata.title = htmlTitleMatch[1];
   }
-  
+
   return metadata;
 }
 
 // Generate thumbnail from HTML presentation
 async function generateThumbnail(htmlPath, outputPath) {
   console.log(`  Generating thumbnail for ${path.basename(htmlPath)}...`);
-  
+
   // Check if custom thumbnail exists
   const customThumb = htmlPath.replace('.html', '.png');
   if (fs.existsSync(customThumb)) {
@@ -61,26 +62,26 @@ async function generateThumbnail(htmlPath, outputPath) {
       .toFile(outputPath);
     return;
   }
-  
+
   // Generate from HTML
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({
     viewport: { width: 1920, height: 1080 }
   });
-  
+
   try {
     await page.goto(`file://${htmlPath}`, { waitUntil: 'networkidle', timeout: 10000 });
     await page.waitForTimeout(2000);
     const screenshot = await page.screenshot({ type: 'png', fullPage: false });
-    
+
     await sharp(screenshot)
       .resize(CONFIG.thumbnailSize.width, CONFIG.thumbnailSize.height, { fit: 'cover' })
       .toFile(outputPath);
-    
+
     console.log(`  ✓ Thumbnail created`);
   } catch (error) {
     console.log(`  ⚠ Thumbnail generation failed, creating placeholder`);
-    
+
     await sharp({
       create: {
         width: CONFIG.thumbnailSize.width,
@@ -89,16 +90,16 @@ async function generateThumbnail(htmlPath, outputPath) {
         background: { r: 15, g: 23, b: 42, alpha: 1 }
       }
     })
-    .composite([{
-      input: Buffer.from(`<svg width="${CONFIG.thumbnailSize.width}" height="${CONFIG.thumbnailSize.height}">
+      .composite([{
+        input: Buffer.from(`<svg width="${CONFIG.thumbnailSize.width}" height="${CONFIG.thumbnailSize.height}">
         <text x="50%" y="50%" text-anchor="middle" fill="#12A66F" font-size="48" font-family="Arial">
           ${path.basename(htmlPath, '.html')}
         </text>
       </svg>`),
-      top: 0,
-      left: 0
-    }])
-    .toFile(outputPath);
+        top: 0,
+        left: 0
+      }])
+      .toFile(outputPath);
   } finally {
     await browser.close();
   }
@@ -353,60 +354,127 @@ function buildLandingPage(presentations) {
     </script>
 </body>
 </html>`;
-  
+
   return html;
+}
+
+// Extract zip files containing presentations with assets
+async function extractZipFiles() {
+  const zipFiles = await glob('*.zip', { cwd: CONFIG.presentationsDir });
+
+  if (zipFiles.length === 0) return;
+
+  console.log(`📦 Found ${zipFiles.length} zip file(s) to extract...`);
+
+  for (const zipFile of zipFiles) {
+    const zipPath = path.join(CONFIG.presentationsDir, zipFile);
+    const extractDir = path.join(CONFIG.presentationsDir, path.basename(zipFile, '.zip'));
+
+    console.log(`  Extracting: ${zipFile}`);
+
+    // Create extraction directory
+    await fs.ensureDir(extractDir);
+
+    // Extract zip contents
+    await fs.createReadStream(zipPath)
+      .pipe(unzipper.Extract({ path: extractDir }))
+      .promise();
+
+    // Move HTML files to presentations root, keep assets in subfolder
+    const extractedHtml = await glob('**/*.html', { cwd: extractDir });
+    for (const htmlFile of extractedHtml) {
+      const srcPath = path.join(extractDir, htmlFile);
+      const destPath = path.join(CONFIG.presentationsDir, path.basename(htmlFile));
+
+      // If HTML references relative images, we need to copy assets too
+      const htmlContent = await fs.readFile(srcPath, 'utf-8');
+      const assetDir = path.join(CONFIG.docsDir, 'presentations', 'assets', path.basename(htmlFile, '.html'));
+      await fs.ensureDir(assetDir);
+
+      // Copy any images from the extracted folder
+      const images = await glob('**/*.{png,jpg,jpeg,gif,svg,webp}', { cwd: extractDir });
+      for (const img of images) {
+        const imgSrc = path.join(extractDir, img);
+        const imgDest = path.join(assetDir, path.basename(img));
+        await fs.copy(imgSrc, imgDest);
+      }
+
+      // Update HTML to reference assets from new location
+      let updatedHtml = htmlContent;
+      for (const img of images) {
+        const imgName = path.basename(img);
+        // Replace relative paths with absolute asset paths
+        updatedHtml = updatedHtml.replace(
+          new RegExp(`["']([^"']*${imgName})["']`, 'g'),
+          `"assets/${path.basename(htmlFile, '.html')}/${imgName}"`
+        );
+      }
+
+      await fs.writeFile(destPath, updatedHtml);
+      console.log(`    ✓ Extracted: ${path.basename(htmlFile)} with ${images.length} asset(s)`);
+    }
+
+    // Clean up: remove extracted directory and original zip
+    await fs.remove(extractDir);
+    await fs.remove(zipPath);
+    console.log(`  ✓ Cleaned up ${zipFile}`);
+  }
+  console.log('');
 }
 
 // Main build function
 async function buildLibrary() {
   console.log('🚀 Building CIQ Presentation Library...\n');
-  
+
+  // 0. Extract any zip files first
+  await extractZipFiles();
+
   // 1. Ensure directories exist
   console.log('📁 Setting up directories...');
   await fs.ensureDir(CONFIG.docsDir);
   await fs.ensureDir(path.join(CONFIG.docsDir, 'presentations'));
   await fs.ensureDir(path.join(CONFIG.docsDir, 'thumbnails'));
-  
+
   // 2. Find all HTML presentations
   console.log('🔍 Scanning for presentations...');
   const htmlFiles = await glob('*.html', { cwd: CONFIG.presentationsDir });
   console.log(`   Found ${htmlFiles.length} presentation(s)\n`);
-  
+
   if (htmlFiles.length === 0) {
     console.log('⚠️  No presentations found in presentations/ folder');
     console.log('   Add HTML files to presentations/ and run npm run build again\n');
   }
-  
+
   // 3. Process each presentation
   const presentations = [];
-  
+
   for (const file of htmlFiles) {
     console.log(`📄 Processing: ${file}`);
-    
+
     const htmlPath = path.join(CONFIG.presentationsDir, file);
     const metadata = extractMetadata(htmlPath);
-    
+
     // Copy HTML to docs
     await fs.copy(htmlPath, path.join(CONFIG.docsDir, 'presentations', file));
     console.log(`  ✓ Copied to docs/presentations/`);
-    
+
     // Generate thumbnail
     const thumbnailPath = path.join(CONFIG.docsDir, 'thumbnails', file.replace('.html', '.png'));
     await generateThumbnail(htmlPath, thumbnailPath);
-    
+
     presentations.push(metadata);
     console.log('');
   }
-  
+
   // 4. Sort presentations by date (newest first)
   presentations.sort((a, b) => new Date(b.date) - new Date(a.date));
-  
+
   // 5. Generate landing page
   console.log('🎨 Building landing page...');
   const indexHtml = buildLandingPage(presentations);
   await fs.writeFile(path.join(CONFIG.docsDir, 'index.html'), indexHtml);
   console.log('  ✓ index.html created\n');
-  
+
   // 6. Summary
   console.log('✅ Build complete!');
   console.log(`   ${presentations.length} presentation(s) ready`);

@@ -9,10 +9,11 @@
     "clean": "rm -rf docs/* && mkdir -p docs/presentations docs/thumbnails"
   },
   "dependencies": {
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.10",
     "playwright": "^1.40.0",
     "sharp": "^0.33.0",
-    "fs-extra": "^11.2.0",
-    "glob": "^10.3.10"
+    "unzipper": "^0.12.3"
   },
   "devDependencies": {
     "http-server": "^14.1.1"
