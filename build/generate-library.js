@@ -192,6 +192,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${CONFIG.libraryTitle}</title>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
