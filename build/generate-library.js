@@ -338,6 +338,50 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
         }
         .presentation-card.hidden { display: none; }
         
+        /* Card wrapper for pin button positioning */
+        .card-wrapper {
+            position: relative;
+        }
+        .card-wrapper.hidden { display: none; }
+        
+        /* Pin button */
+        .pin-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 10;
+            width: 32px;
+            height: 32px;
+            padding: 6px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--slate-400);
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s ease;
+        }
+        .pin-btn svg {
+            width: 100%;
+            height: 100%;
+        }
+        .card-wrapper:hover .pin-btn {
+            opacity: 1;
+        }
+        .pin-btn:hover {
+            background: rgba(18, 166, 111, 0.3);
+            border-color: var(--ciq-green);
+            color: var(--ciq-green);
+            transform: scale(1.1);
+        }
+        .pin-btn.pinned {
+            opacity: 1;
+            background: rgba(18, 166, 111, 0.4);
+            color: var(--ciq-green);
+            border-color: var(--ciq-green);
+        }
+        
         /* Featured cards - larger, more prominent */
         .featured-card {
             background: rgba(255, 255, 255, 0.05);
