@@ -2,22 +2,45 @@
 description: Add and deploy new presentations to the library
 ---
 
-# Add New Presentations
+# Add Presentations
 
-Run this workflow after dropping new HTML files or zip packages into `presentations/`.
+Add presentations from a file path or URL.
+
+## Usage
+
+```
+/add file:///path/to/presentation.html
+/add file:///path/to/presentation.html [folder]
+```
 
 ## Steps
 
-// turbo
-1. Stage, commit, and push all changes:
+1. Copy the file to the target folder (default: Misc, or specify folder):
 ```bash
-git add . && git commit -m "Add new presentations" && git push origin main
+# Default to Misc folder
+cp /path/to/file.html presentations/Misc/
+
+# Or specify folder like: Deep, RLC-H, Tests, Training, etc.
+cp /path/to/file.html presentations/[FOLDER]/
 ```
 
-2. GitHub Actions will automatically:
-   - Extract any zip files
-   - Generate thumbnails
-   - Build the landing page
-   - Deploy to GitHub Pages (~1-2 min)
+// turbo
+2. Build and deploy:
+```bash
+npm run build && git add . && git commit -m "Add [filename] to library" && git push origin main
+```
 
-3. View live at: https://itsocialist.github.io/presentation-library-builder/
+3. GitHub Actions will deploy automatically (~1-2 min)
+
+4. View live at: https://itsocialist.github.io/presentation-library-builder/
+
+## Available Folders
+
+- **Deep** — AI visualizations, experiments
+- **RLC-H** — RLC-H product content
+- **RLC-AI** — RLC-AI product content
+- **CIQ Stacks** — CIQ stack comparisons
+- **Training** — Training materials
+- **Tests** — Test/experimental content
+- **Ad Examples** — Advertisement mockups
+- **Misc** — Everything else
