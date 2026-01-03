@@ -121,8 +121,11 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
   });
 
   const renderCard = (p, extraClass = '') => `
-    <a href="presentations/${p.relPath}" class="presentation-card ${extraClass}" data-title="${p.title.toLowerCase()}" data-tags="${p.tags.join(' ').toLowerCase()}" data-folder="${p.folder.toLowerCase()}">
-      <img src="thumbnails/${p.relPath.replace(/\//g, '_').replace('.html', '.png')}" alt="${p.title}" class="thumbnail" loading="lazy">
+    <a href="presentations/${p.relPath}" class="presentation-card ${extraClass}" 
+       data-path="${p.relPath}" data-title="${p.title.toLowerCase()}" 
+       data-tags="${p.tags.join(' ').toLowerCase()}" data-folder="${p.folder.toLowerCase()}"
+       onclick="trackView('${p.relPath}')">
+      <img src="thumbnails/${p.relPath.split('/').join('_').replace('.html', '.png')}" alt="${p.title}" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">${p.title}</div>
         <div class="card-meta">
@@ -139,23 +142,30 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
       </div>
     </a>`;
 
-  // Render Most Recent section (top 3 by date)
-  const renderMostRecent = (presentations) => {
-    if (presentations.length === 0) return '';
-
-    // Sort all presentations by date (newest first) and take top 3
-    const recent = [...presentations]
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-      .slice(0, 3);
-
-    return `
-    <div class="most-recent-section">
-      <h2 class="section-title">Most Recent</h2>
-      <div class="recent-grid">
-        ${recent.map(p => renderCard(p, 'recent-card')).join('')}
+  // Render Featured section (pinned cards - uses metadata.featured flag in future)
+  // For now, we'll create an empty featured section that JS populates
+  const renderFeatured = () => `
+    <div class="featured-section" id="featuredSection" style="display: none;">
+      <h2 class="section-title">Featured</h2>
+      <div class="featured-grid" id="featuredGrid">
+        <!-- Populated by JS from pinned items -->
       </div>
     </div>`;
-  };
+
+  // Render Most Recent section - collapsible, populated by JS from localStorage
+  const renderMostRecent = () => `
+    <div class="folder-section" id="mostRecentSection" style="display: none;">
+      <div class="folder-header" onclick="toggleSection(this)">
+        <span class="folder-icon">▼</span>
+        <h2 class="folder-title">Recently Viewed</h2>
+        <span class="folder-count" id="recentCount">0</span>
+      </div>
+      <div class="folder-content">
+        <div class="grid" id="recentGrid">
+          <!-- Populated by JS from localStorage -->
+        </div>
+      </div>
+    </div>`;
 
   const renderSection = (folderName, presentations) => `
     <div class="folder-section collapsed" data-folder="${folderName.toLowerCase()}">
@@ -283,28 +293,61 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
             gap: 1.5rem;
         }
         
+        /* Liquid Glass Cards */
         .presentation-card {
-            background: rgba(30, 41, 59, 0.5);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--slate-800);
-            border-left: 4px solid var(--ciq-green);
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 4px 24px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
             text-decoration: none;
             display: block;
+            position: relative;
+        }
+        .presentation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--ciq-green), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         .presentation-card:hover {
-            border-left-width: 6px;
-            box-shadow: -6px 0 40px rgba(18, 166, 111, 0.2);
-            transform: translateY(-4px);
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                0 12px 40px rgba(18, 166, 111, 0.15),
+                0 0 1px rgba(255, 255, 255, 0.1);
+            border-color: rgba(18, 166, 111, 0.3);
+        }
+        .presentation-card:hover::before {
+            opacity: 1;
         }
         .presentation-card.hidden { display: none; }
+        
+        /* Featured cards - larger, more prominent */
+        .featured-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(18, 166, 111, 0.2);
+        }
+        .featured-card::before {
+            opacity: 1;
+            background: linear-gradient(90deg, var(--ciq-green), rgba(18, 166, 111, 0.3));
+        }
         
         .thumbnail {
             width: 100%;
             height: 200px;
             object-fit: cover;
-            border-bottom: 1px solid var(--slate-800);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         
         .card-content { padding: 1.25rem; }
@@ -362,6 +405,32 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
             border-radius: 2px;
         }
         
+        /* Featured Section */
+        .featured-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--slate-800);
+        }
+        
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        @media (max-width: 1024px) {
+            .featured-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .featured-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* Most Recent Section */
+        .most-recent-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--slate-800);
+        }
+        
         .recent-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -405,7 +474,8 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
             <p>Drop HTML presentations into the <code>presentations/</code> folder and run <code>npm run build</code></p>
         </div>
         ` : `
-        ${renderMostRecent(allPresentations)}
+        ${renderFeatured()}
+        ${renderMostRecent()}
         ${folderNames.map(folder => renderSection(folder, presentationsByFolder[folder])).join('')}
         `}
     </div>
@@ -415,6 +485,118 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
     </div>
     
     <script>
+        // Presentation registry for dynamic sections
+        const presentations = ${JSON.stringify(allPresentations.map(p => ({
+    path: p.relPath,
+    title: p.title,
+    folder: p.folder,
+    date: p.date,
+    author: p.author,
+    thumbnail: p.relPath.split('/').join('_').replace('.html', '.png')
+  })))};
+        
+        // Track view in localStorage
+        function trackView(path) {
+            const views = JSON.parse(localStorage.getItem('recentViews') || '[]');
+            const now = Date.now();
+            // Remove existing entry for this path
+            const filtered = views.filter(v => v.path !== path);
+            // Add to front with timestamp
+            filtered.unshift({ path, timestamp: now });
+            // Keep only last 10
+            const trimmed = filtered.slice(0, 10);
+            localStorage.setItem('recentViews', JSON.stringify(trimmed));
+        }
+        
+        // Pinned/Featured management
+        function getPinned() {
+            return JSON.parse(localStorage.getItem('pinnedPresentations') || '[]');
+        }
+        
+        function togglePin(path) {
+            const pinned = getPinned();
+            const index = pinned.indexOf(path);
+            if (index === -1 && pinned.length < 3) {
+                pinned.push(path);
+            } else if (index !== -1) {
+                pinned.splice(index, 1);
+            }
+            localStorage.setItem('pinnedPresentations', JSON.stringify(pinned));
+            renderDynamicSections();
+        }
+        
+        // Render a card from data
+        function renderCardHTML(p, extraClass = '') {
+            return \`
+            <a href="presentations/\${p.path}" class="presentation-card \${extraClass}" 
+               data-path="\${p.path}" onclick="trackView('\${p.path}')">
+              <img src="thumbnails/\${p.thumbnail}" alt="\${p.title}" class="thumbnail" loading="lazy">
+              <div class="card-content">
+                <div class="card-title">\${p.title}</div>
+                <div class="card-meta">
+                  <span>\${p.date}</span>
+                  <span>•</span>
+                  <span>\${p.author}</span>
+                </div>
+                <span class="folder-badge">\${p.folder}</span>
+              </div>
+            </a>\`;
+        }
+        
+        // Render Featured section
+        function renderFeaturedSection() {
+            const pinned = getPinned();
+            const section = document.getElementById('featuredSection');
+            const grid = document.getElementById('featuredGrid');
+            
+            if (pinned.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            const pinnedPresentations = pinned
+                .map(path => presentations.find(p => p.path === path))
+                .filter(Boolean);
+            
+            grid.innerHTML = pinnedPresentations
+                .map(p => renderCardHTML(p, 'featured-card'))
+                .join('');
+            section.style.display = 'block';
+        }
+        
+        // Render Recently Viewed section
+        function renderRecentSection() {
+            const views = JSON.parse(localStorage.getItem('recentViews') || '[]');
+            const section = document.getElementById('mostRecentSection');
+            const grid = document.getElementById('recentGrid');
+            const count = document.getElementById('recentCount');
+            
+            if (views.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            const recentPresentations = views
+                .map(v => presentations.find(p => p.path === v.path))
+                .filter(Boolean)
+                .slice(0, 6);
+            
+            grid.innerHTML = recentPresentations
+                .map(p => renderCardHTML(p))
+                .join('');
+            count.textContent = recentPresentations.length;
+            section.style.display = 'block';
+        }
+        
+        // Render all dynamic sections
+        function renderDynamicSections() {
+            renderFeaturedSection();
+            renderRecentSection();
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', renderDynamicSections);
+        
         function toggleSection(header) {
             const section = header.parentElement;
             section.classList.toggle('collapsed');
@@ -431,17 +613,13 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
                     let visibleCount = 0;
                     
                     cards.forEach(card => {
-                        const title = card.dataset.title;
-                        const tags = card.dataset.tags;
-                        const folder = card.dataset.folder;
-                        const matches = !query || title.includes(query) || tags.includes(query) || folder.includes(query);
+                        const title = card.dataset.title || card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+                        const matches = !query || title.includes(query);
                         card.classList.toggle('hidden', !matches);
                         if (matches) visibleCount++;
                     });
                     
-                    // Hide entire section if no matches
                     section.style.display = visibleCount === 0 ? 'none' : 'block';
-                    // Expand sections with matches when searching
                     if (query && visibleCount > 0) {
                         section.classList.remove('collapsed');
                     }
