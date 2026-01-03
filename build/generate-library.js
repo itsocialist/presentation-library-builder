@@ -121,26 +121,31 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
   });
 
   const renderCard = (p, extraClass = '') => `
-    <a href="presentations/${p.relPath}" class="presentation-card ${extraClass}" 
-       data-path="${p.relPath}" data-title="${p.title.toLowerCase()}" 
-       data-tags="${p.tags.join(' ').toLowerCase()}" data-folder="${p.folder.toLowerCase()}"
-       onclick="trackView('${p.relPath}')">
-      <img src="thumbnails/${p.relPath.split('/').join('_').replace('.html', '.png')}" alt="${p.title}" class="thumbnail" loading="lazy">
-      <div class="card-content">
-        <div class="card-title">${p.title}</div>
-        <div class="card-meta">
-          <span>${p.date}</span>
-          <span>•</span>
-          <span>${p.author}</span>
+    <div class="card-wrapper" data-path="${p.relPath}">
+      <button class="pin-btn" onclick="handlePin(event, '${p.relPath}')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="presentations/${p.relPath}" class="presentation-card ${extraClass}" 
+         data-path="${p.relPath}" data-title="${p.title.toLowerCase()}" 
+         data-tags="${p.tags.join(' ').toLowerCase()}" data-folder="${p.folder.toLowerCase()}"
+         onclick="trackView('${p.relPath}')">
+        <img src="thumbnails/${p.relPath.split('/').join('_').replace('.html', '.png')}" alt="${p.title}" class="thumbnail" loading="lazy">
+        <div class="card-content">
+          <div class="card-title">${p.title}</div>
+          <div class="card-meta">
+            <span>${p.date}</span>
+            <span>•</span>
+            <span>${p.author}</span>
+          </div>
+          ${p.folder !== 'Uncategorized' ? `<span class="folder-badge">${p.folder}</span>` : ''}
+          ${p.tags.length > 0 ? `
+          <div class="card-tags">
+            ${p.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+          </div>
+          ` : ''}
         </div>
-        ${p.folder !== 'Uncategorized' ? `<span class="folder-badge">${p.folder}</span>` : ''}
-        ${p.tags.length > 0 ? `
-        <div class="card-tags">
-          ${p.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-        </div>
-        ` : ''}
-      </div>
-    </a>`;
+      </a>
+    </div>`;
 
   // Render Featured section (pinned cards - uses metadata.featured flag in future)
   // For now, we'll create an empty featured section that JS populates
