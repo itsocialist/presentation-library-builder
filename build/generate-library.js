@@ -530,6 +530,25 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
             renderDynamicSections();
         }
         
+        // Handle pin button click (event wrapper)
+        function handlePin(event, path) {
+            event.preventDefault();
+            event.stopPropagation();
+            togglePin(path);
+        }
+        
+        // Update pin button states in UI
+        function updatePinStates() {
+            const pinned = getPinned();
+            document.querySelectorAll('.pin-btn').forEach(btn => {
+                const wrapper = btn.closest('.card-wrapper');
+                if (wrapper) {
+                    const path = wrapper.dataset.path;
+                    btn.classList.toggle('pinned', pinned.includes(path));
+                }
+            });
+        }
+        
         // Render a card from data
         function renderCardHTML(p, extraClass = '') {
             return \`
