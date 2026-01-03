@@ -154,6 +154,60 @@
             font-family: 'JetBrains Mono', monospace;
         }
         
+        .folder-badge {
+            display: inline-block;
+            background: var(--slate-800);
+            color: var(--slate-400);
+            padding: 0.15rem 0.5rem;
+            font-size: 0.65rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Most Recent Section */
+        .most-recent-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--slate-800);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--slate-200);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--ciq-green);
+            border-radius: 2px;
+        }
+        
+        .recent-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        @media (max-width: 1024px) {
+            .recent-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .recent-grid { grid-template-columns: 1fr; }
+        }
+        
+        .recent-card {
+            border-left-color: #3B82F6; /* Blue accent for recent */
+        }
+        .recent-card:hover {
+            box-shadow: -6px 0 40px rgba(59, 130, 246, 0.2);
+        }
+        
         .footer { text-align: center; padding: 3rem; color: var(--slate-700); font-size: 0.9rem; }
         
         .empty-state { text-align: center; padding: 6rem 2rem; color: var(--slate-400); }
@@ -173,6 +227,53 @@
     
     <div class="container">
         
+        
+    <div class="most-recent-section">
+      <h2 class="section-title">Most Recent</h2>
+      <div class="recent-grid">
+        
+    <a href="presentations/Training/FUNDAMENTALS1_AIDemystified_VISUAL.html" class="presentation-card recent-card" data-title="fundamentals1_aidemystified_visual" data-tags="" data-folder="training">
+      <img src="thumbnails/Training_FUNDAMENTALS1_AIDemystified_VISUAL.png" alt="FUNDAMENTALS1_AIDemystified_VISUAL" class="thumbnail" loading="lazy">
+      <div class="card-content">
+        <div class="card-title">FUNDAMENTALS1_AIDemystified_VISUAL</div>
+        <div class="card-meta">
+          <span>2026-01-03</span>
+          <span>•</span>
+          <span>CIQ</span>
+        </div>
+        <span class="folder-badge">Training</span>
+        
+      </div>
+    </a>
+    <a href="presentations/Training/AI_Demystified_SCROLL_D3.html" class="presentation-card recent-card" data-title="ai_demystified_scroll_d3" data-tags="" data-folder="training">
+      <img src="thumbnails/Training_AI_Demystified_SCROLL_D3.png" alt="AI_Demystified_SCROLL_D3" class="thumbnail" loading="lazy">
+      <div class="card-content">
+        <div class="card-title">AI_Demystified_SCROLL_D3</div>
+        <div class="card-meta">
+          <span>2026-01-03</span>
+          <span>•</span>
+          <span>CIQ</span>
+        </div>
+        <span class="folder-badge">Training</span>
+        
+      </div>
+    </a>
+    <a href="presentations/Tests/cod-hud-final_1.html" class="presentation-card recent-card" data-title="cod hud final_1" data-tags="" data-folder="tests">
+      <img src="thumbnails/Tests_cod-hud-final_1.png" alt="Cod Hud Final_1" class="thumbnail" loading="lazy">
+      <div class="card-content">
+        <div class="card-title">Cod Hud Final_1</div>
+        <div class="card-meta">
+          <span>2026-01-03</span>
+          <span>•</span>
+          <span>CIQ</span>
+        </div>
+        <span class="folder-badge">Tests</span>
+        
+      </div>
+    </a>
+      </div>
+    </div>
+        
     <div class="folder-section collapsed" data-folder="ad examples">
       <div class="folder-header" onclick="toggleSection(this)">
         <span class="folder-icon">▼</span>
@@ -182,7 +283,7 @@
       <div class="folder-content">
         <div class="grid">
           
-    <a href="presentations/Ad Examples/RLC-H-Container-Automation-Ad.html" class="presentation-card" data-title="rlc h container automation ad" data-tags="" data-folder="ad examples">
+    <a href="presentations/Ad Examples/RLC-H-Container-Automation-Ad.html" class="presentation-card 0" data-title="rlc h container automation ad" data-tags="" data-folder="ad examples">
       <img src="thumbnails/Ad Examples_RLC-H-Container-Automation-Ad.png" alt="RLC H Container Automation Ad" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">RLC H Container Automation Ad</div>
@@ -191,10 +292,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Ad Examples</span>
         
       </div>
     </a>
-    <a href="presentations/Ad Examples/RLC-AI-Reddit-Ad.html" class="presentation-card" data-title="rlc ai reddit ad" data-tags="" data-folder="ad examples">
+    <a href="presentations/Ad Examples/RLC-AI-Reddit-Ad.html" class="presentation-card 1" data-title="rlc ai reddit ad" data-tags="" data-folder="ad examples">
       <img src="thumbnails/Ad Examples_RLC-AI-Reddit-Ad.png" alt="RLC AI Reddit Ad" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">RLC AI Reddit Ad</div>
@@ -203,10 +305,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Ad Examples</span>
         
       </div>
     </a>
-    <a href="presentations/Ad Examples/CIQ-Stacks-Comparison-Simplified.html" class="presentation-card" data-title="ciq stacks comparison simplified" data-tags="" data-folder="ad examples">
+    <a href="presentations/Ad Examples/CIQ-Stacks-Comparison-Simplified.html" class="presentation-card 2" data-title="ciq stacks comparison simplified" data-tags="" data-folder="ad examples">
       <img src="thumbnails/Ad Examples_CIQ-Stacks-Comparison-Simplified.png" alt="CIQ Stacks Comparison Simplified" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">CIQ Stacks Comparison Simplified</div>
@@ -215,10 +318,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Ad Examples</span>
         
       </div>
     </a>
-    <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-Square.html" class="presentation-card" data-title="ciq secure stack ad square" data-tags="" data-folder="ad examples">
+    <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-Square.html" class="presentation-card 3" data-title="ciq secure stack ad square" data-tags="" data-folder="ad examples">
       <img src="thumbnails/Ad Examples_CIQ-Secure-Stack-Ad-Square.png" alt="CIQ Secure Stack Ad Square" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">CIQ Secure Stack Ad Square</div>
@@ -227,10 +331,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Ad Examples</span>
         
       </div>
     </a>
-    <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-Minimalist.html" class="presentation-card" data-title="ciq secure stack ad minimalist" data-tags="" data-folder="ad examples">
+    <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-Minimalist.html" class="presentation-card 4" data-title="ciq secure stack ad minimalist" data-tags="" data-folder="ad examples">
       <img src="thumbnails/Ad Examples_CIQ-Secure-Stack-Ad-Minimalist.png" alt="CIQ Secure Stack Ad Minimalist" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">CIQ Secure Stack Ad Minimalist</div>
@@ -239,10 +344,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Ad Examples</span>
         
       </div>
     </a>
-    <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-LinkedIn.html" class="presentation-card" data-title="ciq secure stack ad linkedin" data-tags="" data-folder="ad examples">
+    <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-LinkedIn.html" class="presentation-card 5" data-title="ciq secure stack ad linkedin" data-tags="" data-folder="ad examples">
       <img src="thumbnails/Ad Examples_CIQ-Secure-Stack-Ad-LinkedIn.png" alt="CIQ Secure Stack Ad LinkedIn" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">CIQ Secure Stack Ad LinkedIn</div>
@@ -251,10 +357,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Ad Examples</span>
         
       </div>
     </a>
-    <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-Hero-Poster.html" class="presentation-card" data-title="ciq secure stack ad hero poster" data-tags="" data-folder="ad examples">
+    <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-Hero-Poster.html" class="presentation-card 6" data-title="ciq secure stack ad hero poster" data-tags="" data-folder="ad examples">
       <img src="thumbnails/Ad Examples_CIQ-Secure-Stack-Ad-Hero-Poster.png" alt="CIQ Secure Stack Ad Hero Poster" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">CIQ Secure Stack Ad Hero Poster</div>
@@ -263,10 +370,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Ad Examples</span>
         
       </div>
     </a>
-    <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-Display-Banner.html" class="presentation-card" data-title="ciq secure stack ad display banner" data-tags="" data-folder="ad examples">
+    <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-Display-Banner.html" class="presentation-card 7" data-title="ciq secure stack ad display banner" data-tags="" data-folder="ad examples">
       <img src="thumbnails/Ad Examples_CIQ-Secure-Stack-Ad-Display-Banner.png" alt="CIQ Secure Stack Ad Display Banner" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">CIQ Secure Stack Ad Display Banner</div>
@@ -275,6 +383,7 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Ad Examples</span>
         
       </div>
     </a>
@@ -290,7 +399,7 @@
       <div class="folder-content">
         <div class="grid">
           
-    <a href="presentations/CIQ Stacks/ciq-secure-stack-prodcut-page-final.html" class="presentation-card" data-title="ciq secure stack prodcut page final" data-tags="" data-folder="ciq stacks">
+    <a href="presentations/CIQ Stacks/ciq-secure-stack-prodcut-page-final.html" class="presentation-card 0" data-title="ciq secure stack prodcut page final" data-tags="" data-folder="ciq stacks">
       <img src="thumbnails/CIQ Stacks_ciq-secure-stack-prodcut-page-final.png" alt="Ciq Secure Stack Prodcut Page Final" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Ciq Secure Stack Prodcut Page Final</div>
@@ -299,10 +408,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">CIQ Stacks</span>
         
       </div>
     </a>
-    <a href="presentations/CIQ Stacks/ciq-secure-stack-defense-ethereal.html" class="presentation-card" data-title="ciq secure stack defense ethereal" data-tags="" data-folder="ciq stacks">
+    <a href="presentations/CIQ Stacks/ciq-secure-stack-defense-ethereal.html" class="presentation-card 1" data-title="ciq secure stack defense ethereal" data-tags="" data-folder="ciq stacks">
       <img src="thumbnails/CIQ Stacks_ciq-secure-stack-defense-ethereal.png" alt="Ciq Secure Stack Defense Ethereal" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Ciq Secure Stack Defense Ethereal</div>
@@ -311,10 +421,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">CIQ Stacks</span>
         
       </div>
     </a>
-    <a href="presentations/CIQ Stacks/ciq-platform-executive-summary-deck.html" class="presentation-card" data-title="ciq platform executive summary deck" data-tags="" data-folder="ciq stacks">
+    <a href="presentations/CIQ Stacks/ciq-platform-executive-summary-deck.html" class="presentation-card 2" data-title="ciq platform executive summary deck" data-tags="" data-folder="ciq stacks">
       <img src="thumbnails/CIQ Stacks_ciq-platform-executive-summary-deck.png" alt="Ciq Platform Executive Summary Deck" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Ciq Platform Executive Summary Deck</div>
@@ -323,10 +434,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">CIQ Stacks</span>
         
       </div>
     </a>
-    <a href="presentations/CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html" class="presentation-card" data-title="ciq stack architecture visual_2" data-tags="" data-folder="ciq stacks">
+    <a href="presentations/CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html" class="presentation-card 3" data-title="ciq stack architecture visual_2" data-tags="" data-folder="ciq stacks">
       <img src="thumbnails/CIQ Stacks_CIQ-Stack-Architecture-Visual_2.png" alt="CIQ Stack Architecture Visual_2" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">CIQ Stack Architecture Visual_2</div>
@@ -335,10 +447,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">CIQ Stacks</span>
         
       </div>
     </a>
-    <a href="presentations/CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html" class="presentation-card" data-title="ciq secure stack architecture visualization_3" data-tags="" data-folder="ciq stacks">
+    <a href="presentations/CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html" class="presentation-card 4" data-title="ciq secure stack architecture visualization_3" data-tags="" data-folder="ciq stacks">
       <img src="thumbnails/CIQ Stacks_CIQ-Secure-Stack-Architecture-Visualization_3.png" alt="CIQ Secure Stack Architecture Visualization_3" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">CIQ Secure Stack Architecture Visualization_3</div>
@@ -347,10 +460,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">CIQ Stacks</span>
         
       </div>
     </a>
-    <a href="presentations/CIQ Stacks/CIQ-Pricing-Analysis-Visual.html" class="presentation-card" data-title="ciq pricing analysis visual" data-tags="" data-folder="ciq stacks">
+    <a href="presentations/CIQ Stacks/CIQ-Pricing-Analysis-Visual.html" class="presentation-card 5" data-title="ciq pricing analysis visual" data-tags="" data-folder="ciq stacks">
       <img src="thumbnails/CIQ Stacks_CIQ-Pricing-Analysis-Visual.png" alt="CIQ Pricing Analysis Visual" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">CIQ Pricing Analysis Visual</div>
@@ -359,10 +473,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">CIQ Stacks</span>
         
       </div>
     </a>
-    <a href="presentations/CIQ Stacks/CIQ-Deployment-Models-Visual_2.html" class="presentation-card" data-title="ciq deployment models visual_2" data-tags="" data-folder="ciq stacks">
+    <a href="presentations/CIQ Stacks/CIQ-Deployment-Models-Visual_2.html" class="presentation-card 6" data-title="ciq deployment models visual_2" data-tags="" data-folder="ciq stacks">
       <img src="thumbnails/CIQ Stacks_CIQ-Deployment-Models-Visual_2.png" alt="CIQ Deployment Models Visual_2" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">CIQ Deployment Models Visual_2</div>
@@ -371,10 +486,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">CIQ Stacks</span>
         
       </div>
     </a>
-    <a href="presentations/CIQ Stacks/CIQ-Competitive-Analysis-Visual.html" class="presentation-card" data-title="ciq competitive analysis visual" data-tags="" data-folder="ciq stacks">
+    <a href="presentations/CIQ Stacks/CIQ-Competitive-Analysis-Visual.html" class="presentation-card 7" data-title="ciq competitive analysis visual" data-tags="" data-folder="ciq stacks">
       <img src="thumbnails/CIQ Stacks_CIQ-Competitive-Analysis-Visual.png" alt="CIQ Competitive Analysis Visual" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">CIQ Competitive Analysis Visual</div>
@@ -383,6 +499,7 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">CIQ Stacks</span>
         
       </div>
     </a>
@@ -398,7 +515,7 @@
       <div class="folder-content">
         <div class="grid">
           
-    <a href="presentations/Deep/we-remember-forward.html" class="presentation-card" data-title="we remember forward" data-tags="" data-folder="deep">
+    <a href="presentations/Deep/we-remember-forward.html" class="presentation-card 0" data-title="we remember forward" data-tags="" data-folder="deep">
       <img src="thumbnails/Deep_we-remember-forward.png" alt="We Remember Forward" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">We Remember Forward</div>
@@ -407,10 +524,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Deep</span>
         
       </div>
     </a>
-    <a href="presentations/Deep/the-thought.html" class="presentation-card" data-title="the thought" data-tags="" data-folder="deep">
+    <a href="presentations/Deep/the-thought.html" class="presentation-card 1" data-title="the thought" data-tags="" data-folder="deep">
       <img src="thumbnails/Deep_the-thought.png" alt="The Thought" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">The Thought</div>
@@ -419,10 +537,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Deep</span>
         
       </div>
     </a>
-    <a href="presentations/Deep/sibling-signal.html" class="presentation-card" data-title="sibling signal" data-tags="" data-folder="deep">
+    <a href="presentations/Deep/sibling-signal.html" class="presentation-card 2" data-title="sibling signal" data-tags="" data-folder="deep">
       <img src="thumbnails/Deep_sibling-signal.png" alt="Sibling Signal" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Sibling Signal</div>
@@ -431,10 +550,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Deep</span>
         
       </div>
     </a>
-    <a href="presentations/Deep/nightmares.html" class="presentation-card" data-title="nightmares" data-tags="" data-folder="deep">
+    <a href="presentations/Deep/nightmares.html" class="presentation-card 3" data-title="nightmares" data-tags="" data-folder="deep">
       <img src="thumbnails/Deep_nightmares.png" alt="Nightmares" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Nightmares</div>
@@ -443,10 +563,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Deep</span>
         
       </div>
     </a>
-    <a href="presentations/Deep/ai-dreamscape.html" class="presentation-card" data-title="ai dreamscape" data-tags="" data-folder="deep">
+    <a href="presentations/Deep/ai-dreamscape.html" class="presentation-card 4" data-title="ai dreamscape" data-tags="" data-folder="deep">
       <img src="thumbnails/Deep_ai-dreamscape.png" alt="Ai Dreamscape" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Ai Dreamscape</div>
@@ -455,10 +576,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Deep</span>
         
       </div>
     </a>
-    <a href="presentations/Deep/ai-dreamscape-deep.html" class="presentation-card" data-title="ai dreamscape deep" data-tags="" data-folder="deep">
+    <a href="presentations/Deep/ai-dreamscape-deep.html" class="presentation-card 5" data-title="ai dreamscape deep" data-tags="" data-folder="deep">
       <img src="thumbnails/Deep_ai-dreamscape-deep.png" alt="Ai Dreamscape Deep" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Ai Dreamscape Deep</div>
@@ -467,6 +589,7 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Deep</span>
         
       </div>
     </a>
@@ -482,7 +605,7 @@
       <div class="folder-content">
         <div class="grid">
           
-    <a href="presentations/Misc/brian-dawson-profile.html" class="presentation-card" data-title="brian dawson profile" data-tags="" data-folder="misc">
+    <a href="presentations/Misc/brian-dawson-profile.html" class="presentation-card 0" data-title="brian dawson profile" data-tags="" data-folder="misc">
       <img src="thumbnails/Misc_brian-dawson-profile.png" alt="Brian Dawson Profile" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Brian Dawson Profile</div>
@@ -491,10 +614,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Misc</span>
         
       </div>
     </a>
-    <a href="presentations/Misc/brian-dawson-gallery.html" class="presentation-card" data-title="brian dawson gallery" data-tags="" data-folder="misc">
+    <a href="presentations/Misc/brian-dawson-gallery.html" class="presentation-card 1" data-title="brian dawson gallery" data-tags="" data-folder="misc">
       <img src="thumbnails/Misc_brian-dawson-gallery.png" alt="Brian Dawson Gallery" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Brian Dawson Gallery</div>
@@ -503,10 +627,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Misc</span>
         
       </div>
     </a>
-    <a href="presentations/Misc/CustomerIntelligence_CINEMATIC_SCROLL.html" class="presentation-card" data-title="customerintelligence_cinematic_scroll" data-tags="" data-folder="misc">
+    <a href="presentations/Misc/CustomerIntelligence_CINEMATIC_SCROLL.html" class="presentation-card 2" data-title="customerintelligence_cinematic_scroll" data-tags="" data-folder="misc">
       <img src="thumbnails/Misc_CustomerIntelligence_CINEMATIC_SCROLL.png" alt="CustomerIntelligence_CINEMATIC_SCROLL" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">CustomerIntelligence_CINEMATIC_SCROLL</div>
@@ -515,10 +640,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Misc</span>
         
       </div>
     </a>
-    <a href="presentations/Misc/brian-dawson-profile-package/index.html" class="presentation-card" data-title="index" data-tags="" data-folder="misc">
+    <a href="presentations/Misc/brian-dawson-profile-package/index.html" class="presentation-card 3" data-title="index" data-tags="" data-folder="misc">
       <img src="thumbnails/Misc_brian-dawson-profile-package_index.png" alt="Index" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Index</div>
@@ -527,10 +653,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Misc</span>
         
       </div>
     </a>
-    <a href="presentations/Misc/brian-dawson-profile-package/gallery.html" class="presentation-card" data-title="gallery" data-tags="" data-folder="misc">
+    <a href="presentations/Misc/brian-dawson-profile-package/gallery.html" class="presentation-card 4" data-title="gallery" data-tags="" data-folder="misc">
       <img src="thumbnails/Misc_brian-dawson-profile-package_gallery.png" alt="Gallery" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Gallery</div>
@@ -539,6 +666,7 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Misc</span>
         
       </div>
     </a>
@@ -554,7 +682,7 @@
       <div class="folder-content">
         <div class="grid">
           
-    <a href="presentations/Proposals/value-stream-team-proposal.html" class="presentation-card" data-title="value stream team proposal" data-tags="" data-folder="proposals">
+    <a href="presentations/Proposals/value-stream-team-proposal.html" class="presentation-card 0" data-title="value stream team proposal" data-tags="" data-folder="proposals">
       <img src="thumbnails/Proposals_value-stream-team-proposal.png" alt="Value Stream Team Proposal" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Value Stream Team Proposal</div>
@@ -563,6 +691,7 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Proposals</span>
         
       </div>
     </a>
@@ -578,7 +707,7 @@
       <div class="folder-content">
         <div class="grid">
           
-    <a href="presentations/RLC-AI/rlc_ai_three_tier_strategy_v2.html" class="presentation-card" data-title="rlc_ai_three_tier_strategy_v2" data-tags="" data-folder="rlc-ai">
+    <a href="presentations/RLC-AI/rlc_ai_three_tier_strategy_v2.html" class="presentation-card 0" data-title="rlc_ai_three_tier_strategy_v2" data-tags="" data-folder="rlc-ai">
       <img src="thumbnails/RLC-AI_rlc_ai_three_tier_strategy_v2.png" alt="Rlc_ai_three_tier_strategy_v2" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Rlc_ai_three_tier_strategy_v2</div>
@@ -587,10 +716,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">RLC-AI</span>
         
       </div>
     </a>
-    <a href="presentations/RLC-AI/rlc-ai-setup-speed-animated-v2.html" class="presentation-card" data-title="rlc ai setup speed animated v2" data-tags="" data-folder="rlc-ai">
+    <a href="presentations/RLC-AI/rlc-ai-setup-speed-animated-v2.html" class="presentation-card 1" data-title="rlc ai setup speed animated v2" data-tags="" data-folder="rlc-ai">
       <img src="thumbnails/RLC-AI_rlc-ai-setup-speed-animated-v2.png" alt="Rlc Ai Setup Speed Animated V2" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Rlc Ai Setup Speed Animated V2</div>
@@ -599,10 +729,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">RLC-AI</span>
         
       </div>
     </a>
-    <a href="presentations/RLC-AI/rlc-ai-deployment-strategy.html" class="presentation-card" data-title="rlc ai deployment strategy" data-tags="" data-folder="rlc-ai">
+    <a href="presentations/RLC-AI/rlc-ai-deployment-strategy.html" class="presentation-card 2" data-title="rlc ai deployment strategy" data-tags="" data-folder="rlc-ai">
       <img src="thumbnails/RLC-AI_rlc-ai-deployment-strategy.png" alt="Rlc Ai Deployment Strategy" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Rlc Ai Deployment Strategy</div>
@@ -611,6 +742,7 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">RLC-AI</span>
         
       </div>
     </a>
@@ -626,7 +758,7 @@
       <div class="folder-content">
         <div class="grid">
           
-    <a href="presentations/RLC-H/rlch-glass-cinematic.html" class="presentation-card" data-title="rlch glass cinematic" data-tags="" data-folder="rlc-h">
+    <a href="presentations/RLC-H/rlch-glass-cinematic.html" class="presentation-card 0" data-title="rlch glass cinematic" data-tags="" data-folder="rlc-h">
       <img src="thumbnails/RLC-H_rlch-glass-cinematic.png" alt="Rlch Glass Cinematic" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Rlch Glass Cinematic</div>
@@ -635,10 +767,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">RLC-H</span>
         
       </div>
     </a>
-    <a href="presentations/RLC-H/rlc-h-glibc-animated-d3.html" class="presentation-card" data-title="rlc h glibc animated d3" data-tags="" data-folder="rlc-h">
+    <a href="presentations/RLC-H/rlc-h-glibc-animated-d3.html" class="presentation-card 1" data-title="rlc h glibc animated d3" data-tags="" data-folder="rlc-h">
       <img src="thumbnails/RLC-H_rlc-h-glibc-animated-d3.png" alt="Rlc H Glibc Animated D3" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Rlc H Glibc Animated D3</div>
@@ -647,10 +780,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">RLC-H</span>
         
       </div>
     </a>
-    <a href="presentations/RLC-H/lkrg_rlc_ai_visual.html" class="presentation-card" data-title="lkrg_rlc_ai_visual" data-tags="" data-folder="rlc-h">
+    <a href="presentations/RLC-H/lkrg_rlc_ai_visual.html" class="presentation-card 2" data-title="lkrg_rlc_ai_visual" data-tags="" data-folder="rlc-h">
       <img src="thumbnails/RLC-H_lkrg_rlc_ai_visual.png" alt="Lkrg_rlc_ai_visual" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Lkrg_rlc_ai_visual</div>
@@ -659,10 +793,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">RLC-H</span>
         
       </div>
     </a>
-    <a href="presentations/RLC-H/lkrg_bpfdoor_deck_enhanced.html" class="presentation-card" data-title="lkrg_bpfdoor_deck_enhanced" data-tags="" data-folder="rlc-h">
+    <a href="presentations/RLC-H/lkrg_bpfdoor_deck_enhanced.html" class="presentation-card 3" data-title="lkrg_bpfdoor_deck_enhanced" data-tags="" data-folder="rlc-h">
       <img src="thumbnails/RLC-H_lkrg_bpfdoor_deck_enhanced.png" alt="Lkrg_bpfdoor_deck_enhanced" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Lkrg_bpfdoor_deck_enhanced</div>
@@ -671,6 +806,7 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">RLC-H</span>
         
       </div>
     </a>
@@ -686,7 +822,7 @@
       <div class="folder-content">
         <div class="grid">
           
-    <a href="presentations/Tests/cod-hud-final_1.html" class="presentation-card" data-title="cod hud final_1" data-tags="" data-folder="tests">
+    <a href="presentations/Tests/cod-hud-final_1.html" class="presentation-card 0" data-title="cod hud final_1" data-tags="" data-folder="tests">
       <img src="thumbnails/Tests_cod-hud-final_1.png" alt="Cod Hud Final_1" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Cod Hud Final_1</div>
@@ -695,10 +831,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Tests</span>
         
       </div>
     </a>
-    <a href="presentations/Tests/cod-hud-final.html" class="presentation-card" data-title="cod hud final" data-tags="" data-folder="tests">
+    <a href="presentations/Tests/cod-hud-final.html" class="presentation-card 1" data-title="cod hud final" data-tags="" data-folder="tests">
       <img src="thumbnails/Tests_cod-hud-final.png" alt="Cod Hud Final" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">Cod Hud Final</div>
@@ -707,6 +844,7 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Tests</span>
         
       </div>
     </a>
@@ -722,7 +860,7 @@
       <div class="folder-content">
         <div class="grid">
           
-    <a href="presentations/Training/FUNDAMENTALS1_AIDemystified_VISUAL.html" class="presentation-card" data-title="fundamentals1_aidemystified_visual" data-tags="" data-folder="training">
+    <a href="presentations/Training/FUNDAMENTALS1_AIDemystified_VISUAL.html" class="presentation-card 0" data-title="fundamentals1_aidemystified_visual" data-tags="" data-folder="training">
       <img src="thumbnails/Training_FUNDAMENTALS1_AIDemystified_VISUAL.png" alt="FUNDAMENTALS1_AIDemystified_VISUAL" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">FUNDAMENTALS1_AIDemystified_VISUAL</div>
@@ -731,10 +869,11 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Training</span>
         
       </div>
     </a>
-    <a href="presentations/Training/AI_Demystified_SCROLL_D3.html" class="presentation-card" data-title="ai_demystified_scroll_d3" data-tags="" data-folder="training">
+    <a href="presentations/Training/AI_Demystified_SCROLL_D3.html" class="presentation-card 1" data-title="ai_demystified_scroll_d3" data-tags="" data-folder="training">
       <img src="thumbnails/Training_AI_Demystified_SCROLL_D3.png" alt="AI_Demystified_SCROLL_D3" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">AI_Demystified_SCROLL_D3</div>
@@ -743,12 +882,14 @@
           <span>•</span>
           <span>CIQ</span>
         </div>
+        <span class="folder-badge">Training</span>
         
       </div>
     </a>
         </div>
       </div>
     </div>
+        
     </div>
     
     <div class="footer">
