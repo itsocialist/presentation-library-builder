@@ -112,7 +112,7 @@ async function generateThumbnail(htmlPath, outputPath) {
 }
 
 // Build the landing page with collapsible folder sections
-function buildLandingPage(presentationsByFolder, totalCount) {
+function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
   const folderNames = Object.keys(presentationsByFolder).sort((a, b) => {
     // Put "Uncategorized" at the end
     if (a === 'Uncategorized') return 1;
@@ -120,8 +120,8 @@ function buildLandingPage(presentationsByFolder, totalCount) {
     return a.localeCompare(b);
   });
 
-  const renderCard = (p) => `
-    <a href="presentations/${p.relPath}" class="presentation-card" data-title="${p.title.toLowerCase()}" data-tags="${p.tags.join(' ').toLowerCase()}" data-folder="${p.folder.toLowerCase()}">
+  const renderCard = (p, extraClass = '') => `
+    <a href="presentations/${p.relPath}" class="presentation-card ${extraClass}" data-title="${p.title.toLowerCase()}" data-tags="${p.tags.join(' ').toLowerCase()}" data-folder="${p.folder.toLowerCase()}">
       <img src="thumbnails/${p.relPath.replace(/\//g, '_').replace('.html', '.png')}" alt="${p.title}" class="thumbnail" loading="lazy">
       <div class="card-content">
         <div class="card-title">${p.title}</div>
@@ -130,6 +130,7 @@ function buildLandingPage(presentationsByFolder, totalCount) {
           <span>•</span>
           <span>${p.author}</span>
         </div>
+        ${p.folder !== 'Uncategorized' ? `<span class="folder-badge">${p.folder}</span>` : ''}
         ${p.tags.length > 0 ? `
         <div class="card-tags">
           ${p.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
@@ -137,6 +138,24 @@ function buildLandingPage(presentationsByFolder, totalCount) {
         ` : ''}
       </div>
     </a>`;
+
+  // Render Most Recent section (top 3 by date)
+  const renderMostRecent = (presentations) => {
+    if (presentations.length === 0) return '';
+
+    // Sort all presentations by date (newest first) and take top 3
+    const recent = [...presentations]
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 3);
+
+    return `
+    <div class="most-recent-section">
+      <h2 class="section-title">Most Recent</h2>
+      <div class="recent-grid">
+        ${recent.map(p => renderCard(p, 'recent-card')).join('')}
+      </div>
+    </div>`;
+  };
 
   const renderSection = (folderName, presentations) => `
     <div class="folder-section collapsed" data-folder="${folderName.toLowerCase()}">
@@ -308,6 +327,60 @@ function buildLandingPage(presentationsByFolder, totalCount) {
             font-family: 'JetBrains Mono', monospace;
         }
         
+        .folder-badge {
+            display: inline-block;
+            background: var(--slate-800);
+            color: var(--slate-400);
+            padding: 0.15rem 0.5rem;
+            font-size: 0.65rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Most Recent Section */
+        .most-recent-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--slate-800);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--slate-200);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--ciq-green);
+            border-radius: 2px;
+        }
+        
+        .recent-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        @media (max-width: 1024px) {
+            .recent-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .recent-grid { grid-template-columns: 1fr; }
+        }
+        
+        .recent-card {
+            border-left-color: #3B82F6; /* Blue accent for recent */
+        }
+        .recent-card:hover {
+            box-shadow: -6px 0 40px rgba(59, 130, 246, 0.2);
+        }
+        
         .footer { text-align: center; padding: 3rem; color: var(--slate-700); font-size: 0.9rem; }
         
         .empty-state { text-align: center; padding: 6rem 2rem; color: var(--slate-400); }
@@ -331,7 +404,10 @@ function buildLandingPage(presentationsByFolder, totalCount) {
             <h2>No presentations yet</h2>
             <p>Drop HTML presentations into the <code>presentations/</code> folder and run <code>npm run build</code></p>
         </div>
-        ` : folderNames.map(folder => renderSection(folder, presentationsByFolder[folder])).join('')}
+        ` : `
+        ${renderMostRecent(allPresentations)}
+        ${folderNames.map(folder => renderSection(folder, presentationsByFolder[folder])).join('')}
+        `}
     </div>
     
     <div class="footer">
@@ -521,10 +597,13 @@ async function buildLibrary() {
     presentationsByFolder[folder].sort((a, b) => new Date(b.date) - new Date(a.date));
   }
 
+  // Collect all presentations for Most Recent section
+  const allPresentations = Object.values(presentationsByFolder).flat();
+
   // 5. Generate landing page with collapsible sections
   console.log('🎨 Building landing page with folder sections...');
   const totalCount = htmlFiles.length;
-  const indexHtml = buildLandingPage(presentationsByFolder, totalCount);
+  const indexHtml = buildLandingPage(presentationsByFolder, totalCount, allPresentations);
   await fs.writeFile(path.join(CONFIG.docsDir, 'index.html'), indexHtml);
   console.log('  ✓ index.html created\n');
 
