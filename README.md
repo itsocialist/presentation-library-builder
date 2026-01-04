@@ -31,6 +31,13 @@ Your library will be live at: `https://yourusername.github.io/presentation-libra
 - **Custom thumbnails**: Drop PNG alongside HTML to use custom image
 - **Responsive design**: Works on desktop, tablet, mobile
 
+### Sprint 1: Foundation (v1.0.0)
+- **Featured section**: Pin presentations to top with UI button
+- **Recently Viewed**: Collapsible section with localStorage tracking
+- **Umami Analytics**: Page-level tracking integrated
+- **Agent Workflows**: `/add`, `/remove`, `/hide`, `/move`, `/describe`
+- **Mouse-tracking gradient**: Subtle CIQ green glow follows cursor
+
 ## Documentation
 
 - **GETTING_STARTED.md** - Complete walkthrough (start here!)
