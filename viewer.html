@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Viewer - CIQ Presentations</title>
+    <script defer src="https://cloud.umami.is/script.js"
+        data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #030712;
+            color: #94A3B8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #0F172A;
+            border-bottom: 1px solid #1E293B;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #12A66F;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        .title {
+            color: #E2E8F0;
+            font-size: 1.1rem;
+            flex: 1;
+        }
+
+        .download-btn {
+            background: #12A66F;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .download-btn:hover {
+            background: #0d8a5a;
+        }
+
+        .viewer-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        embed,
+        iframe {
+            width: 100%;
+            height: 100%;
+            max-width: 1200px;
+            min-height: 80vh;
+            border: 1px solid #1E293B;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .error {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error h2 {
+            color: #E53E3E;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <a href="index.html" class="back-btn">
+            ← Back to Library
+        </a>
+        <span class="title" id="pdfTitle">Loading...</span>
+        <a id="downloadBtn" class="download-btn" download>Download PDF</a>
+    </div>
+    <div class="viewer-container" id="viewerContainer">
+        <!-- PDF will be embedded here -->
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const file = params.get('file');
+
+        if (file) {
+            const filename = file.split('/').pop();
+            document.getElementById('pdfTitle').textContent = decodeURIComponent(filename.replace('.pdf', '').replace(/-/g, ' '));
+            document.getElementById('downloadBtn').href = file;
+
+            const container = document.getElementById('viewerContainer');
+
+            // Try embed first, fallback to object/iframe
+            const embed = document.createElement('embed');
+            embed.src = file;
+            embed.type = 'application/pdf';
+            container.appendChild(embed);
+
+            // Fallback for browsers without PDF plugin
+            embed.onerror = () => {
+                container.innerHTML = `
+                    <iframe src="${file}" title="PDF Viewer"></iframe>
+                `;
+            };
+        } else {
+            document.getElementById('viewerContainer').innerHTML = `
+                <div class="error">
+                    <h2>No PDF specified</h2>
+                    <p>Please access this viewer with a ?file= parameter</p>
+                    <a href="index.html" class="back-btn" style="margin-top: 1rem; display: inline-block;">← Back to Library</a>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>

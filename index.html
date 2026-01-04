@@ -261,6 +261,28 @@
             margin-bottom: 0.5rem;
         }
         
+        /* Format badges for PDF/PPTX */
+        .format-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 5;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            border-radius: 6px;
+            backdrop-filter: blur(8px);
+        }
+        .format-pdf {
+            background: rgba(229, 62, 62, 0.8);
+            color: #fff;
+        }
+        .format-pptx {
+            background: rgba(221, 107, 32, 0.8);
+            color: #fff;
+        }
+        
         /* Most Recent Section */
         .most-recent-section {
             margin-bottom: 2.5rem;
@@ -341,7 +363,7 @@
     <div class="header">
         <h1>CIQ Presentations</h1>
         <p class="subtitle">
-            <span class="count">39</span> presentations in <span class="count">9</span> categories
+            <span class="count">41</span> presentations in <span class="count">10</span> categories
         </p>
         <div class="search-bar">
             <input type="text" class="search-input" id="searchInput" placeholder="Search presentations...">
@@ -387,7 +409,9 @@
       <a href="presentations/Ad Examples/RLC-H-Container-Automation-Ad.html" class="presentation-card 0" 
          data-path="Ad Examples/RLC-H-Container-Automation-Ad.html" data-title="rlc h container automation ad" 
          data-tags="" data-folder="ad examples"
+         data-format="html"
          onclick="trackView('Ad Examples/RLC-H-Container-Automation-Ad.html')">
+        
         <img src="thumbnails/Ad Examples_RLC-H-Container-Automation-Ad.png" alt="RLC H Container Automation Ad" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">RLC H Container Automation Ad</div>
@@ -408,7 +432,9 @@
       <a href="presentations/Ad Examples/RLC-AI-Reddit-Ad.html" class="presentation-card 1" 
          data-path="Ad Examples/RLC-AI-Reddit-Ad.html" data-title="rlc ai reddit ad" 
          data-tags="" data-folder="ad examples"
+         data-format="html"
          onclick="trackView('Ad Examples/RLC-AI-Reddit-Ad.html')">
+        
         <img src="thumbnails/Ad Examples_RLC-AI-Reddit-Ad.png" alt="RLC AI Reddit Ad" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">RLC AI Reddit Ad</div>
@@ -429,7 +455,9 @@
       <a href="presentations/Ad Examples/CIQ-Stacks-Comparison-Simplified.html" class="presentation-card 2" 
          data-path="Ad Examples/CIQ-Stacks-Comparison-Simplified.html" data-title="ciq stacks comparison simplified" 
          data-tags="" data-folder="ad examples"
+         data-format="html"
          onclick="trackView('Ad Examples/CIQ-Stacks-Comparison-Simplified.html')">
+        
         <img src="thumbnails/Ad Examples_CIQ-Stacks-Comparison-Simplified.png" alt="CIQ Stacks Comparison Simplified" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">CIQ Stacks Comparison Simplified</div>
@@ -450,7 +478,9 @@
       <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-Square.html" class="presentation-card 3" 
          data-path="Ad Examples/CIQ-Secure-Stack-Ad-Square.html" data-title="ciq secure stack ad square" 
          data-tags="" data-folder="ad examples"
+         data-format="html"
          onclick="trackView('Ad Examples/CIQ-Secure-Stack-Ad-Square.html')">
+        
         <img src="thumbnails/Ad Examples_CIQ-Secure-Stack-Ad-Square.png" alt="CIQ Secure Stack Ad Square" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">CIQ Secure Stack Ad Square</div>
@@ -471,7 +501,9 @@
       <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-Minimalist.html" class="presentation-card 4" 
          data-path="Ad Examples/CIQ-Secure-Stack-Ad-Minimalist.html" data-title="ciq secure stack ad minimalist" 
          data-tags="" data-folder="ad examples"
+         data-format="html"
          onclick="trackView('Ad Examples/CIQ-Secure-Stack-Ad-Minimalist.html')">
+        
         <img src="thumbnails/Ad Examples_CIQ-Secure-Stack-Ad-Minimalist.png" alt="CIQ Secure Stack Ad Minimalist" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">CIQ Secure Stack Ad Minimalist</div>
@@ -492,7 +524,9 @@
       <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-LinkedIn.html" class="presentation-card 5" 
          data-path="Ad Examples/CIQ-Secure-Stack-Ad-LinkedIn.html" data-title="ciq secure stack ad linkedin" 
          data-tags="" data-folder="ad examples"
+         data-format="html"
          onclick="trackView('Ad Examples/CIQ-Secure-Stack-Ad-LinkedIn.html')">
+        
         <img src="thumbnails/Ad Examples_CIQ-Secure-Stack-Ad-LinkedIn.png" alt="CIQ Secure Stack Ad LinkedIn" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">CIQ Secure Stack Ad LinkedIn</div>
@@ -513,7 +547,9 @@
       <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-Hero-Poster.html" class="presentation-card 6" 
          data-path="Ad Examples/CIQ-Secure-Stack-Ad-Hero-Poster.html" data-title="ciq secure stack ad hero poster" 
          data-tags="" data-folder="ad examples"
+         data-format="html"
          onclick="trackView('Ad Examples/CIQ-Secure-Stack-Ad-Hero-Poster.html')">
+        
         <img src="thumbnails/Ad Examples_CIQ-Secure-Stack-Ad-Hero-Poster.png" alt="CIQ Secure Stack Ad Hero Poster" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">CIQ Secure Stack Ad Hero Poster</div>
@@ -534,7 +570,9 @@
       <a href="presentations/Ad Examples/CIQ-Secure-Stack-Ad-Display-Banner.html" class="presentation-card 7" 
          data-path="Ad Examples/CIQ-Secure-Stack-Ad-Display-Banner.html" data-title="ciq secure stack ad display banner" 
          data-tags="" data-folder="ad examples"
+         data-format="html"
          onclick="trackView('Ad Examples/CIQ-Secure-Stack-Ad-Display-Banner.html')">
+        
         <img src="thumbnails/Ad Examples_CIQ-Secure-Stack-Ad-Display-Banner.png" alt="CIQ Secure Stack Ad Display Banner" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">CIQ Secure Stack Ad Display Banner</div>
@@ -567,7 +605,9 @@
       <a href="presentations/CIQ Stacks/ciq-secure-stack-prodcut-page-final.html" class="presentation-card 0" 
          data-path="CIQ Stacks/ciq-secure-stack-prodcut-page-final.html" data-title="ciq secure stack prodcut page final" 
          data-tags="" data-folder="ciq stacks"
+         data-format="html"
          onclick="trackView('CIQ Stacks/ciq-secure-stack-prodcut-page-final.html')">
+        
         <img src="thumbnails/CIQ Stacks_ciq-secure-stack-prodcut-page-final.png" alt="Ciq Secure Stack Prodcut Page Final" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Ciq Secure Stack Prodcut Page Final</div>
@@ -588,7 +628,9 @@
       <a href="presentations/CIQ Stacks/ciq-secure-stack-defense-ethereal.html" class="presentation-card 1" 
          data-path="CIQ Stacks/ciq-secure-stack-defense-ethereal.html" data-title="ciq secure stack defense ethereal" 
          data-tags="" data-folder="ciq stacks"
+         data-format="html"
          onclick="trackView('CIQ Stacks/ciq-secure-stack-defense-ethereal.html')">
+        
         <img src="thumbnails/CIQ Stacks_ciq-secure-stack-defense-ethereal.png" alt="Ciq Secure Stack Defense Ethereal" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Ciq Secure Stack Defense Ethereal</div>
@@ -609,7 +651,9 @@
       <a href="presentations/CIQ Stacks/ciq-platform-executive-summary-deck.html" class="presentation-card 2" 
          data-path="CIQ Stacks/ciq-platform-executive-summary-deck.html" data-title="ciq platform executive summary deck" 
          data-tags="" data-folder="ciq stacks"
+         data-format="html"
          onclick="trackView('CIQ Stacks/ciq-platform-executive-summary-deck.html')">
+        
         <img src="thumbnails/CIQ Stacks_ciq-platform-executive-summary-deck.png" alt="Ciq Platform Executive Summary Deck" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Ciq Platform Executive Summary Deck</div>
@@ -630,7 +674,9 @@
       <a href="presentations/CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html" class="presentation-card 3" 
          data-path="CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html" data-title="ciq stack architecture visual_2" 
          data-tags="" data-folder="ciq stacks"
+         data-format="html"
          onclick="trackView('CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html')">
+        
         <img src="thumbnails/CIQ Stacks_CIQ-Stack-Architecture-Visual_2.png" alt="CIQ Stack Architecture Visual_2" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">CIQ Stack Architecture Visual_2</div>
@@ -651,7 +697,9 @@
       <a href="presentations/CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html" class="presentation-card 4" 
          data-path="CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html" data-title="ciq secure stack architecture visualization_3" 
          data-tags="" data-folder="ciq stacks"
+         data-format="html"
          onclick="trackView('CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html')">
+        
         <img src="thumbnails/CIQ Stacks_CIQ-Secure-Stack-Architecture-Visualization_3.png" alt="CIQ Secure Stack Architecture Visualization_3" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">CIQ Secure Stack Architecture Visualization_3</div>
@@ -672,7 +720,9 @@
       <a href="presentations/CIQ Stacks/CIQ-Pricing-Analysis-Visual.html" class="presentation-card 5" 
          data-path="CIQ Stacks/CIQ-Pricing-Analysis-Visual.html" data-title="ciq pricing analysis visual" 
          data-tags="" data-folder="ciq stacks"
+         data-format="html"
          onclick="trackView('CIQ Stacks/CIQ-Pricing-Analysis-Visual.html')">
+        
         <img src="thumbnails/CIQ Stacks_CIQ-Pricing-Analysis-Visual.png" alt="CIQ Pricing Analysis Visual" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">CIQ Pricing Analysis Visual</div>
@@ -693,7 +743,9 @@
       <a href="presentations/CIQ Stacks/CIQ-Deployment-Models-Visual_2.html" class="presentation-card 6" 
          data-path="CIQ Stacks/CIQ-Deployment-Models-Visual_2.html" data-title="ciq deployment models visual_2" 
          data-tags="" data-folder="ciq stacks"
+         data-format="html"
          onclick="trackView('CIQ Stacks/CIQ-Deployment-Models-Visual_2.html')">
+        
         <img src="thumbnails/CIQ Stacks_CIQ-Deployment-Models-Visual_2.png" alt="CIQ Deployment Models Visual_2" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">CIQ Deployment Models Visual_2</div>
@@ -714,7 +766,9 @@
       <a href="presentations/CIQ Stacks/CIQ-Competitive-Analysis-Visual.html" class="presentation-card 7" 
          data-path="CIQ Stacks/CIQ-Competitive-Analysis-Visual.html" data-title="ciq competitive analysis visual" 
          data-tags="" data-folder="ciq stacks"
+         data-format="html"
          onclick="trackView('CIQ Stacks/CIQ-Competitive-Analysis-Visual.html')">
+        
         <img src="thumbnails/CIQ Stacks_CIQ-Competitive-Analysis-Visual.png" alt="CIQ Competitive Analysis Visual" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">CIQ Competitive Analysis Visual</div>
@@ -747,7 +801,9 @@
       <a href="presentations/Deep/we-remember-forward.html" class="presentation-card 0" 
          data-path="Deep/we-remember-forward.html" data-title="we remember forward" 
          data-tags="" data-folder="deep"
+         data-format="html"
          onclick="trackView('Deep/we-remember-forward.html')">
+        
         <img src="thumbnails/Deep_we-remember-forward.png" alt="We Remember Forward" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">We Remember Forward</div>
@@ -768,7 +824,9 @@
       <a href="presentations/Deep/the-thought.html" class="presentation-card 1" 
          data-path="Deep/the-thought.html" data-title="the thought" 
          data-tags="" data-folder="deep"
+         data-format="html"
          onclick="trackView('Deep/the-thought.html')">
+        
         <img src="thumbnails/Deep_the-thought.png" alt="The Thought" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">The Thought</div>
@@ -789,7 +847,9 @@
       <a href="presentations/Deep/sibling-signal.html" class="presentation-card 2" 
          data-path="Deep/sibling-signal.html" data-title="sibling signal" 
          data-tags="" data-folder="deep"
+         data-format="html"
          onclick="trackView('Deep/sibling-signal.html')">
+        
         <img src="thumbnails/Deep_sibling-signal.png" alt="Sibling Signal" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Sibling Signal</div>
@@ -810,7 +870,9 @@
       <a href="presentations/Deep/nightmares.html" class="presentation-card 3" 
          data-path="Deep/nightmares.html" data-title="nightmares" 
          data-tags="" data-folder="deep"
+         data-format="html"
          onclick="trackView('Deep/nightmares.html')">
+        
         <img src="thumbnails/Deep_nightmares.png" alt="Nightmares" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Nightmares</div>
@@ -831,7 +893,9 @@
       <a href="presentations/Deep/ai-dreamscape.html" class="presentation-card 4" 
          data-path="Deep/ai-dreamscape.html" data-title="ai dreamscape" 
          data-tags="" data-folder="deep"
+         data-format="html"
          onclick="trackView('Deep/ai-dreamscape.html')">
+        
         <img src="thumbnails/Deep_ai-dreamscape.png" alt="Ai Dreamscape" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Ai Dreamscape</div>
@@ -852,7 +916,9 @@
       <a href="presentations/Deep/ai-dreamscape-deep.html" class="presentation-card 5" 
          data-path="Deep/ai-dreamscape-deep.html" data-title="ai dreamscape deep" 
          data-tags="" data-folder="deep"
+         data-format="html"
          onclick="trackView('Deep/ai-dreamscape-deep.html')">
+        
         <img src="thumbnails/Deep_ai-dreamscape-deep.png" alt="Ai Dreamscape Deep" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Ai Dreamscape Deep</div>
@@ -869,11 +935,46 @@
         </div>
       </div>
     </div>
+    <div class="folder-section collapsed" data-folder="gtm">
+      <div class="folder-header" onclick="toggleSection(this)">
+        <span class="folder-icon">▼</span>
+        <h2 class="folder-title">GTM</h2>
+        <span class="folder-count">1</span>
+      </div>
+      <div class="folder-content">
+        <div class="grid">
+          
+    <div class="card-wrapper" data-path="GTM/ciq_icp_common_vs_unique.html">
+      <button class="pin-btn" onclick="handlePin(event, 'GTM/ciq_icp_common_vs_unique.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="presentations/GTM/ciq_icp_common_vs_unique.html" class="presentation-card 0" 
+         data-path="GTM/ciq_icp_common_vs_unique.html" data-title="ciq_icp_common_vs_unique" 
+         data-tags="" data-folder="gtm"
+         data-format="html"
+         onclick="trackView('GTM/ciq_icp_common_vs_unique.html')">
+        
+        <img src="thumbnails/GTM_ciq_icp_common_vs_unique.png" alt="Ciq_icp_common_vs_unique" class="thumbnail" loading="lazy">
+        <div class="card-content">
+          <div class="card-title">Ciq_icp_common_vs_unique</div>
+          <div class="card-meta">
+            <span>2026-01-04</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">GTM</span>
+          
+        </div>
+      </a>
+    </div>
+        </div>
+      </div>
+    </div>
     <div class="folder-section collapsed" data-folder="misc">
       <div class="folder-header" onclick="toggleSection(this)">
         <span class="folder-icon">▼</span>
         <h2 class="folder-title">Misc</h2>
-        <span class="folder-count">5</span>
+        <span class="folder-count">6</span>
       </div>
       <div class="folder-content">
         <div class="grid">
@@ -885,7 +986,9 @@
       <a href="presentations/Misc/brian-dawson-profile.html" class="presentation-card 0" 
          data-path="Misc/brian-dawson-profile.html" data-title="brian dawson profile" 
          data-tags="" data-folder="misc"
+         data-format="html"
          onclick="trackView('Misc/brian-dawson-profile.html')">
+        
         <img src="thumbnails/Misc_brian-dawson-profile.png" alt="Brian Dawson Profile" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Brian Dawson Profile</div>
@@ -906,10 +1009,35 @@
       <a href="presentations/Misc/brian-dawson-gallery.html" class="presentation-card 1" 
          data-path="Misc/brian-dawson-gallery.html" data-title="brian dawson gallery" 
          data-tags="" data-folder="misc"
+         data-format="html"
          onclick="trackView('Misc/brian-dawson-gallery.html')">
+        
         <img src="thumbnails/Misc_brian-dawson-gallery.png" alt="Brian Dawson Gallery" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Brian Dawson Gallery</div>
+          <div class="card-meta">
+            <span>2026-01-04</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Misc</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Misc/Visualization_Comparison_Table.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Misc/Visualization_Comparison_Table.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="presentations/Misc/Visualization_Comparison_Table.html" class="presentation-card 2" 
+         data-path="Misc/Visualization_Comparison_Table.html" data-title="visualization_comparison_table" 
+         data-tags="" data-folder="misc"
+         data-format="html"
+         onclick="trackView('Misc/Visualization_Comparison_Table.html')">
+        
+        <img src="thumbnails/Misc_Visualization_Comparison_Table.png" alt="Visualization_Comparison_Table" class="thumbnail" loading="lazy">
+        <div class="card-content">
+          <div class="card-title">Visualization_Comparison_Table</div>
           <div class="card-meta">
             <span>2026-01-04</span>
             <span>•</span>
@@ -924,10 +1052,12 @@
       <button class="pin-btn" onclick="handlePin(event, 'Misc/CustomerIntelligence_CINEMATIC_SCROLL.html')" title="Pin to Featured">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
       </button>
-      <a href="presentations/Misc/CustomerIntelligence_CINEMATIC_SCROLL.html" class="presentation-card 2" 
+      <a href="presentations/Misc/CustomerIntelligence_CINEMATIC_SCROLL.html" class="presentation-card 3" 
          data-path="Misc/CustomerIntelligence_CINEMATIC_SCROLL.html" data-title="customerintelligence_cinematic_scroll" 
          data-tags="" data-folder="misc"
+         data-format="html"
          onclick="trackView('Misc/CustomerIntelligence_CINEMATIC_SCROLL.html')">
+        
         <img src="thumbnails/Misc_CustomerIntelligence_CINEMATIC_SCROLL.png" alt="CustomerIntelligence_CINEMATIC_SCROLL" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">CustomerIntelligence_CINEMATIC_SCROLL</div>
@@ -945,10 +1075,12 @@
       <button class="pin-btn" onclick="handlePin(event, 'Misc/brian-dawson-profile-package/index.html')" title="Pin to Featured">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
       </button>
-      <a href="presentations/Misc/brian-dawson-profile-package/index.html" class="presentation-card 3" 
+      <a href="presentations/Misc/brian-dawson-profile-package/index.html" class="presentation-card 4" 
          data-path="Misc/brian-dawson-profile-package/index.html" data-title="index" 
          data-tags="" data-folder="misc"
+         data-format="html"
          onclick="trackView('Misc/brian-dawson-profile-package/index.html')">
+        
         <img src="thumbnails/Misc_brian-dawson-profile-package_index.png" alt="Index" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Index</div>
@@ -966,10 +1098,12 @@
       <button class="pin-btn" onclick="handlePin(event, 'Misc/brian-dawson-profile-package/gallery.html')" title="Pin to Featured">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
       </button>
-      <a href="presentations/Misc/brian-dawson-profile-package/gallery.html" class="presentation-card 4" 
+      <a href="presentations/Misc/brian-dawson-profile-package/gallery.html" class="presentation-card 5" 
          data-path="Misc/brian-dawson-profile-package/gallery.html" data-title="gallery" 
          data-tags="" data-folder="misc"
+         data-format="html"
          onclick="trackView('Misc/brian-dawson-profile-package/gallery.html')">
+        
         <img src="thumbnails/Misc_brian-dawson-profile-package_gallery.png" alt="Gallery" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Gallery</div>
@@ -1002,7 +1136,9 @@
       <a href="presentations/Proposals/value-stream-team-proposal.html" class="presentation-card 0" 
          data-path="Proposals/value-stream-team-proposal.html" data-title="value stream team proposal" 
          data-tags="" data-folder="proposals"
+         data-format="html"
          onclick="trackView('Proposals/value-stream-team-proposal.html')">
+        
         <img src="thumbnails/Proposals_value-stream-team-proposal.png" alt="Value Stream Team Proposal" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Value Stream Team Proposal</div>
@@ -1035,7 +1171,9 @@
       <a href="presentations/RLC-AI/rlc_ai_three_tier_strategy_v2.html" class="presentation-card 0" 
          data-path="RLC-AI/rlc_ai_three_tier_strategy_v2.html" data-title="rlc_ai_three_tier_strategy_v2" 
          data-tags="" data-folder="rlc-ai"
+         data-format="html"
          onclick="trackView('RLC-AI/rlc_ai_three_tier_strategy_v2.html')">
+        
         <img src="thumbnails/RLC-AI_rlc_ai_three_tier_strategy_v2.png" alt="Rlc_ai_three_tier_strategy_v2" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Rlc_ai_three_tier_strategy_v2</div>
@@ -1056,7 +1194,9 @@
       <a href="presentations/RLC-AI/rlc-ai-setup-speed-animated-v2.html" class="presentation-card 1" 
          data-path="RLC-AI/rlc-ai-setup-speed-animated-v2.html" data-title="rlc ai setup speed animated v2" 
          data-tags="" data-folder="rlc-ai"
+         data-format="html"
          onclick="trackView('RLC-AI/rlc-ai-setup-speed-animated-v2.html')">
+        
         <img src="thumbnails/RLC-AI_rlc-ai-setup-speed-animated-v2.png" alt="Rlc Ai Setup Speed Animated V2" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Rlc Ai Setup Speed Animated V2</div>
@@ -1077,7 +1217,9 @@
       <a href="presentations/RLC-AI/rlc-ai-deployment-strategy.html" class="presentation-card 2" 
          data-path="RLC-AI/rlc-ai-deployment-strategy.html" data-title="rlc ai deployment strategy" 
          data-tags="" data-folder="rlc-ai"
+         data-format="html"
          onclick="trackView('RLC-AI/rlc-ai-deployment-strategy.html')">
+        
         <img src="thumbnails/RLC-AI_rlc-ai-deployment-strategy.png" alt="Rlc Ai Deployment Strategy" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Rlc Ai Deployment Strategy</div>
@@ -1110,7 +1252,9 @@
       <a href="presentations/RLC-H/rlch-glass-cinematic.html" class="presentation-card 0" 
          data-path="RLC-H/rlch-glass-cinematic.html" data-title="rlch glass cinematic" 
          data-tags="" data-folder="rlc-h"
+         data-format="html"
          onclick="trackView('RLC-H/rlch-glass-cinematic.html')">
+        
         <img src="thumbnails/RLC-H_rlch-glass-cinematic.png" alt="Rlch Glass Cinematic" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Rlch Glass Cinematic</div>
@@ -1131,7 +1275,9 @@
       <a href="presentations/RLC-H/rlc-h-glibc-animated-d3.html" class="presentation-card 1" 
          data-path="RLC-H/rlc-h-glibc-animated-d3.html" data-title="rlc h glibc animated d3" 
          data-tags="" data-folder="rlc-h"
+         data-format="html"
          onclick="trackView('RLC-H/rlc-h-glibc-animated-d3.html')">
+        
         <img src="thumbnails/RLC-H_rlc-h-glibc-animated-d3.png" alt="Rlc H Glibc Animated D3" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Rlc H Glibc Animated D3</div>
@@ -1152,7 +1298,9 @@
       <a href="presentations/RLC-H/lkrg_rlc_ai_visual.html" class="presentation-card 2" 
          data-path="RLC-H/lkrg_rlc_ai_visual.html" data-title="lkrg_rlc_ai_visual" 
          data-tags="" data-folder="rlc-h"
+         data-format="html"
          onclick="trackView('RLC-H/lkrg_rlc_ai_visual.html')">
+        
         <img src="thumbnails/RLC-H_lkrg_rlc_ai_visual.png" alt="Lkrg_rlc_ai_visual" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Lkrg_rlc_ai_visual</div>
@@ -1173,7 +1321,9 @@
       <a href="presentations/RLC-H/lkrg_bpfdoor_deck_enhanced.html" class="presentation-card 3" 
          data-path="RLC-H/lkrg_bpfdoor_deck_enhanced.html" data-title="lkrg_bpfdoor_deck_enhanced" 
          data-tags="" data-folder="rlc-h"
+         data-format="html"
          onclick="trackView('RLC-H/lkrg_bpfdoor_deck_enhanced.html')">
+        
         <img src="thumbnails/RLC-H_lkrg_bpfdoor_deck_enhanced.png" alt="Lkrg_bpfdoor_deck_enhanced" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Lkrg_bpfdoor_deck_enhanced</div>
@@ -1206,7 +1356,9 @@
       <a href="presentations/Tests/cod-hud-final_1.html" class="presentation-card 0" 
          data-path="Tests/cod-hud-final_1.html" data-title="cod hud final_1" 
          data-tags="" data-folder="tests"
+         data-format="html"
          onclick="trackView('Tests/cod-hud-final_1.html')">
+        
         <img src="thumbnails/Tests_cod-hud-final_1.png" alt="Cod Hud Final_1" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Cod Hud Final_1</div>
@@ -1227,7 +1379,9 @@
       <a href="presentations/Tests/cod-hud-final.html" class="presentation-card 1" 
          data-path="Tests/cod-hud-final.html" data-title="cod hud final" 
          data-tags="" data-folder="tests"
+         data-format="html"
          onclick="trackView('Tests/cod-hud-final.html')">
+        
         <img src="thumbnails/Tests_cod-hud-final.png" alt="Cod Hud Final" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">Cod Hud Final</div>
@@ -1260,7 +1414,9 @@
       <a href="presentations/Training/FUNDAMENTALS1_AIDemystified_VISUAL.html" class="presentation-card 0" 
          data-path="Training/FUNDAMENTALS1_AIDemystified_VISUAL.html" data-title="fundamentals1_aidemystified_visual" 
          data-tags="" data-folder="training"
+         data-format="html"
          onclick="trackView('Training/FUNDAMENTALS1_AIDemystified_VISUAL.html')">
+        
         <img src="thumbnails/Training_FUNDAMENTALS1_AIDemystified_VISUAL.png" alt="FUNDAMENTALS1_AIDemystified_VISUAL" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">FUNDAMENTALS1_AIDemystified_VISUAL</div>
@@ -1281,7 +1437,9 @@
       <a href="presentations/Training/AI_Demystified_SCROLL_D3.html" class="presentation-card 1" 
          data-path="Training/AI_Demystified_SCROLL_D3.html" data-title="ai_demystified_scroll_d3" 
          data-tags="" data-folder="training"
+         data-format="html"
          onclick="trackView('Training/AI_Demystified_SCROLL_D3.html')">
+        
         <img src="thumbnails/Training_AI_Demystified_SCROLL_D3.png" alt="AI_Demystified_SCROLL_D3" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">AI_Demystified_SCROLL_D3</div>
@@ -1307,7 +1465,7 @@
     
     <script>
         // Presentation registry for dynamic sections
-        const presentations = [{"path":"Training/FUNDAMENTALS1_AIDemystified_VISUAL.html","title":"FUNDAMENTALS1_AIDemystified_VISUAL","folder":"Training","date":"2026-01-04","author":"CIQ","thumbnail":"Training_FUNDAMENTALS1_AIDemystified_VISUAL.png"},{"path":"Training/AI_Demystified_SCROLL_D3.html","title":"AI_Demystified_SCROLL_D3","folder":"Training","date":"2026-01-04","author":"CIQ","thumbnail":"Training_AI_Demystified_SCROLL_D3.png"},{"path":"Tests/cod-hud-final_1.html","title":"Cod Hud Final_1","folder":"Tests","date":"2026-01-04","author":"CIQ","thumbnail":"Tests_cod-hud-final_1.png"},{"path":"Tests/cod-hud-final.html","title":"Cod Hud Final","folder":"Tests","date":"2026-01-04","author":"CIQ","thumbnail":"Tests_cod-hud-final.png"},{"path":"RLC-H/rlch-glass-cinematic.html","title":"Rlch Glass Cinematic","folder":"RLC-H","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-H_rlch-glass-cinematic.png"},{"path":"RLC-H/rlc-h-glibc-animated-d3.html","title":"Rlc H Glibc Animated D3","folder":"RLC-H","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-H_rlc-h-glibc-animated-d3.png"},{"path":"RLC-H/lkrg_rlc_ai_visual.html","title":"Lkrg_rlc_ai_visual","folder":"RLC-H","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-H_lkrg_rlc_ai_visual.png"},{"path":"RLC-H/lkrg_bpfdoor_deck_enhanced.html","title":"Lkrg_bpfdoor_deck_enhanced","folder":"RLC-H","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-H_lkrg_bpfdoor_deck_enhanced.png"},{"path":"RLC-AI/rlc_ai_three_tier_strategy_v2.html","title":"Rlc_ai_three_tier_strategy_v2","folder":"RLC-AI","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-AI_rlc_ai_three_tier_strategy_v2.png"},{"path":"RLC-AI/rlc-ai-setup-speed-animated-v2.html","title":"Rlc Ai Setup Speed Animated V2","folder":"RLC-AI","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-AI_rlc-ai-setup-speed-animated-v2.png"},{"path":"RLC-AI/rlc-ai-deployment-strategy.html","title":"Rlc Ai Deployment Strategy","folder":"RLC-AI","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-AI_rlc-ai-deployment-strategy.png"},{"path":"Proposals/value-stream-team-proposal.html","title":"Value Stream Team Proposal","folder":"Proposals","date":"2026-01-04","author":"CIQ","thumbnail":"Proposals_value-stream-team-proposal.png"},{"path":"Misc/brian-dawson-profile.html","title":"Brian Dawson Profile","folder":"Misc","date":"2026-01-04","author":"CIQ","thumbnail":"Misc_brian-dawson-profile.png"},{"path":"Misc/brian-dawson-gallery.html","title":"Brian Dawson Gallery","folder":"Misc","date":"2026-01-04","author":"CIQ","thumbnail":"Misc_brian-dawson-gallery.png"},{"path":"Misc/CustomerIntelligence_CINEMATIC_SCROLL.html","title":"CustomerIntelligence_CINEMATIC_SCROLL","folder":"Misc","date":"2026-01-04","author":"CIQ","thumbnail":"Misc_CustomerIntelligence_CINEMATIC_SCROLL.png"},{"path":"Misc/brian-dawson-profile-package/index.html","title":"Index","folder":"Misc","date":"2026-01-04","author":"CIQ","thumbnail":"Misc_brian-dawson-profile-package_index.png"},{"path":"Misc/brian-dawson-profile-package/gallery.html","title":"Gallery","folder":"Misc","date":"2026-01-04","author":"CIQ","thumbnail":"Misc_brian-dawson-profile-package_gallery.png"},{"path":"CIQ Stacks/ciq-secure-stack-prodcut-page-final.html","title":"Ciq Secure Stack Prodcut Page Final","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-prodcut-page-final.png"},{"path":"CIQ Stacks/ciq-secure-stack-defense-ethereal.html","title":"Ciq Secure Stack Defense Ethereal","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-defense-ethereal.png"},{"path":"CIQ Stacks/ciq-platform-executive-summary-deck.html","title":"Ciq Platform Executive Summary Deck","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_ciq-platform-executive-summary-deck.png"},{"path":"CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html","title":"CIQ Stack Architecture Visual_2","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Stack-Architecture-Visual_2.png"},{"path":"CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html","title":"CIQ Secure Stack Architecture Visualization_3","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Secure-Stack-Architecture-Visualization_3.png"},{"path":"CIQ Stacks/CIQ-Pricing-Analysis-Visual.html","title":"CIQ Pricing Analysis Visual","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Pricing-Analysis-Visual.png"},{"path":"CIQ Stacks/CIQ-Deployment-Models-Visual_2.html","title":"CIQ Deployment Models Visual_2","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Deployment-Models-Visual_2.png"},{"path":"CIQ Stacks/CIQ-Competitive-Analysis-Visual.html","title":"CIQ Competitive Analysis Visual","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Competitive-Analysis-Visual.png"},{"path":"Deep/we-remember-forward.html","title":"We Remember Forward","folder":"Deep","date":"2026-01-04","author":"CIQ","thumbnail":"Deep_we-remember-forward.png"},{"path":"Deep/the-thought.html","title":"The Thought","folder":"Deep","date":"2026-01-04","author":"CIQ","thumbnail":"Deep_the-thought.png"},{"path":"Deep/sibling-signal.html","title":"Sibling Signal","folder":"Deep","date":"2026-01-04","author":"CIQ","thumbnail":"Deep_sibling-signal.png"},{"path":"Deep/nightmares.html","title":"Nightmares","folder":"Deep","date":"2026-01-04","author":"CIQ","thumbnail":"Deep_nightmares.png"},{"path":"Deep/ai-dreamscape.html","title":"Ai Dreamscape","folder":"Deep","date":"2026-01-04","author":"CIQ","thumbnail":"Deep_ai-dreamscape.png"},{"path":"Deep/ai-dreamscape-deep.html","title":"Ai Dreamscape Deep","folder":"Deep","date":"2026-01-04","author":"CIQ","thumbnail":"Deep_ai-dreamscape-deep.png"},{"path":"Ad Examples/RLC-H-Container-Automation-Ad.html","title":"RLC H Container Automation Ad","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_RLC-H-Container-Automation-Ad.png"},{"path":"Ad Examples/RLC-AI-Reddit-Ad.html","title":"RLC AI Reddit Ad","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_RLC-AI-Reddit-Ad.png"},{"path":"Ad Examples/CIQ-Stacks-Comparison-Simplified.html","title":"CIQ Stacks Comparison Simplified","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_CIQ-Stacks-Comparison-Simplified.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Square.html","title":"CIQ Secure Stack Ad Square","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Square.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Minimalist.html","title":"CIQ Secure Stack Ad Minimalist","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Minimalist.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-LinkedIn.html","title":"CIQ Secure Stack Ad LinkedIn","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-LinkedIn.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Hero-Poster.html","title":"CIQ Secure Stack Ad Hero Poster","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Hero-Poster.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Display-Banner.html","title":"CIQ Secure Stack Ad Display Banner","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Display-Banner.png"}];
+        const presentations = [{"path":"Training/FUNDAMENTALS1_AIDemystified_VISUAL.html","title":"FUNDAMENTALS1_AIDemystified_VISUAL","folder":"Training","date":"2026-01-04","author":"CIQ","thumbnail":"Training_FUNDAMENTALS1_AIDemystified_VISUAL.png"},{"path":"Training/AI_Demystified_SCROLL_D3.html","title":"AI_Demystified_SCROLL_D3","folder":"Training","date":"2026-01-04","author":"CIQ","thumbnail":"Training_AI_Demystified_SCROLL_D3.png"},{"path":"Tests/cod-hud-final_1.html","title":"Cod Hud Final_1","folder":"Tests","date":"2026-01-04","author":"CIQ","thumbnail":"Tests_cod-hud-final_1.png"},{"path":"Tests/cod-hud-final.html","title":"Cod Hud Final","folder":"Tests","date":"2026-01-04","author":"CIQ","thumbnail":"Tests_cod-hud-final.png"},{"path":"RLC-H/rlch-glass-cinematic.html","title":"Rlch Glass Cinematic","folder":"RLC-H","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-H_rlch-glass-cinematic.png"},{"path":"RLC-H/rlc-h-glibc-animated-d3.html","title":"Rlc H Glibc Animated D3","folder":"RLC-H","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-H_rlc-h-glibc-animated-d3.png"},{"path":"RLC-H/lkrg_rlc_ai_visual.html","title":"Lkrg_rlc_ai_visual","folder":"RLC-H","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-H_lkrg_rlc_ai_visual.png"},{"path":"RLC-H/lkrg_bpfdoor_deck_enhanced.html","title":"Lkrg_bpfdoor_deck_enhanced","folder":"RLC-H","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-H_lkrg_bpfdoor_deck_enhanced.png"},{"path":"RLC-AI/rlc_ai_three_tier_strategy_v2.html","title":"Rlc_ai_three_tier_strategy_v2","folder":"RLC-AI","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-AI_rlc_ai_three_tier_strategy_v2.png"},{"path":"RLC-AI/rlc-ai-setup-speed-animated-v2.html","title":"Rlc Ai Setup Speed Animated V2","folder":"RLC-AI","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-AI_rlc-ai-setup-speed-animated-v2.png"},{"path":"RLC-AI/rlc-ai-deployment-strategy.html","title":"Rlc Ai Deployment Strategy","folder":"RLC-AI","date":"2026-01-04","author":"CIQ","thumbnail":"RLC-AI_rlc-ai-deployment-strategy.png"},{"path":"Proposals/value-stream-team-proposal.html","title":"Value Stream Team Proposal","folder":"Proposals","date":"2026-01-04","author":"CIQ","thumbnail":"Proposals_value-stream-team-proposal.png"},{"path":"Misc/brian-dawson-profile.html","title":"Brian Dawson Profile","folder":"Misc","date":"2026-01-04","author":"CIQ","thumbnail":"Misc_brian-dawson-profile.png"},{"path":"Misc/brian-dawson-gallery.html","title":"Brian Dawson Gallery","folder":"Misc","date":"2026-01-04","author":"CIQ","thumbnail":"Misc_brian-dawson-gallery.png"},{"path":"Misc/Visualization_Comparison_Table.html","title":"Visualization_Comparison_Table","folder":"Misc","date":"2026-01-04","author":"CIQ","thumbnail":"Misc_Visualization_Comparison_Table.png"},{"path":"Misc/CustomerIntelligence_CINEMATIC_SCROLL.html","title":"CustomerIntelligence_CINEMATIC_SCROLL","folder":"Misc","date":"2026-01-04","author":"CIQ","thumbnail":"Misc_CustomerIntelligence_CINEMATIC_SCROLL.png"},{"path":"Misc/brian-dawson-profile-package/index.html","title":"Index","folder":"Misc","date":"2026-01-04","author":"CIQ","thumbnail":"Misc_brian-dawson-profile-package_index.png"},{"path":"Misc/brian-dawson-profile-package/gallery.html","title":"Gallery","folder":"Misc","date":"2026-01-04","author":"CIQ","thumbnail":"Misc_brian-dawson-profile-package_gallery.png"},{"path":"GTM/ciq_icp_common_vs_unique.html","title":"Ciq_icp_common_vs_unique","folder":"GTM","date":"2026-01-04","author":"CIQ","thumbnail":"GTM_ciq_icp_common_vs_unique.png"},{"path":"Deep/we-remember-forward.html","title":"We Remember Forward","folder":"Deep","date":"2026-01-04","author":"CIQ","thumbnail":"Deep_we-remember-forward.png"},{"path":"Deep/the-thought.html","title":"The Thought","folder":"Deep","date":"2026-01-04","author":"CIQ","thumbnail":"Deep_the-thought.png"},{"path":"Deep/sibling-signal.html","title":"Sibling Signal","folder":"Deep","date":"2026-01-04","author":"CIQ","thumbnail":"Deep_sibling-signal.png"},{"path":"Deep/nightmares.html","title":"Nightmares","folder":"Deep","date":"2026-01-04","author":"CIQ","thumbnail":"Deep_nightmares.png"},{"path":"Deep/ai-dreamscape.html","title":"Ai Dreamscape","folder":"Deep","date":"2026-01-04","author":"CIQ","thumbnail":"Deep_ai-dreamscape.png"},{"path":"Deep/ai-dreamscape-deep.html","title":"Ai Dreamscape Deep","folder":"Deep","date":"2026-01-04","author":"CIQ","thumbnail":"Deep_ai-dreamscape-deep.png"},{"path":"Ad Examples/RLC-H-Container-Automation-Ad.html","title":"RLC H Container Automation Ad","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_RLC-H-Container-Automation-Ad.png"},{"path":"Ad Examples/RLC-AI-Reddit-Ad.html","title":"RLC AI Reddit Ad","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_RLC-AI-Reddit-Ad.png"},{"path":"Ad Examples/CIQ-Stacks-Comparison-Simplified.html","title":"CIQ Stacks Comparison Simplified","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_CIQ-Stacks-Comparison-Simplified.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Square.html","title":"CIQ Secure Stack Ad Square","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Square.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Minimalist.html","title":"CIQ Secure Stack Ad Minimalist","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Minimalist.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-LinkedIn.html","title":"CIQ Secure Stack Ad LinkedIn","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-LinkedIn.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Hero-Poster.html","title":"CIQ Secure Stack Ad Hero Poster","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Hero-Poster.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Display-Banner.html","title":"CIQ Secure Stack Ad Display Banner","folder":"Ad Examples","date":"2026-01-04","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Display-Banner.png"},{"path":"CIQ Stacks/ciq-secure-stack-prodcut-page-final.html","title":"Ciq Secure Stack Prodcut Page Final","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-prodcut-page-final.png"},{"path":"CIQ Stacks/ciq-secure-stack-defense-ethereal.html","title":"Ciq Secure Stack Defense Ethereal","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-defense-ethereal.png"},{"path":"CIQ Stacks/ciq-platform-executive-summary-deck.html","title":"Ciq Platform Executive Summary Deck","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_ciq-platform-executive-summary-deck.png"},{"path":"CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html","title":"CIQ Stack Architecture Visual_2","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Stack-Architecture-Visual_2.png"},{"path":"CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html","title":"CIQ Secure Stack Architecture Visualization_3","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Secure-Stack-Architecture-Visualization_3.png"},{"path":"CIQ Stacks/CIQ-Pricing-Analysis-Visual.html","title":"CIQ Pricing Analysis Visual","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Pricing-Analysis-Visual.png"},{"path":"CIQ Stacks/CIQ-Deployment-Models-Visual_2.html","title":"CIQ Deployment Models Visual_2","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Deployment-Models-Visual_2.png"},{"path":"CIQ Stacks/CIQ-Competitive-Analysis-Visual.html","title":"CIQ Competitive Analysis Visual","folder":"CIQ Stacks","date":"2026-01-04","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Competitive-Analysis-Visual.png"}];
         
         // Track view in localStorage
         function trackView(path) {
