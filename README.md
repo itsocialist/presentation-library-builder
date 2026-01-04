@@ -38,6 +38,12 @@ Your library will be live at: `https://yourusername.github.io/presentation-libra
 - **Agent Workflows**: `/add`, `/remove`, `/hide`, `/move`, `/describe`
 - **Mouse-tracking gradient**: Subtle CIQ green glow follows cursor
 
+### Sprint 2: Multi-Format (v1.1.0)
+- **PDF/PPTX support**: Auto-detect and display non-HTML presentations
+- **Format badges**: Visual PDF (red) and PPTX (orange) indicators
+- **PDF viewer**: Dedicated viewing page for PDFs
+- **Placeholder thumbnails**: Generated icons for non-HTML files
+
 ## Documentation
 
 - **GETTING_STARTED.md** - Complete walkthrough (start here!)
