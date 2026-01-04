@@ -55,6 +55,41 @@ function extractMetadata(htmlPath, relPath) {
   return metadata;
 }
 
+// Extract metadata for any file format (HTML, PDF, PPTX)
+function extractMetadataForFile(filePath, relPath) {
+  const ext = path.extname(filePath).toLowerCase();
+  const pathParts = relPath.split('/');
+  const folder = pathParts.length > 1 ? pathParts[0] : 'Uncategorized';
+  const basename = path.basename(filePath, ext);
+
+  const baseMetadata = {
+    filename: path.basename(filePath),
+    relPath: relPath,
+    folder: folder,
+    title: basename.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+    date: new Date().toISOString().split('T')[0],
+    author: 'CIQ',
+    tags: [],
+    format: ext.replace('.', '') // 'html', 'pdf', 'pptx'
+  };
+
+  if (ext === '.html') {
+    // Use existing HTML extraction for richer metadata
+    const htmlMeta = extractMetadata(filePath, relPath);
+    return { ...htmlMeta, format: 'html' };
+  }
+
+  // For PDF/PPTX, use file stats for date
+  try {
+    const stats = fs.statSync(filePath);
+    baseMetadata.date = stats.mtime.toISOString().split('T')[0];
+  } catch (e) {
+    // Keep default date
+  }
+
+  return baseMetadata;
+}
+
 // Generate thumbnail from HTML presentation
 async function generateThumbnail(htmlPath, outputPath) {
   console.log(`  Generating thumbnail for ${path.basename(htmlPath)}...`);
@@ -111,6 +146,62 @@ async function generateThumbnail(htmlPath, outputPath) {
   }
 }
 
+// Generate placeholder thumbnail for PDF or PPTX files
+async function generatePlaceholderThumbnail(filePath, outputPath, format) {
+  const basename = path.basename(filePath, '.' + format);
+  const icon = format === 'pdf' ? '📄' : '📊';
+  const color = format === 'pdf' ? '#E53E3E' : '#DD6B20'; // Red for PDF, Orange for PPTX
+
+  console.log(`  Generating ${format.toUpperCase()} placeholder thumbnail...`);
+
+  await sharp({
+    create: {
+      width: CONFIG.thumbnailSize.width,
+      height: CONFIG.thumbnailSize.height,
+      channels: 4,
+      background: { r: 15, g: 23, b: 42, alpha: 1 }
+    }
+  })
+    .composite([{
+      input: Buffer.from(`<svg width="${CONFIG.thumbnailSize.width}" height="${CONFIG.thumbnailSize.height}">
+        <rect width="100%" height="100%" fill="#0F172A"/>
+        <rect x="40" y="40" width="${CONFIG.thumbnailSize.width - 80}" height="${CONFIG.thumbnailSize.height - 80}" 
+              rx="16" fill="#1E293B" stroke="${color}" stroke-width="3"/>
+        <text x="50%" y="40%" text-anchor="middle" fill="${color}" font-size="120" font-family="Arial">
+          ${format.toUpperCase()}
+        </text>
+        <text x="50%" y="70%" text-anchor="middle" fill="#94A3B8" font-size="32" font-family="Arial">
+          ${basename.substring(0, 30)}${basename.length > 30 ? '...' : ''}
+        </text>
+      </svg>`),
+      top: 0,
+      left: 0
+    }])
+    .toFile(outputPath);
+
+  console.log(`  ✓ ${format.toUpperCase()} thumbnail created`);
+}
+
+// Generate thumbnail for any file format
+async function generateThumbnailForFile(filePath, outputPath, format) {
+  // Check if custom thumbnail exists
+  const ext = '.' + format;
+  const customThumb = filePath.replace(ext, '.png');
+  if (fs.existsSync(customThumb)) {
+    console.log(`  Using custom thumbnail: ${path.basename(customThumb)}`);
+    await sharp(customThumb)
+      .resize(CONFIG.thumbnailSize.width, CONFIG.thumbnailSize.height, { fit: 'cover' })
+      .toFile(outputPath);
+    return;
+  }
+
+  if (format === 'html') {
+    await generateThumbnail(filePath, outputPath);
+  } else {
+    await generatePlaceholderThumbnail(filePath, outputPath, format);
+  }
+}
+
 // Build the landing page with collapsible folder sections
 function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
   const folderNames = Object.keys(presentationsByFolder).sort((a, b) => {
@@ -120,16 +211,40 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
     return a.localeCompare(b);
   });
 
-  const renderCard = (p, extraClass = '') => `
+  const renderCard = (p, extraClass = '') => {
+    const format = p.format || 'html';
+    const ext = '.' + format;
+    const thumbnailName = p.relPath.split('/').join('_').replace(ext, '.png');
+
+    // Format badge colors
+    const formatBadge = format !== 'html' ? `<span class="format-badge format-${format}">${format.toUpperCase()}</span>` : '';
+
+    // Link behavior: HTML = view, PDF = viewer, PPTX = download
+    let href, onclick, downloadAttr = '';
+    if (format === 'pdf') {
+      href = `viewer.html?file=presentations/${p.relPath}`;
+      onclick = `trackView('${p.relPath}')`;
+    } else if (format === 'pptx') {
+      href = `presentations/${p.relPath}`;
+      onclick = `trackView('${p.relPath}')`;
+      downloadAttr = ' download';
+    } else {
+      href = `presentations/${p.relPath}`;
+      onclick = `trackView('${p.relPath}')`;
+    }
+
+    return `
     <div class="card-wrapper" data-path="${p.relPath}">
       <button class="pin-btn" onclick="handlePin(event, '${p.relPath}')" title="Pin to Featured">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
       </button>
-      <a href="presentations/${p.relPath}" class="presentation-card ${extraClass}" 
+      <a href="${href}" class="presentation-card ${extraClass}" 
          data-path="${p.relPath}" data-title="${p.title.toLowerCase()}" 
          data-tags="${p.tags.join(' ').toLowerCase()}" data-folder="${p.folder.toLowerCase()}"
-         onclick="trackView('${p.relPath}')">
-        <img src="thumbnails/${p.relPath.split('/').join('_').replace('.html', '.png')}" alt="${p.title}" class="thumbnail" loading="lazy">
+         data-format="${format}"
+         onclick="${onclick}"${downloadAttr}>
+        ${formatBadge}
+        <img src="thumbnails/${thumbnailName}" alt="${p.title}" class="thumbnail" loading="lazy">
         <div class="card-content">
           <div class="card-title">${p.title}</div>
           <div class="card-meta">
@@ -146,6 +261,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
         </div>
       </a>
     </div>`;
+  };
 
   // Render Featured section (pinned cards - uses metadata.featured flag in future)
   // For now, we'll create an empty featured section that JS populates
@@ -447,6 +563,28 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
             border-radius: 4px;
             font-family: 'JetBrains Mono', monospace;
             margin-bottom: 0.5rem;
+        }
+        
+        /* Format badges for PDF/PPTX */
+        .format-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 5;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            border-radius: 6px;
+            backdrop-filter: blur(8px);
+        }
+        .format-pdf {
+            background: rgba(229, 62, 62, 0.8);
+            color: #fff;
+        }
+        .format-pptx {
+            background: rgba(221, 107, 32, 0.8);
+            color: #fff;
         }
         
         /* Most Recent Section */
@@ -804,57 +942,60 @@ async function buildLibrary() {
   await fs.ensureDir(path.join(CONFIG.docsDir, 'presentations'));
   await fs.ensureDir(path.join(CONFIG.docsDir, 'thumbnails'));
 
-  // 2. Find all HTML presentations (including in subfolders)
+  // 2. Find all presentations (HTML, PDF, PPTX)
   console.log('🔍 Scanning for presentations...');
-  const htmlFiles = await glob('**/*.html', {
+  const presentationFiles = await glob('**/*.{html,pdf,pptx}', {
     cwd: CONFIG.presentationsDir,
     ignore: ['**/node_modules/**', '**/assets/**']
   });
-  console.log(`   Found ${htmlFiles.length} presentation(s)\n`);
+  console.log(`   Found ${presentationFiles.length} presentation(s)\n`);
 
-  if (htmlFiles.length === 0) {
+  if (presentationFiles.length === 0) {
     console.log('⚠️  No presentations found in presentations/ folder');
-    console.log('   Add HTML files to presentations/ and run npm run build again\n');
+    console.log('   Add HTML, PDF, or PPTX files to presentations/ and run npm run build again\n');
   }
 
   // 3. Process each presentation, grouping by folder
   const presentationsByFolder = {};
 
-  for (const relPath of htmlFiles) {
+  for (const relPath of presentationFiles) {
     console.log(`📄 Processing: ${relPath}`);
 
-    const htmlPath = path.join(CONFIG.presentationsDir, relPath);
-    const metadata = extractMetadata(htmlPath, relPath);
+    const filePath = path.join(CONFIG.presentationsDir, relPath);
+    const ext = path.extname(relPath).toLowerCase().replace('.', '');
+    const metadata = extractMetadataForFile(filePath, relPath);
 
     // Ensure folder exists in output
     const outputDir = path.join(CONFIG.docsDir, 'presentations', path.dirname(relPath));
     await fs.ensureDir(outputDir);
 
-    // Copy HTML to docs (preserving folder structure)
-    await fs.copy(htmlPath, path.join(CONFIG.docsDir, 'presentations', relPath));
+    // Copy file to docs (preserving folder structure)
+    await fs.copy(filePath, path.join(CONFIG.docsDir, 'presentations', relPath));
     console.log(`  ✓ Copied to docs/presentations/${path.dirname(relPath) || '.'}/`);
 
-    // Copy any sibling assets (e.g., images, css in same folder)
-    const siblingAssets = await glob('*.{png,jpg,jpeg,gif,svg,webp,css,js,woff,woff2,ttf}', {
-      cwd: path.dirname(htmlPath)
-    });
-    for (const asset of siblingAssets) {
-      const src = path.join(path.dirname(htmlPath), asset);
-      const dest = path.join(outputDir, asset);
-      await fs.copy(src, dest);
-    }
+    // Copy any sibling assets (for HTML files only)
+    if (ext === 'html') {
+      const siblingAssets = await glob('*.{png,jpg,jpeg,gif,svg,webp,css,js,woff,woff2,ttf}', {
+        cwd: path.dirname(filePath)
+      });
+      for (const asset of siblingAssets) {
+        const src = path.join(path.dirname(filePath), asset);
+        const dest = path.join(outputDir, asset);
+        await fs.copy(src, dest);
+      }
 
-    // Also copy assets subfolder if it exists
-    const assetsDir = path.join(path.dirname(htmlPath), 'assets');
-    if (fs.existsSync(assetsDir)) {
-      await fs.copy(assetsDir, path.join(outputDir, 'assets'));
-      console.log(`  ✓ Copied assets folder`);
+      // Also copy assets subfolder if it exists
+      const assetsDir = path.join(path.dirname(filePath), 'assets');
+      if (fs.existsSync(assetsDir)) {
+        await fs.copy(assetsDir, path.join(outputDir, 'assets'));
+        console.log(`  ✓ Copied assets folder`);
+      }
     }
 
     // Generate thumbnail (flatten path for thumbnail filename)
-    const thumbnailName = relPath.replace(/\//g, '_').replace('.html', '.png');
+    const thumbnailName = relPath.replace(/\//g, '_').replace('.' + ext, '.png');
     const thumbnailPath = path.join(CONFIG.docsDir, 'thumbnails', thumbnailName);
-    await generateThumbnail(htmlPath, thumbnailPath);
+    await generateThumbnailForFile(filePath, thumbnailPath, ext);
 
     // Group by folder
     if (!presentationsByFolder[metadata.folder]) {
@@ -874,7 +1015,7 @@ async function buildLibrary() {
 
   // 5. Generate landing page with collapsible sections
   console.log('🎨 Building landing page with folder sections...');
-  const totalCount = htmlFiles.length;
+  const totalCount = presentationFiles.length;
   const indexHtml = buildLandingPage(presentationsByFolder, totalCount, allPresentations);
   await fs.writeFile(path.join(CONFIG.docsDir, 'index.html'), indexHtml);
   console.log('  ✓ index.html created\n');
