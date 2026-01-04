@@ -119,18 +119,12 @@
 
             const container = document.getElementById('viewerContainer');
 
-            // Try embed first, fallback to object/iframe
-            const embed = document.createElement('embed');
-            embed.src = file;
-            embed.type = 'application/pdf';
-            container.appendChild(embed);
-
-            // Fallback for browsers without PDF plugin
-            embed.onerror = () => {
-                container.innerHTML = `
-                    <iframe src="${file}" title="PDF Viewer"></iframe>
-                `;
-            };
+            // Use iframe for better cross-browser PDF support
+            const iframe = document.createElement('iframe');
+            iframe.src = file;
+            iframe.title = 'PDF Viewer';
+            iframe.setAttribute('allowfullscreen', 'true');
+            container.appendChild(iframe);
         } else {
             document.getElementById('viewerContainer').innerHTML = `
                 <div class="error">
