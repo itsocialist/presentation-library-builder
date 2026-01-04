@@ -214,6 +214,24 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
             min-height: 100vh;
         }
         
+        /* Mouse-tracking gradient light */
+        .mouse-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+            background: radial-gradient(
+                600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(18, 166, 111, 0.15),
+                transparent 40%
+            );
+            transition: opacity 0.3s ease;
+        }
+        
         .header {
             background: var(--slate-900);
             border-bottom: 1px solid var(--slate-800);
@@ -507,6 +525,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
     </style>
 </head>
 <body>
+    <div class="mouse-gradient"></div>
     <div class="header">
         <h1>${CONFIG.libraryTitle}</h1>
         <p class="subtitle">
@@ -665,6 +684,12 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
         
         // Initialize
         document.addEventListener('DOMContentLoaded', renderDynamicSections);
+        
+        // Mouse-tracking gradient
+        document.addEventListener('mousemove', (e) => {
+            document.documentElement.style.setProperty('--mouse-x', e.clientX + 'px');
+            document.documentElement.style.setProperty('--mouse-y', e.clientY + 'px');
+        });
         
         function toggleSection(header) {
             const section = header.parentElement;
