@@ -11,8 +11,9 @@ const CONFIG = {
   presentationsDir: path.join(__dirname, '../presentations'),
   docsDir: path.join(__dirname, '../docs'),
   thumbnailSize: { width: 800, height: 450 },
-  libraryTitle: 'CIQ Presentations',
-  theme: 'dark'
+  libraryTitle: 'Presentations',
+  theme: 'dark',
+  accessCode: 'ciq2026'  // Access code gate - set to null to disable
 };
 
 // Extract metadata from HTML file
@@ -660,9 +661,93 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
         
         .empty-state { text-align: center; padding: 6rem 2rem; color: var(--slate-400); }
         .empty-state h2 { font-size: 1.5rem; color: var(--slate-300); margin-bottom: 1rem; }
+        
+        /* Access Code Modal */
+        .access-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(3, 7, 18, 0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .access-modal.hidden { display: none; }
+        .access-form {
+            background: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .access-form h2 {
+            color: var(--slate-100);
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+        .access-form p {
+            color: var(--slate-400);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .access-form input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: var(--slate-800);
+            border: 1px solid var(--slate-600);
+            border-radius: 8px;
+            color: var(--slate-100);
+            font-size: 1rem;
+            text-align: center;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+        .access-form input:focus {
+            outline: none;
+            border-color: var(--ciq-green);
+            box-shadow: 0 0 0 2px rgba(18, 166, 111, 0.2);
+        }
+        .access-form button {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--ciq-green);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .access-form button:hover { background: #0d8a5a; }
+        .access-error {
+            color: #E53E3E;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .access-error.visible { display: block; }
     </style>
 </head>
 <body>
+    <!-- Access Code Modal -->
+    ${CONFIG.accessCode ? `
+    <div class="access-modal" id="accessModal">
+        <div class="access-form">
+            <h2>Access Required</h2>
+            <p>Enter the access code to view presentations</p>
+            <input type="password" id="accessCodeInput" placeholder="Enter code" autocomplete="off">
+            <button onclick="checkAccessCode()">Enter</button>
+            <div class="access-error" id="accessError">Invalid access code</div>
+        </div>
+    </div>
+    ` : ''}
     <div class="mouse-gradient"></div>
     <div class="header">
         <h1>${CONFIG.libraryTitle}</h1>
@@ -701,6 +786,32 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
     author: p.author,
     thumbnail: p.relPath.split('/').join('_').replace('.html', '.png')
   })))};
+        
+        // Access Code Gate
+        const ACCESS_CODE = '${CONFIG.accessCode || ''}';
+        
+        function checkAccessCode() {
+            const input = document.getElementById('accessCodeInput');
+            const error = document.getElementById('accessError');
+            if (input.value === ACCESS_CODE) {
+                localStorage.setItem('accessGranted', 'true');
+                document.getElementById('accessModal').classList.add('hidden');
+            } else {
+                error.classList.add('visible');
+                input.value = '';
+                input.focus();
+            }
+        }
+        
+        // Check access on load
+        if (ACCESS_CODE && localStorage.getItem('accessGranted') !== 'true') {
+            document.getElementById('accessModal').classList.remove('hidden');
+            document.getElementById('accessCodeInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') checkAccessCode();
+            });
+        } else if (document.getElementById('accessModal')) {
+            document.getElementById('accessModal').classList.add('hidden');
+        }
         
         // Track view in localStorage
         function trackView(path) {
