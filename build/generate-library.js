@@ -790,12 +790,21 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
         
         // Access Code Gate
         const ACCESS_CODES = ${JSON.stringify(CONFIG.accessCodes || [])};
+        const ACCESS_EXPIRY_MS = 60 * 60 * 1000; // 1 hour in milliseconds
+        
+        function isAccessValid() {
+            const grantedAt = localStorage.getItem('accessGrantedAt');
+            if (!grantedAt) return false;
+            const elapsed = Date.now() - parseInt(grantedAt, 10);
+            return elapsed < ACCESS_EXPIRY_MS;
+        }
         
         function checkAccessCode() {
             const input = document.getElementById('accessCodeInput');
             const error = document.getElementById('accessError');
             if (ACCESS_CODES.includes(input.value)) {
                 localStorage.setItem('accessGranted', 'true');
+                localStorage.setItem('accessGrantedAt', Date.now().toString());
                 document.getElementById('accessModal').classList.add('hidden');
             } else {
                 error.classList.add('visible');
@@ -804,8 +813,10 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
             }
         }
         
-        // Check access on load
-        if (ACCESS_CODES.length > 0 && localStorage.getItem('accessGranted') !== 'true') {
+        // Check access on load (with expiry)
+        if (ACCESS_CODES.length > 0 && !isAccessValid()) {
+            localStorage.removeItem('accessGranted');
+            localStorage.removeItem('accessGrantedAt');
             document.getElementById('accessModal').classList.remove('hidden');
             document.getElementById('accessCodeInput').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') checkAccessCode();

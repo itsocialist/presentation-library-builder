@@ -315,11 +315,21 @@
         const ACCESS_CODES = ['ciq2026', 'getmoney']; // Same codes as main page
 
         // === ACCESS CODE CHECK ===
+        const ACCESS_EXPIRY_MS = 60 * 60 * 1000; // 1 hour in milliseconds
+
+        function isAccessValid() {
+            const grantedAt = localStorage.getItem('accessGrantedAt');
+            if (!grantedAt) return false;
+            const elapsed = Date.now() - parseInt(grantedAt, 10);
+            return elapsed < ACCESS_EXPIRY_MS;
+        }
+
         function checkAccessCode() {
             const input = document.getElementById('accessCodeInput');
             const error = document.getElementById('accessError');
             if (ACCESS_CODES.includes(input.value)) {
                 localStorage.setItem('accessGranted', 'true');
+                localStorage.setItem('accessGrantedAt', Date.now().toString());
                 document.getElementById('accessModal').style.display = 'none';
                 loadPresentation();
             } else {
@@ -329,8 +339,10 @@
             }
         }
 
-        // Check access on load
-        if (localStorage.getItem('accessGranted') !== 'true') {
+        // Check access on load (with expiry)
+        if (!isAccessValid()) {
+            localStorage.removeItem('accessGranted');
+            localStorage.removeItem('accessGrantedAt');
             document.getElementById('accessModal').style.display = 'flex';
             document.getElementById('accessCodeInput').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') checkAccessCode();
@@ -448,19 +460,29 @@
 
         function copyViewerLink() {
             navigator.clipboard.writeText(window.location.href).then(() => {
-                // Show inline notification instead of alert
+                // Show copied confirmation and access code
                 const btn = document.querySelector('.share-option:last-of-type .label');
-                const original = btn.textContent;
+                const desc = document.querySelector('.share-option:last-of-type .desc');
+                const originalBtn = btn.textContent;
+                const originalDesc = desc.textContent;
+
                 btn.textContent = '✓ Copied!';
                 btn.style.color = '#12A66F';
+                desc.textContent = 'Access code: ' + ACCESS_CODES[0];
+                desc.style.color = '#E2E8F0';
+                desc.style.fontWeight = '600';
+
                 setTimeout(() => {
-                    btn.textContent = original;
+                    btn.textContent = originalBtn;
                     btn.style.color = '';
+                    desc.textContent = originalDesc;
+                    desc.style.color = '';
+                    desc.style.fontWeight = '';
                     closeShareModal();
-                }, 1500);
+                }, 3000); // Show for 3 seconds so user can note the code
             }).catch(() => {
-                // Fallback: select text for manual copy
-                prompt('Copy this link:', window.location.href);
+                // Fallback: show both link and code
+                prompt('Link copied! Access code: ' + ACCESS_CODES[0], window.location.href);
                 closeShareModal();
             });
         }
