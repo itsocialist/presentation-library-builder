@@ -253,6 +253,100 @@
                 height: 100vh;
             }
         }
+        }
+
+        /* Header Controls */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .view-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .view-toggle:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--text);
+        }
+
+        .view-toggle.active {
+            background: var(--ciq-green);
+            border-color: var(--ciq-green);
+            color: white;
+        }
+
+        /* Pagination Controls */
+        .pagination-controls {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(30, 30, 30, 0.9);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-controls.visible {
+            opacity: 1;
+            pointer-events: all;
+            bottom: 3rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--ciq-green);
+            border-color: var(--ciq-green);
+            color: white;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: var(--border);
+        }
+
+        .page-indicator {
+            font-family: monospace;
+            color: var(--muted);
+            font-size: 0.9rem;
+            min-width: 80px;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -279,7 +373,19 @@
     <div class="header">
         <a href="index.html" class="back-btn">← Library</a>
         <span class="title" id="presentationTitle">Loading...</span>
-        <button class="share-btn" onclick="openShareModal()">Share</button>
+        <div class="header-controls">
+            <button class="view-toggle" id="viewToggle" onclick="toggleViewMode()" style="display: none;">
+                <span class="icon">📜</span> <span class="text">Scroll</span>
+            </button>
+            <button class="share-btn" onclick="openShareModal()">Share</button>
+        </div>
+    </div>
+
+    <!-- Pagination Controls (Hidden by default) -->
+    <div class="pagination-controls" id="paginationControls">
+        <button class="nav-btn prev" onclick="prevPage()" disabled>←</button>
+        <span class="page-indicator" id="pageIndicator">Page 1 / --</span>
+        <button class="nav-btn next" onclick="nextPage()">→</button>
     </div>
 
     <div class="viewer-container">
@@ -499,6 +605,168 @@
         document.getElementById('shareModal').addEventListener('click', function (e) {
             if (e.target === this) closeShareModal();
         });
+
+        // === AUTO-PAGINATION LOGIC ===
+        let isPagedMode = false;
+        let currentPage = 1;
+        let totalPages = 1;
+
+        // Initialize after iframe load
+        document.getElementById('presentationFrame').onload = function () {
+            // Give a moment for content to settle
+            setTimeout(detectPaginationCapability, 500);
+        };
+
+        function detectPaginationCapability() {
+            const frame = document.getElementById('presentationFrame');
+            try {
+                const doc = frame.contentDocument || frame.contentWindow.document;
+
+                // 1. Check if it's already a slide deck (Reveal.js)
+                if (doc.querySelector('.reveal') || doc.querySelector('.slides')) {
+                    console.log('Detected Reveal.js - native pagination active');
+                    return; // Do nothing, let internal logic handle it
+                }
+
+                // 2. Check if content is long enough to warrant pagination
+                // Only show if scrollHeight is significantly larger than viewport (2.5x)
+                if (doc.body.scrollHeight > window.innerHeight * 2.5) {
+                    document.getElementById('viewToggle').style.display = 'flex';
+                }
+            } catch (e) {
+                console.log('Cannot access iframe content (likely CORS or strict sandbox):', e);
+            }
+        }
+
+        function toggleViewMode() {
+            const btn = document.getElementById('viewToggle');
+            const controls = document.getElementById('paginationControls');
+            const frame = document.getElementById('presentationFrame');
+            const doc = frame.contentDocument || frame.contentWindow.document;
+
+            isPagedMode = !isPagedMode;
+
+            if (isPagedMode) {
+                // Switch to Paged
+                btn.classList.add('active');
+                btn.querySelector('.text').textContent = 'Paged';
+
+                // Initialize pagination if first time
+                if (totalPages === 1 || !doc.querySelector('.auto-page')) {
+                    initPagination(doc);
+                }
+
+                controls.classList.add('visible');
+                applyPage(doc, currentPage);
+
+                // Track in Umami
+                if (typeof umami !== 'undefined') umami.track('view-mode-paged');
+            } else {
+                // Switch to Scroll
+                btn.classList.remove('active');
+                btn.querySelector('.text').textContent = 'Scroll';
+                controls.classList.remove('visible');
+
+                // Remove page hiding
+                const pages = doc.querySelectorAll('.auto-page');
+                pages.forEach(p => p.style.display = '');
+
+                // Track in Umami
+                if (typeof umami !== 'undefined') umami.track('view-mode-scroll');
+            }
+        }
+
+        function initPagination(doc) {
+            // Heuristic: Wrap top-level elements into "pages"
+            // Method: Find all direct children of body/main
+            // We prefer wrapping existing <section> or grouping h1/h2
+
+            const children = Array.from(doc.body.children);
+
+            // Check if we already have <section> tags
+            const sections = doc.querySelectorAll('body > section, body > div.section');
+
+            if (sections.length > 2) {
+                // Good structure already exists
+                sections.forEach((sec) => {
+                    sec.classList.add('auto-page');
+                });
+                totalPages = sections.length;
+            } else {
+                // unstructured content: split by headers (H1, H2)
+                // We will move elements into new wrappers
+                const newContainer = document.createElement('div');
+                newContainer.id = 'pagination-wrapper';
+
+                let currentWrapper = document.createElement('div');
+                currentWrapper.className = 'auto-page';
+                newContainer.appendChild(currentWrapper);
+
+                let pageCount = 1;
+
+                children.forEach(child => {
+                    // Skip interface elements
+                    if (['SCRIPT', 'STYLE', 'LINK'].includes(child.tagName)) return;
+
+                    // Start new page on H1/H2 if current page isn't empty
+                    if ((child.tagName === 'H1' || child.tagName === 'H2' || child.classList.contains('page-break')) &&
+                        currentWrapper.children.length > 0) {
+
+                        currentWrapper = document.createElement('div');
+                        currentWrapper.className = 'auto-page';
+                        newContainer.appendChild(currentWrapper);
+                        pageCount++;
+                    }
+                    // Move the node (clone logic not needed as we are moving)
+                    // Note: This removes it from original body
+                    currentWrapper.appendChild(child);
+                });
+
+                // Clear body and append our container
+                // This is aggressive but necessary for visual pagination
+                doc.body.innerHTML = '';
+                doc.body.appendChild(newContainer);
+                totalPages = pageCount;
+            }
+
+            updatePaginationUI();
+        }
+
+        function applyPage(doc, index) {
+            const pages = doc.querySelectorAll('.auto-page');
+            pages.forEach((p, i) => {
+                if (i === index - 1) {
+                    p.style.display = 'block';
+                    doc.documentElement.scrollTop = 0;
+                    doc.body.scrollTop = 0;
+                } else {
+                    p.style.display = 'none';
+                }
+            });
+            updatePaginationUI();
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                const frame = document.getElementById('presentationFrame');
+                applyPage(frame.contentDocument || frame.contentWindow.document, currentPage);
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                const frame = document.getElementById('presentationFrame');
+                applyPage(frame.contentDocument || frame.contentWindow.document, currentPage);
+            }
+        }
+
+        function updatePaginationUI() {
+            document.getElementById('pageIndicator').textContent = `Page ${currentPage} / ${totalPages}`;
+            document.querySelector('.nav-btn.prev').disabled = currentPage === 1;
+            document.querySelector('.nav-btn.next').disabled = currentPage === totalPages;
+        }
 
         // Initialize
         loadPresentation();
