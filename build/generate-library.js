@@ -1098,8 +1098,23 @@ async function buildLibrary() {
     await fs.ensureDir(outputDir);
 
     // Copy file to docs (preserving folder structure)
-    await fs.copy(filePath, path.join(CONFIG.docsDir, 'presentations', relPath));
-    console.log(`  ✓ Copied to docs/presentations/${path.dirname(relPath) || '.'}/`);
+    const destPath = path.join(CONFIG.docsDir, 'presentations', relPath);
+
+    if (ext === 'html') {
+      let content = await fs.readFile(filePath, 'utf8');
+      const umamiScript = `<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>`;
+
+      // Inject before </head> if not already present
+      if (content.includes('</head>') && !content.includes('cloud.umami.is/script.js')) {
+        content = content.replace('</head>', `${umamiScript}\n</head>`);
+        console.log(`  ✓ Injected Umami tracking`);
+      }
+      await fs.writeFile(destPath, content);
+      console.log(`  ✓ Processed HTML to ${destPath}`);
+    } else {
+      await fs.copy(filePath, destPath);
+      console.log(`  ✓ Copied to ${destPath}`);
+    }
 
     // Copy any sibling assets (for HTML files only)
     if (ext === 'html') {
