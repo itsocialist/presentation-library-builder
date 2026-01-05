@@ -13,7 +13,7 @@ const CONFIG = {
   thumbnailSize: { width: 800, height: 450 },
   libraryTitle: 'Presentations',
   theme: 'dark',
-  accessCode: 'ciq2026'  // Access code gate - set to null to disable
+  accessCodes: ['ciq2026', 'getmoney']  // Access codes - set to [] to disable
 };
 
 // Extract metadata from HTML file
@@ -220,7 +220,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
     // Format badge colors
     const formatBadge = format !== 'html' ? `<span class="format-badge format-${format}">${format.toUpperCase()}</span>` : '';
 
-    // Link behavior: HTML = view, PDF = viewer, PPTX = download
+    // Link behavior: HTML = protected viewer, PDF = viewer, PPTX = download
     let href, onclick, downloadAttr = '';
     if (format === 'pdf') {
       href = `viewer.html?file=presentations/${p.relPath}`;
@@ -230,7 +230,8 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
       onclick = `trackView('${p.relPath}')`;
       downloadAttr = ' download';
     } else {
-      href = `presentations/${p.relPath}`;
+      // HTML presentations go through protected viewer
+      href = `protected-viewer.html?p=${encodeURIComponent(p.relPath)}`;
       onclick = `trackView('${p.relPath}')`;
     }
 
@@ -737,7 +738,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
 </head>
 <body>
     <!-- Access Code Modal -->
-    ${CONFIG.accessCode ? `
+    ${CONFIG.accessCodes && CONFIG.accessCodes.length > 0 ? `
     <div class="access-modal" id="accessModal">
         <div class="access-form">
             <h2>Access Required</h2>
@@ -788,12 +789,12 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
   })))};
         
         // Access Code Gate
-        const ACCESS_CODE = '${CONFIG.accessCode || ''}';
+        const ACCESS_CODES = ${JSON.stringify(CONFIG.accessCodes || [])};
         
         function checkAccessCode() {
             const input = document.getElementById('accessCodeInput');
             const error = document.getElementById('accessError');
-            if (input.value === ACCESS_CODE) {
+            if (ACCESS_CODES.includes(input.value)) {
                 localStorage.setItem('accessGranted', 'true');
                 document.getElementById('accessModal').classList.add('hidden');
             } else {
@@ -804,7 +805,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
         }
         
         // Check access on load
-        if (ACCESS_CODE && localStorage.getItem('accessGranted') !== 'true') {
+        if (ACCESS_CODES.length > 0 && localStorage.getItem('accessGranted') !== 'true') {
             document.getElementById('accessModal').classList.remove('hidden');
             document.getElementById('accessCodeInput').addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') checkAccessCode();
