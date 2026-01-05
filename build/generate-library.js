@@ -13,7 +13,8 @@ const CONFIG = {
   thumbnailSize: { width: 800, height: 450 },
   libraryTitle: 'Presentations',
   theme: 'dark',
-  accessCodes: ['ciq2026', 'getmoney']  // Access codes - set to [] to disable
+  // Generate random 4-digit access code at build time
+  accessCodes: [String(Math.floor(1000 + Math.random() * 9000))]
 };
 
 // Extract metadata from HTML file
@@ -806,10 +807,14 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
                 localStorage.setItem('accessGranted', 'true');
                 localStorage.setItem('accessGrantedAt', Date.now().toString());
                 document.getElementById('accessModal').classList.add('hidden');
+                // Track access granted in Umami
+                if (typeof umami !== 'undefined') umami.track('access-granted');
             } else {
                 error.classList.add('visible');
                 input.value = '';
                 input.focus();
+                // Track access denied in Umami
+                if (typeof umami !== 'undefined') umami.track('access-denied');
             }
         }
         
@@ -1141,9 +1146,22 @@ async function buildLibrary() {
   const totalCount = presentationFiles.length;
   const indexHtml = buildLandingPage(presentationsByFolder, totalCount, allPresentations);
   await fs.writeFile(path.join(CONFIG.docsDir, 'index.html'), indexHtml);
-  console.log('  ✓ index.html created\n');
+  console.log('  ✓ index.html created');
+
+  // 5.5 Update protected-viewer.html with current access code
+  const viewerPath = path.join(CONFIG.docsDir, 'protected-viewer.html');
+  if (fs.existsSync(viewerPath)) {
+    let viewerHtml = await fs.readFile(viewerPath, 'utf-8');
+    viewerHtml = viewerHtml.replace(
+      /const ACCESS_CODES = \\[.*?\\];/,
+      `const ACCESS_CODES = ${JSON.stringify(CONFIG.accessCodes)};`
+    );
+    await fs.writeFile(viewerPath, viewerHtml);
+    console.log(`  ✓ protected-viewer.html updated with access code: ${CONFIG.accessCodes[0]}`);
+  }
 
   // 6. Summary
+  console.log('');
   console.log('✅ Build complete!');
   console.log(`   ${totalCount} presentation(s) in ${Object.keys(presentationsByFolder).length} folder(s)`);
   console.log(`   Output: docs/ directory (ready for GitHub Pages)`);

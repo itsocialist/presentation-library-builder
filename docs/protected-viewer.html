@@ -331,11 +331,15 @@
                 localStorage.setItem('accessGranted', 'true');
                 localStorage.setItem('accessGrantedAt', Date.now().toString());
                 document.getElementById('accessModal').style.display = 'none';
+                // Track access granted in Umami
+                if (typeof umami !== 'undefined') umami.track('access-granted');
                 loadPresentation();
             } else {
                 error.style.display = 'block';
                 input.value = '';
                 input.focus();
+                // Track access denied in Umami
+                if (typeof umami !== 'undefined') umami.track('access-denied');
             }
         }
 
@@ -452,6 +456,8 @@
         }
 
         function shareAsPDF() {
+            // Track in Umami
+            if (typeof umami !== 'undefined') umami.track('share-pdf');
             // Trigger print dialog for PDF export
             const frame = document.getElementById('presentationFrame');
             frame.contentWindow.print();
@@ -459,6 +465,8 @@
         }
 
         function copyViewerLink() {
+            // Track in Umami
+            if (typeof umami !== 'undefined') umami.track('share-link');
             navigator.clipboard.writeText(window.location.href).then(() => {
                 // Show copied confirmation and access code
                 const btn = document.querySelector('.share-option:last-of-type .label');
