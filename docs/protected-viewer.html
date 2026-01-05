@@ -418,12 +418,16 @@
     <script>
         // === CONFIGURATION ===
         const ENCODED_PRESENTATIONS = {}; // Will be populated at build time
-        const ACCESS_CODES = ['ciq2026', 'getmoney']; // Same codes as main page
+        const ACCESS_CODES = ['ciq2026', 'getmoney']; // Will be replaced by build
+        const ADMIN_CODES = ['ciq2026', 'getmoney']; // Will be replaced by build
 
         // === ACCESS CODE CHECK ===
         const ACCESS_EXPIRY_MS = 60 * 60 * 1000; // 1 hour in milliseconds
 
         function isAccessValid() {
+            const role = localStorage.getItem('accessRole');
+            if (role === 'admin') return true; // Admin access never expires
+
             const grantedAt = localStorage.getItem('accessGrantedAt');
             if (!grantedAt) return false;
             const elapsed = Date.now() - parseInt(grantedAt, 10);
@@ -433,18 +437,26 @@
         function checkAccessCode() {
             const input = document.getElementById('accessCodeInput');
             const error = document.getElementById('accessError');
-            if (ACCESS_CODES.includes(input.value)) {
+            const val = input.value.trim();
+
+            if (ADMIN_CODES.includes(val)) {
                 localStorage.setItem('accessGranted', 'true');
+                localStorage.setItem('accessRole', 'admin');
                 localStorage.setItem('accessGrantedAt', Date.now().toString());
                 document.getElementById('accessModal').style.display = 'none';
-                // Track access granted in Umami
+                if (typeof umami !== 'undefined') umami.track('access-granted-admin');
+                loadPresentation();
+            } else if (ACCESS_CODES.includes(val)) {
+                localStorage.setItem('accessGranted', 'true');
+                localStorage.setItem('accessRole', 'viewer');
+                localStorage.setItem('accessGrantedAt', Date.now().toString());
+                document.getElementById('accessModal').style.display = 'none';
                 if (typeof umami !== 'undefined') umami.track('access-granted');
                 loadPresentation();
             } else {
                 error.style.display = 'block';
                 input.value = '';
                 input.focus();
-                // Track access denied in Umami
                 if (typeof umami !== 'undefined') umami.track('access-denied');
             }
         }

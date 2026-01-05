@@ -14,7 +14,8 @@ const CONFIG = {
   libraryTitle: 'Presentations',
   theme: 'dark',
   // Generate random 4-digit access code at build time
-  accessCodes: [String(Math.floor(1000 + Math.random() * 9000))]
+  accessCodes: [String(Math.floor(1000 + Math.random() * 9000))],
+  adminCodes: ['ciq2026', 'getmoney'] // Persistent admin codes that don't expire
 };
 
 // Extract metadata from HTML file
@@ -791,9 +792,13 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
         
         // Access Code Gate
         const ACCESS_CODES = ${JSON.stringify(CONFIG.accessCodes || [])};
+        const ADMIN_CODES = ${JSON.stringify(CONFIG.adminCodes || [])};
         const ACCESS_EXPIRY_MS = 60 * 60 * 1000; // 1 hour in milliseconds
         
         function isAccessValid() {
+            const role = localStorage.getItem('accessRole');
+            if (role === 'admin') return true; // Admin access never expires
+            
             const grantedAt = localStorage.getItem('accessGrantedAt');
             if (!grantedAt) return false;
             const elapsed = Date.now() - parseInt(grantedAt, 10);
@@ -803,17 +808,24 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
         function checkAccessCode() {
             const input = document.getElementById('accessCodeInput');
             const error = document.getElementById('accessError');
-            if (ACCESS_CODES.includes(input.value)) {
+            const val = input.value.trim();
+            
+            if (ADMIN_CODES.includes(val)) {
                 localStorage.setItem('accessGranted', 'true');
+                localStorage.setItem('accessRole', 'admin');
                 localStorage.setItem('accessGrantedAt', Date.now().toString());
                 document.getElementById('accessModal').classList.add('hidden');
-                // Track access granted in Umami
+                if (typeof umami !== 'undefined') umami.track('access-granted-admin');
+            } else if (ACCESS_CODES.includes(val)) {
+                localStorage.setItem('accessGranted', 'true');
+                localStorage.setItem('accessRole', 'viewer');
+                localStorage.setItem('accessGrantedAt', Date.now().toString());
+                document.getElementById('accessModal').classList.add('hidden');
                 if (typeof umami !== 'undefined') umami.track('access-granted');
             } else {
                 error.classList.add('visible');
                 input.value = '';
                 input.focus();
-                // Track access denied in Umami
                 if (typeof umami !== 'undefined') umami.track('access-denied');
             }
         }
@@ -821,6 +833,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
         // Check access on load (with expiry)
         if (ACCESS_CODES.length > 0 && !isAccessValid()) {
             localStorage.removeItem('accessGranted');
+            localStorage.removeItem('accessRole');
             localStorage.removeItem('accessGrantedAt');
             document.getElementById('accessModal').classList.remove('hidden');
             document.getElementById('accessCodeInput').addEventListener('keyup', (e) => {
@@ -1170,6 +1183,9 @@ async function buildLibrary() {
     viewerHtml = viewerHtml.replace(
       /const ACCESS_CODES = \\[.*?\\];/,
       `const ACCESS_CODES = ${JSON.stringify(CONFIG.accessCodes)};`
+    ).replace(
+      /const ADMIN_CODES = \\[.*?\\];/,
+      `const ADMIN_CODES = ${JSON.stringify(CONFIG.adminCodes || [])};`
     );
     await fs.writeFile(viewerPath, viewerHtml);
     console.log(`  ✓ protected-viewer.html updated with access code: ${CONFIG.accessCodes[0]}`);
