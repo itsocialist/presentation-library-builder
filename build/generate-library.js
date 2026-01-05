@@ -15,7 +15,8 @@ const CONFIG = {
   theme: 'dark',
   // Generate random 4-digit access code at build time
   accessCodes: [String(Math.floor(1000 + Math.random() * 9000))],
-  adminCodes: ['ciq2026', 'getmoney'] // Persistent admin codes that don't expire
+  adminCodes: ['ciq2026', 'getmoney'], // Persistent admin codes that don't expire
+  skipThumbnails: true // Disable thumbnails to save disk space
 };
 
 // Extract metadata from HTML file
@@ -1149,9 +1150,11 @@ async function buildLibrary() {
     }
 
     // Generate thumbnail (flatten path for thumbnail filename)
-    const thumbnailName = relPath.replace(/\//g, '_').replace('.' + ext, '.png');
-    const thumbnailPath = path.join(CONFIG.docsDir, 'thumbnails', thumbnailName);
-    await generateThumbnailForFile(filePath, thumbnailPath, ext);
+    if (!CONFIG.skipThumbnails) {
+      const thumbnailName = relPath.replace(/\//g, '_').replace('.' + ext, '.png');
+      const thumbnailPath = path.join(CONFIG.docsDir, 'thumbnails', thumbnailName);
+      await generateThumbnailForFile(filePath, thumbnailPath, ext);
+    }
 
     // Group by folder
     if (!presentationsByFolder[metadata.folder]) {

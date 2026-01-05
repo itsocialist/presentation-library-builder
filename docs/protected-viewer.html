@@ -379,6 +379,13 @@
         <a href="index.html" class="back-btn">← Library</a>
         <span class="title" id="presentationTitle">Loading...</span>
         <div class="header-controls">
+            <button class="view-toggle" id="editToggle" onclick="toggleEditMode()">
+                <span class="icon">✏️</span> <span class="text">Edit</span>
+            </button>
+            <button class="view-toggle" id="saveBtn" onclick="downloadChanges()" style="display: none;">
+                <span class="icon">💾</span> <span class="text">Save</span>
+            </button>
+            <div style="width: 1px; height: 20px; background: var(--border); margin: 0 0.25rem;"></div>
             <button class="view-toggle" id="viewToggle" onclick="toggleViewMode()" style="display: none;">
                 <span class="icon">📜</span> <span class="text">Scroll</span>
             </button>
@@ -624,6 +631,87 @@
         document.getElementById('shareModal').addEventListener('click', function (e) {
             if (e.target === this) closeShareModal();
         });
+
+        // === WYSIWYG EDITOR LOGIC ===
+        let isEditMode = false;
+
+        function toggleEditMode() {
+            const btn = document.getElementById('editToggle');
+            const saveBtn = document.getElementById('saveBtn');
+            const frame = document.getElementById('presentationFrame');
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            const body = doc.body;
+
+            isEditMode = !isEditMode;
+
+            if (isEditMode) {
+                // Enable Edit Mode
+                btn.classList.add('active');
+                btn.querySelector('.text').textContent = 'Done';
+                saveBtn.style.display = 'flex';
+
+                body.contentEditable = 'true';
+                body.spellcheck = false; // Disable red squiggles for cleaner view
+
+                // Inject editing styles if not present
+                if (!doc.getElementById('editor-styles')) {
+                    const style = doc.createElement('style');
+                    style.id = 'editor-styles';
+                    style.textContent = `
+                        *:hover { outline: 1px dashed rgba(36, 178, 120, 0.5); cursor: text; }
+                        *:focus { outline: 2px solid #24B278; }
+                    `;
+                    doc.head.appendChild(style);
+                }
+
+                if (typeof umami !== 'undefined') umami.track('edit-mode-start');
+            } else {
+                // Disable Edit Mode
+                btn.classList.remove('active');
+                btn.querySelector('.text').textContent = 'Edit';
+                saveBtn.style.display = 'none';
+
+                body.contentEditable = 'false';
+
+                // Remove editing styles (optional, but cleaner)
+                const style = doc.getElementById('editor-styles');
+                if (style) style.remove();
+
+                if (typeof umami !== 'undefined') umami.track('edit-mode-end');
+            }
+        }
+
+        function downloadChanges() {
+            const frame = document.getElementById('presentationFrame');
+            const doc = frame.contentDocument || frame.contentWindow.document;
+
+            // Clone to clean up
+            const htmlContent = doc.documentElement.outerHTML;
+
+            // Create download
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+
+            // Filename
+            const title = document.getElementById('presentationTitle').textContent;
+            const cleanTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            a.download = `${cleanTitle}-edited.html`;
+
+            a.href = url;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            if (typeof umami !== 'undefined') umami.track('save-changes-download');
+
+            // Feedback
+            const saveBtn = document.getElementById('saveBtn');
+            const originalText = saveBtn.querySelector('.text').textContent;
+            saveBtn.querySelector('.text').textContent = 'Saved!';
+            setTimeout(() => {
+                saveBtn.querySelector('.text').textContent = originalText;
+            }, 2000);
+        }
 
         // === AUTO-PAGINATION LOGIC ===
         let isPagedMode = false;
