@@ -221,6 +221,38 @@
         .devtools-warning p {
             color: var(--muted);
         }
+
+        /* Print styles for PDF export - auto landscape orientation */
+        @media print {
+            @page {
+                size: landscape;
+                margin: 0;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .header,
+            .devtools-warning,
+            .modal-overlay,
+            .loading {
+                display: none !important;
+            }
+
+            .viewer-container {
+                position: static;
+                width: 100%;
+                height: 100%;
+            }
+
+            #presentationFrame {
+                position: static;
+                width: 100%;
+                height: 100vh;
+            }
+        }
     </style>
 </head>
 
