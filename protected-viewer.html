@@ -257,6 +257,20 @@
 </head>
 
 <body oncontextmenu="return false;">
+    <!-- Access Code Modal -->
+    <div class="modal-overlay" id="accessModal">
+        <div class="modal">
+            <h3>🔒 Access Required</h3>
+            <p class="desc" style="margin-bottom: 1rem;">Enter the access code to view this presentation.</p>
+            <input type="password" id="accessCodeInput" class="access-input" placeholder="Access code"
+                style="width: 100%; padding: 0.75rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 1rem; margin-bottom: 0.5rem;">
+            <div id="accessError" class="desc" style="color: #E53E3E; margin-bottom: 0.5rem; display: none;">Invalid
+                access code</div>
+            <button onclick="checkAccessCode()"
+                style="width: 100%; padding: 0.75rem; background: var(--ciq-green); border: none; border-radius: 6px; color: white; font-size: 1rem; cursor: pointer;">Enter</button>
+        </div>
+    </div>
+
     <div class="devtools-warning" id="devtoolsWarning">
         <h2>🔒 Protected Content</h2>
         <p>Developer tools are not available for this presentation.</p>
@@ -298,6 +312,30 @@
     <script>
         // === CONFIGURATION ===
         const ENCODED_PRESENTATIONS = {}; // Will be populated at build time
+        const ACCESS_CODES = ['ciq2026', 'getmoney']; // Same codes as main page
+
+        // === ACCESS CODE CHECK ===
+        function checkAccessCode() {
+            const input = document.getElementById('accessCodeInput');
+            const error = document.getElementById('accessError');
+            if (ACCESS_CODES.includes(input.value)) {
+                localStorage.setItem('accessGranted', 'true');
+                document.getElementById('accessModal').style.display = 'none';
+                loadPresentation();
+            } else {
+                error.style.display = 'block';
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        // Check access on load
+        if (localStorage.getItem('accessGranted') !== 'true') {
+            document.getElementById('accessModal').style.display = 'flex';
+            document.getElementById('accessCodeInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') checkAccessCode();
+            });
+        }
 
         // === ANTI-INSPECTION ===
 
