@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation Viewer</title>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #030712;
+            --surface: #0F172A;
+            --border: #1E293B;
+            --text: #E2E8F0;
+            --muted: #94A3B8;
+            --ciq-green: #12A66F;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        
+        .header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 100;
+        }
+        
+        .back-btn {
+            color: var(--ciq-green);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .back-btn:hover { text-decoration: underline; }
+        
+        .title {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .share-btn {
+            background: var(--ciq-green);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        
+        .share-btn:hover { background: #0d8a5a; }
+        
+        .viewer-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #presentationFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--muted);
+        }
+        
+        .error {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        
+        .error h2 { color: #E53E3E; margin-bottom: 1rem; }
+        
+        /* Share modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.active { display: flex; }
+        
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .modal h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .share-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        
+        .share-option:hover { border-color: var(--ciq-green); }
+        
+        .share-option .icon { font-size: 1.5rem; }
+        .share-option .label { font-weight: 500; }
+        .share-option .desc { font-size: 0.8rem; color: var(--muted); }
+        
+        .modal-close {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .modal-close:hover { background: var(--bg); }
+        
+        /* Anti-inspection overlay */
+        .devtools-warning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .devtools-warning.active { display: flex; }
+        .devtools-warning h2 { color: var(--text); }
+        .devtools-warning p { color: var(--muted); }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+    <div class="devtools-warning" id="devtoolsWarning">
+        <h2>🔒 Protected Content</h2>
+        <p>Developer tools are not available for this presentation.</p>
+    </div>
+    
+    <div class="header">
+        <a href="index.html" class="back-btn">← Library</a>
+        <span class="title" id="presentationTitle">Loading...</span>
+        <button class="share-btn" onclick="openShareModal()">Share</button>
+    </div>
+    
+    <div class="viewer-container">
+        <div class="loading" id="loadingState">Loading presentation...</div>
+        <iframe id="presentationFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+    
+    <!-- Share Modal -->
+    <div class="modal-overlay" id="shareModal">
+        <div class="modal">
+            <h3>Share Presentation</h3>
+            <div class="share-option" onclick="shareAsPDF()">
+                <span class="icon">📄</span>
+                <div>
+                    <div class="label">Export as PDF</div>
+                    <div class="desc">Protected, non-editable format</div>
+                </div>
+            </div>
+            <div class="share-option" onclick="copyViewerLink()">
+                <span class="icon">🔗</span>
+                <div>
+                    <div class="label">Copy Viewer Link</div>
+                    <div class="desc">Protected viewer (requires access code)</div>
+                </div>
+            </div>
+            <button class="modal-close" onclick="closeShareModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // === CONFIGURATION ===
+        const ENCODED_PRESENTATIONS = {}; // Will be populated at build time
+        
+        // === ANTI-INSPECTION ===
+        
+        // Block keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Block Ctrl+U (view source), Ctrl+S (save), Ctrl+Shift+I (devtools), F12
+            if (
+                (e.ctrlKey && e.key === 'u') ||
+                (e.ctrlKey && e.key === 's') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+                e.key === 'F12'
+            ) {
+                e.preventDefault();
+                return false;
+            }
+        });
+        
+        // Detect DevTools (basic detection)
+        let devtoolsOpen = false;
+        const threshold = 160;
+        
+        function checkDevTools() {
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+            
+            if (widthThreshold || heightThreshold) {
+                if (!devtoolsOpen) {
+                    devtoolsOpen = true;
+                    document.getElementById('devtoolsWarning').classList.add('active');
+                    document.getElementById('presentationFrame').src = 'about:blank';
+                }
+            } else {
+                if (devtoolsOpen) {
+                    devtoolsOpen = false;
+                    document.getElementById('devtoolsWarning').classList.remove('active');
+                    loadPresentation();
+                }
+            }
+        }
+        
+        setInterval(checkDevTools, 500);
+        
+        // === PRESENTATION LOADING ===
+        
+        function decodeContent(encoded) {
+            // Reverse the obfuscation and decode base64
+            const reversed = encoded.split('').reverse().join('');
+            return atob(reversed);
+        }
+        
+        function loadPresentation() {
+            const params = new URLSearchParams(window.location.search);
+            const presentationPath = params.get('p');
+            
+            if (!presentationPath) {
+                showError('No presentation specified');
+                return;
+            }
+            
+            // Extract title from path
+            const filename = presentationPath.split('/').pop();
+            const title = filename.replace('.html', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            document.getElementById('presentationTitle').textContent = title;
+            document.title = title + ' - Presentation Viewer';
+            
+            // Check if we have encoded content
+            if (ENCODED_PRESENTATIONS[presentationPath]) {
+                const html = decodeContent(ENCODED_PRESENTATIONS[presentationPath]);
+                const frame = document.getElementById('presentationFrame');
+                frame.srcdoc = html;
+                document.getElementById('loadingState').style.display = 'none';
+            } else {
+                // Fallback: load directly (less protected)
+                const frame = document.getElementById('presentationFrame');
+                frame.src = 'presentations/' + presentationPath;
+                document.getElementById('loadingState').style.display = 'none';
+            }
+        }
+        
+        function showError(message) {
+            document.querySelector('.viewer-container').innerHTML = `
+                <div class="error">
+                    <h2>Error</h2>
+                    <p>${message}</p>
+                    <a href="index.html" class="back-btn" style="margin-top: 1rem; display: inline-block;">← Back to Library</a>
+                </div>
+            `;
+        }
+        
+        // === SHARE FUNCTIONALITY ===
+        
+        function openShareModal() {
+            document.getElementById('shareModal').classList.add('active');
+        }
+        
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('active');
+        }
+        
+        function shareAsPDF() {
+            // Trigger print dialog for PDF export
+            const frame = document.getElementById('presentationFrame');
+            frame.contentWindow.print();
+            closeShareModal();
+        }
+        
+        function copyViewerLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copied to clipboard!');
+                closeShareModal();
+            });
+        }
+        
+        // Close modal on overlay click
+        document.getElementById('shareModal').addEventListener('click', function(e) {
+            if (e.target === this) closeShareModal();
+        });
+        
+        // Initialize
+        loadPresentation();
+    </script>
+</body>
+</html>
