@@ -595,8 +595,9 @@
                 btn.textContent = '✓ Copied!';
                 btn.style.color = '#12A66F';
                 desc.textContent = 'Access code: ' + ACCESS_CODES[0];
-                desc.style.color = '#E2E8F0';
-                desc.style.fontWeight = '600';
+                desc.style.color = '#ffffff';
+                desc.style.fontWeight = 'bold';
+                desc.style.fontSize = '1.1em';
 
                 setTimeout(() => {
                     btn.textContent = originalBtn;
@@ -604,8 +605,9 @@
                     desc.textContent = originalDesc;
                     desc.style.color = '';
                     desc.style.fontWeight = '';
+                    desc.style.fontSize = '';
                     closeShareModal();
-                }, 3000); // Show for 3 seconds so user can note the code
+                }, 10000); // Show for 10 seconds so user can note the code
             }).catch(() => {
                 // Fallback: show both link and code
                 prompt('Link copied! Access code: ' + ACCESS_CODES[0], window.location.href);
