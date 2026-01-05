@@ -259,7 +259,7 @@
         .header-controls {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         .view-toggle {
@@ -267,24 +267,29 @@
             align-items: center;
             gap: 0.5rem;
             background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 0.5rem 1rem;
+            border: 1px solid transparent;
+            color: var(--muted);
+            padding: 0.5rem 0.75rem;
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            font-weight: 500;
         }
 
         .view-toggle:hover {
             background: rgba(255, 255, 255, 0.05);
-            border-color: var(--text);
+            color: var(--text);
         }
 
         .view-toggle.active {
-            background: var(--ciq-green);
-            border-color: var(--ciq-green);
-            color: white;
+            background: rgba(36, 178, 120, 0.15);
+            /* CIQ Green tint */
+            color: var(--ciq-green);
+        }
+
+        .view-toggle .icon {
+            font-size: 1.1em;
         }
 
         /* Pagination Controls */
