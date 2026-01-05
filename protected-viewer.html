@@ -238,7 +238,7 @@
 
     <div class="viewer-container">
         <div class="loading" id="loadingState">Loading presentation...</div>
-        <iframe id="presentationFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+        <iframe id="presentationFrame" sandbox="allow-scripts allow-same-origin allow-modals allow-popups"></iframe>
     </div>
 
     <!-- Share Modal -->
@@ -378,7 +378,19 @@
 
         function copyViewerLink() {
             navigator.clipboard.writeText(window.location.href).then(() => {
-                alert('Link copied to clipboard!');
+                // Show inline notification instead of alert
+                const btn = document.querySelector('.share-option:last-of-type .label');
+                const original = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                btn.style.color = '#12A66F';
+                setTimeout(() => {
+                    btn.textContent = original;
+                    btn.style.color = '';
+                    closeShareModal();
+                }, 1500);
+            }).catch(() => {
+                // Fallback: select text for manual copy
+                prompt('Copy this link:', window.location.href);
                 closeShareModal();
             });
         }
