@@ -10,11 +10,10 @@ const unzipper = require('unzipper');
 const CONFIG = {
   presentationsDir: path.join(__dirname, '../presentations'),
   docsDir: path.join(__dirname, '../docs'),
+  allowedExtensions: ['.html', '.pdf', '.pptx'],
   thumbnailSize: { width: 800, height: 450 },
-  libraryTitle: 'Presentations',
-  theme: 'dark',
-  // Generate random 4-digit access code at build time
-  accessCodes: [String(Math.floor(1000 + Math.random() * 9000))],
+  libraryTitle: 'CIQ Presentation Library',
+  accessCodes: ['8888'], // Static code for reliability
   adminCodes: ['ciq2026', 'getmoney'], // Persistent admin codes that don't expire
   skipThumbnails: true, // Disable thumbnails to save disk space
   // Folders with protected presentations (Base64-encoded, no raw files served)
@@ -233,7 +232,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
     const viewerPath = relativePathPrefix ? `${relativePathPrefix}protected-viewer.html` : 'protected-viewer.html';
     const pdfViewerPath = relativePathPrefix ? `${relativePathPrefix}viewer.html` : 'viewer.html';
     const presentationsPath = relativePathPrefix ? `${relativePathPrefix}presentations/${p.relPath}` : `presentations/${p.relPath}`;
-    const thumbnailPath = relativePathPrefix ? `${relativePathPrefix}thumbnails/${thumbnailName}` : `thumbnails/${thumbnailName}`;
+    const thumbnailPath = relativePathPrefix ? `${relativePathPrefix}thumbnails/${encodeURIComponent(thumbnailName)}` : `thumbnails/${encodeURIComponent(thumbnailName)}`;
 
     if (format === 'pdf') {
       href = `${pdfViewerPath}?file=${encodeURIComponent(presentationsPath)}`;
@@ -751,7 +750,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
 </head>
 <body>
     <!-- Access Code Modal -->
-    ${CONFIG.accessCodes && CONFIG.accessCodes.length > 0 ? `
+    \${CONFIG.accessCodes && CONFIG.accessCodes.length > 0 ? \`
     <div class="access-modal" id="accessModal">
         <div class="access-form">
             <h2>Access Required</h2>
@@ -761,12 +760,12 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
             <div class="access-error" id="accessError">Invalid access code</div>
         </div>
     </div>
-    ` : ''}
+    \` : ''}
     <div class="mouse-gradient"></div>
     <div class="header">
-        <h1>${CONFIG.libraryTitle}</h1>
+        <h1>\${CONFIG.libraryTitle}</h1>
         <p class="subtitle">
-            <span class="count">${totalCount}</span> presentation${totalCount !== 1 ? 's' : ''} in <span class="count">${folderNames.length}</span> ${folderNames.length !== 1 ? 'categories' : 'category'}
+            <span class="count">\${totalCount}</span> presentation\${totalCount !== 1 ? 's' : ''} in <span class="count">\${folderNames.length}</span> \${folderNames.length !== 1 ? 'categories' : 'category'}
         </p>
         <div class="search-bar">
             <input type="text" class="search-input" id="searchInput" placeholder="Search presentations...">
@@ -774,28 +773,28 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
     </div>
     
     <div class="container">
-        ${totalCount === 0 ? `
+        \${totalCount === 0 ? \`
         <div class="empty-state">
             <h2>No presentations yet</h2>
             <p>Drop HTML presentations into the <code>presentations/</code> folder and run <code>npm run build</code></p>
         </div>
-        ` : `
-        ${renderFeatured()}
-        ${renderMostRecent()}
-        ${folderNames.map(folder => renderSection(folder, presentationsByFolder[folder])).join('')}
-        `}
+        \` : \`
+        \${renderFeatured()}
+        \${renderMostRecent()}
+        \${folderNames.map(folder => renderSection(folder, presentationsByFolder[folder])).join('')}
+        \`}
     </div>
     
     <div class="footer">
-        Built with CIQ Presentation Library Builder • Last updated: ${new Date().toLocaleDateString()}
+        Built with CIQ Presentation Library Builder • Last updated: \${new Date().toLocaleDateString()}
     </div>
     
     <script>
         // Path configuration for client-side rendering
-        const BASE_PATH = '${relativePathPrefix}';
+        const BASE_PATH = '\${relativePathPrefix}';
         
         // Presentation registry for dynamic sections
-        const presentations = ${JSON.stringify(allPresentations.map(p => ({
+        const presentations = \${JSON.stringify(allPresentations.map(p => ({
     path: p.relPath,
     title: p.title,
     folder: p.folder,
@@ -805,8 +804,8 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
   })))};
         
         // Access Code Gate
-        const ACCESS_CODES = ${JSON.stringify(CONFIG.accessCodes || [])};
-        const ADMIN_CODES = ${JSON.stringify(CONFIG.adminCodes || [])};
+        const ACCESS_CODES = \${JSON.stringify(CONFIG.accessCodes || [])};
+        const ADMIN_CODES = \${JSON.stringify(CONFIG.adminCodes || [])};
         const ACCESS_EXPIRY_MS = 60 * 60 * 1000; // 1 hour in milliseconds
         
         function isAccessValid() {
@@ -917,7 +916,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
             const viewerPath = BASE_PATH ? \`\${BASE_PATH}protected-viewer.html\` : 'protected-viewer.html';
             const pdfViewerPath = BASE_PATH ? \`\${BASE_PATH}viewer.html\` : 'viewer.html';
             const presentationPath = BASE_PATH ? \`\${BASE_PATH}presentations/\${p.path}\` : \`presentations/\${p.path}\`;
-            const thumbnailPath = BASE_PATH ? \`\${BASE_PATH}thumbnails/\${thumbnailName}\` : \`thumbnails/\${thumbnailName}\`;
+            const thumbnailPath = BASE_PATH ? \`\${BASE_PATH}thumbnails/\${encodeURIComponent(thumbnailName)}\` : \`thumbnails/\${encodeURIComponent(thumbnailName)}\`;
             
             let href, downloadAttr = '';
             
