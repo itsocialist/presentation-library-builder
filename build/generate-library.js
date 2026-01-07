@@ -210,7 +210,7 @@ async function generateThumbnailForFile(filePath, outputPath, format) {
 }
 
 // Build the landing page with collapsible folder sections
-function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
+function buildLandingPage(presentationsByFolder, totalCount, allPresentations, title = CONFIG.libraryTitle, relativePathPrefix = '') {
   const folderNames = Object.keys(presentationsByFolder).sort((a, b) => {
     // Put "Uncategorized" at the end
     if (a === 'Uncategorized') return 1;
@@ -228,16 +228,23 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
 
     // Link behavior: HTML = protected viewer, PDF = viewer, PPTX = download
     let href, onclick, downloadAttr = '';
+
+    // Construct paths with prefix
+    const viewerPath = relativePathPrefix ? `${relativePathPrefix}protected-viewer.html` : 'protected-viewer.html';
+    const pdfViewerPath = relativePathPrefix ? `${relativePathPrefix}viewer.html` : 'viewer.html';
+    const presentationsPath = relativePathPrefix ? `${relativePathPrefix}presentations/${p.relPath}` : `presentations/${p.relPath}`;
+    const thumbnailPath = relativePathPrefix ? `${relativePathPrefix}thumbnails/${thumbnailName}` : `thumbnails/${thumbnailName}`;
+
     if (format === 'pdf') {
-      href = `viewer.html?file=presentations/${p.relPath}`;
+      href = `${pdfViewerPath}?file=${encodeURIComponent(presentationsPath)}`;
       onclick = `trackView('${p.relPath}')`;
     } else if (format === 'pptx') {
-      href = `presentations/${p.relPath}`;
+      href = presentationsPath;
       onclick = `trackView('${p.relPath}')`;
       downloadAttr = ' download';
     } else {
       // HTML presentations go through protected viewer
-      href = `protected-viewer.html?p=${encodeURIComponent(p.relPath)}`;
+      href = `${viewerPath}?p=${encodeURIComponent(p.relPath)}`;
       onclick = `trackView('${p.relPath}')`;
     }
 
@@ -252,7 +259,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
          data-format="${format}"
          onclick="${onclick}"${downloadAttr}>
         ${formatBadge}
-        <img src="thumbnails/${thumbnailName}" alt="${p.title}" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <img src="${thumbnailPath}" alt="${p.title}" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
         <div class="card-content">
           <div class="card-title">${p.title}</div>
           <div class="card-meta">
@@ -784,6 +791,9 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
     </div>
     
     <script>
+        // Path configuration for client-side rendering
+        const BASE_PATH = '${relativePathPrefix}';
+        
         // Presentation registry for dynamic sections
         const presentations = ${JSON.stringify(allPresentations.map(p => ({
     path: p.relPath,
@@ -898,20 +908,49 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations) {
         
         // Render a card from data
         function renderCardHTML(p, extraClass = '') {
+            const format = p.format || 'html';
+            const ext = '.' + format;
+            const thumbnailName = p.thumbnail || p.path.split('/').join('_').replace(ext, '.png');
+            const formatBadge = format !== 'html' ? \`<span class="format-badge format-\${format}">\${format.toUpperCase()}</span>\` : '';
+            
+            // Construct paths
+            const viewerPath = BASE_PATH ? \`\${BASE_PATH}protected-viewer.html\` : 'protected-viewer.html';
+            const pdfViewerPath = BASE_PATH ? \`\${BASE_PATH}viewer.html\` : 'viewer.html';
+            const presentationPath = BASE_PATH ? \`\${BASE_PATH}presentations/\${p.path}\` : \`presentations/\${p.path}\`;
+            const thumbnailPath = BASE_PATH ? \`\${BASE_PATH}thumbnails/\${thumbnailName}\` : \`thumbnails/\${thumbnailName}\`;
+            
+            let href, downloadAttr = '';
+            
+            if (format === 'pdf') {
+              href = \`\${pdfViewerPath}?file=\${encodeURIComponent(presentationPath)}\`;
+            } else if (format === 'pptx') {
+              href = presentationPath;
+              downloadAttr = ' download';
+            } else {
+              href = \`\${viewerPath}?p=\${encodeURIComponent(p.path)}\`;
+            }
+            
             return \`
-            <a href="presentations/\${p.path}" class="presentation-card \${extraClass}" 
-               data-path="\${p.path}" onclick="trackView('\${p.path}')">
-              <img src="thumbnails/\${p.thumbnail}" alt="\${p.title}" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
-              <div class="card-content">
-                <div class="card-title">\${p.title}</div>
-                <div class="card-meta">
-                  <span>\${p.date}</span>
-                  <span>•</span>
-                  <span>\${p.author}</span>
-                </div>
-                <span class="folder-badge">\${p.folder}</span>
-              </div>
-            </a>\`;
+            <div class="card-wrapper" data-path="\${p.path}">
+                <button class="pin-btn" onclick="handlePin(event, '\${p.path}')" title="Pin to Featured">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+                </button>
+                <a href="\${href}" class="presentation-card \${extraClass}" 
+                   data-path="\${p.path}" data-title="\${p.title.toLowerCase()}"
+                   onclick="trackView('\${p.path}')"\${downloadAttr}>
+                  \${formatBadge}
+                  <img src="\${thumbnailPath}" alt="\${p.title}" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                  <div class="card-content">
+                    <div class="card-title">\${p.title}</div>
+                    <div class="card-meta">
+                      <span>\${p.date}</span>
+                      <span>•</span>
+                      <span>\${p.author}</span>
+                    </div>
+                    <span class="folder-badge">\${p.folder}</span>
+                  </div>
+                </a>
+            </div>\`;
         }
         
         // Render Featured section
