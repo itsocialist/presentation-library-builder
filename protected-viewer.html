@@ -44,6 +44,56 @@
             align-items: center;
             gap: 1rem;
             z-index: 100;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .header.hidden {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .show-header-btn {
+            position: fixed;
+            top: 0.5rem;
+            right: 0.5rem;
+            z-index: 99;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .show-header-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .show-header-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+
+        .hide-header-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+
+        .hide-header-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
         }
 
         .back-btn {
@@ -80,6 +130,31 @@
 
         .share-btn:hover {
             background: #0d8a5a;
+        }
+
+        /* Header Controls - flexbox row layout */
+        .header-controls {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: nowrap;
+        }
+
+        .view-toggle {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .view-toggle:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
         }
 
         .viewer-container {
@@ -384,8 +459,11 @@
         <p>Developer tools are not available for this presentation.</p>
     </div>
 
-    <div class="header">
-        <a href="index.html" class="back-btn">← Library</a>
+    <button class="show-header-btn" id="showHeaderBtn" onclick="showHeader()">☰ Show Menu</button>
+
+    <div class="header" id="headerBar">
+        <button class="hide-header-btn" onclick="hideHeader()" title="Hide header">✕</button>
+        <a href="ciq/" class="back-btn" id="backToLibrary">← Library</a>
         <span class="title" id="presentationTitle">Loading...</span>
         <div class="header-controls">
             <button class="view-toggle" id="editToggle" onclick="toggleEditMode()">
@@ -541,7 +619,13 @@
         function decodeContent(encoded) {
             // Reverse the obfuscation and decode base64
             const reversed = encoded.split('').reverse().join('');
-            return atob(reversed);
+            // Decode Base64 to binary string, then properly decode as UTF-8
+            const binaryString = atob(reversed);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return new TextDecoder('utf-8').decode(bytes);
         }
 
         function loadPresentation() {
@@ -558,6 +642,18 @@
             const title = filename.replace('.html', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             document.getElementById('presentationTitle').textContent = title;
             document.title = title + ' - Presentation Viewer';
+
+            // Update library link based on context (default to CIQ)
+            const backLink = document.getElementById('backToLibrary');
+            const referrer = document.referrer || '';
+            const fromParam = params.get('from');
+
+            // Default to CIQ library, only go to root if explicitly from there
+            if (fromParam === 'root' || (referrer.includes('/index.html') && !referrer.includes('/ciq/'))) {
+                backLink.href = 'index.html';
+            } else {
+                backLink.href = 'ciq/';
+            }
 
             // Check if we have encoded content
             if (ENCODED_PRESENTATIONS[presentationPath]) {
@@ -721,8 +817,19 @@
             }, 2000);
         }
 
+        // === HEADER VISIBILITY ===
+        function hideHeader() {
+            document.getElementById('headerBar').classList.add('hidden');
+            document.getElementById('showHeaderBtn').classList.add('visible');
+        }
+
+        function showHeader() {
+            document.getElementById('headerBar').classList.remove('hidden');
+            document.getElementById('showHeaderBtn').classList.remove('visible');
+        }
+
         // === AUTO-PAGINATION LOGIC ===
-        let isPagedMode = false;
+        let isPagedMode = true; // Default to paged mode
         let currentPage = 1;
         let totalPages = 1;
 
