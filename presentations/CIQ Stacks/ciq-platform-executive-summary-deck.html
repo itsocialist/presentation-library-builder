@@ -1373,7 +1373,7 @@
         document.querySelectorAll('.screenshot-frame').forEach(el => imgObs.observe(el));
         const barObs = new IntersectionObserver(e => { e.forEach(x => { if (x.isIntersecting) { x.target.querySelectorAll('.bar-fill').forEach(bar => setTimeout(() => bar.style.width = bar.dataset.target + '%', 300)) } }) }, { threshold: 0.5 });
         document.querySelectorAll('.value-migration').forEach(el => barObs.observe(el));
-        setTimeout(() => { upd(); start() }, 1000);
+        setTimeout(() => { upd(); }, 1000);
     </script>
 </body>
 

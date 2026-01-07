@@ -432,7 +432,7 @@
 </head>
 <body>
     <!-- Access Code Modal -->
-    ${CONFIG.accessCodes && CONFIG.accessCodes.length > 0 ? `
+    
     <div class="access-modal" id="accessModal">
         <div class="access-form">
             <h2>Access Required</h2>
@@ -442,12 +442,12 @@
             <div class="access-error" id="accessError">Invalid access code</div>
         </div>
     </div>
-    ` : ''}
+    
     <div class="mouse-gradient"></div>
     <div class="header">
-        <h1>${CONFIG.libraryTitle}</h1>
+        <h1>CIQ Executive Presentations</h1>
         <p class="subtitle">
-            <span class="count">${totalCount}</span> presentation${totalCount !== 1 ? 's' : ''} in <span class="count">${folderNames.length}</span> ${folderNames.length !== 1 ? 'categories' : 'category'}
+            <span class="count">20</span> presentations in <span class="count">1</span> category
         </p>
         <div class="search-bar">
             <input type="text" class="search-input" id="searchInput" placeholder="Search presentations...">
@@ -455,39 +455,517 @@
     </div>
     
     <div class="container">
-        ${totalCount === 0 ? `
-        <div class="empty-state">
-            <h2>No presentations yet</h2>
-            <p>Drop HTML presentations into the <code>presentations/</code> folder and run <code>npm run build</code></p>
+        
+        
+    <div class="featured-section" id="featuredSection" style="display: none;">
+      <h2 class="section-title">Featured</h2>
+      <div class="featured-grid" id="featuredGrid">
+        <!-- Populated by JS from pinned items -->
+      </div>
+    </div>
+        
+    <div class="folder-section" id="mostRecentSection" style="display: none;">
+      <div class="folder-header" onclick="toggleSection(this)">
+        <span class="folder-icon">▼</span>
+        <h2 class="folder-title">Recently Viewed</h2>
+        <span class="folder-count" id="recentCount">0</span>
+      </div>
+      <div class="folder-content">
+        <div class="grid" id="recentGrid">
+          <!-- Populated by JS from localStorage -->
         </div>
-        ` : `
-        ${renderFeatured()}
-        ${renderMostRecent()}
-        ${folderNames.map(folder => renderSection(folder, presentationsByFolder[folder])).join('')}
-        `}
+      </div>
+    </div>
+        
+    <div class="folder-section collapsed" data-folder="ciq stacks">
+      <div class="folder-header" onclick="toggleSection(this)">
+        <span class="folder-icon">▼</span>
+        <h2 class="folder-title">CIQ Stacks</h2>
+        <span class="folder-count">20</span>
+      </div>
+      <div class="folder-content">
+        <div class="grid">
+          
+    <div class="card-wrapper" data-path="CIQ Stacks/wazuh-rlch-strategy-hud.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/wazuh-rlch-strategy-hud.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fwazuh-rlch-strategy-hud.html" class="presentation-card 0" 
+         data-path="CIQ Stacks/wazuh-rlch-strategy-hud.html" data-title="wazuh rlch strategy hud" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/wazuh-rlch-strategy-hud.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_wazuh-rlch-strategy-hud.png" alt="Wazuh Rlch Strategy Hud" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Wazuh Rlch Strategy Hud</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/wasm-cod-hud.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/wasm-cod-hud.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fwasm-cod-hud.html" class="presentation-card 1" 
+         data-path="CIQ Stacks/wasm-cod-hud.html" data-title="wasm cod hud" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/wasm-cod-hud.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_wasm-cod-hud.png" alt="Wasm Cod Hud" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Wasm Cod Hud</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/wasm-cod-hud (1).html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/wasm-cod-hud (1).html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fwasm-cod-hud%20(1).html" class="presentation-card 2" 
+         data-path="CIQ Stacks/wasm-cod-hud (1).html" data-title="wasm cod hud (1)" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/wasm-cod-hud (1).html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_wasm-cod-hud%20(1).png" alt="Wasm Cod Hud (1)" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Wasm Cod Hud (1)</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/rocky-security-platform-mockup.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/rocky-security-platform-mockup.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Frocky-security-platform-mockup.html" class="presentation-card 3" 
+         data-path="CIQ Stacks/rocky-security-platform-mockup.html" data-title="rocky security platform mockup" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/rocky-security-platform-mockup.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_rocky-security-platform-mockup.png" alt="Rocky Security Platform Mockup" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Rocky Security Platform Mockup</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/rocky-security-platform-desktop.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/rocky-security-platform-desktop.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Frocky-security-platform-desktop.html" class="presentation-card 4" 
+         data-path="CIQ Stacks/rocky-security-platform-desktop.html" data-title="rocky security platform desktop" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/rocky-security-platform-desktop.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_rocky-security-platform-desktop.png" alt="Rocky Security Platform Desktop" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Rocky Security Platform Desktop</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/ciq-vs-rke2-suse-battlecard.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/ciq-vs-rke2-suse-battlecard.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fciq-vs-rke2-suse-battlecard.html" class="presentation-card 5" 
+         data-path="CIQ Stacks/ciq-vs-rke2-suse-battlecard.html" data-title="ciq vs rke2 suse battlecard" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/ciq-vs-rke2-suse-battlecard.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_ciq-vs-rke2-suse-battlecard.png" alt="Ciq Vs Rke2 Suse Battlecard" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Ciq Vs Rke2 Suse Battlecard</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/ciq-vs-rke2-rlc-ai-style.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/ciq-vs-rke2-rlc-ai-style.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fciq-vs-rke2-rlc-ai-style.html" class="presentation-card 6" 
+         data-path="CIQ Stacks/ciq-vs-rke2-rlc-ai-style.html" data-title="ciq vs rke2 rlc ai style" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/ciq-vs-rke2-rlc-ai-style.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_ciq-vs-rke2-rlc-ai-style.png" alt="Ciq Vs Rke2 Rlc Ai Style" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Ciq Vs Rke2 Rlc Ai Style</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/ciq-vs-rke2-rlc-ai-style (1).html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/ciq-vs-rke2-rlc-ai-style (1).html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fciq-vs-rke2-rlc-ai-style%20(1).html" class="presentation-card 7" 
+         data-path="CIQ Stacks/ciq-vs-rke2-rlc-ai-style (1).html" data-title="ciq vs rke2 rlc ai style (1)" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/ciq-vs-rke2-rlc-ai-style (1).html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_ciq-vs-rke2-rlc-ai-style%20(1).png" alt="Ciq Vs Rke2 Rlc Ai Style (1)" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Ciq Vs Rke2 Rlc Ai Style (1)</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/ciq-secure-stack-rlc-ai-style.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/ciq-secure-stack-rlc-ai-style.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fciq-secure-stack-rlc-ai-style.html" class="presentation-card 8" 
+         data-path="CIQ Stacks/ciq-secure-stack-rlc-ai-style.html" data-title="ciq secure stack rlc ai style" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/ciq-secure-stack-rlc-ai-style.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_ciq-secure-stack-rlc-ai-style.png" alt="Ciq Secure Stack Rlc Ai Style" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Ciq Secure Stack Rlc Ai Style</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/ciq-secure-stack-rlc-ai-style (1).html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/ciq-secure-stack-rlc-ai-style (1).html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fciq-secure-stack-rlc-ai-style%20(1).html" class="presentation-card 9" 
+         data-path="CIQ Stacks/ciq-secure-stack-rlc-ai-style (1).html" data-title="ciq secure stack rlc ai style (1)" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/ciq-secure-stack-rlc-ai-style (1).html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_ciq-secure-stack-rlc-ai-style%20(1).png" alt="Ciq Secure Stack Rlc Ai Style (1)" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Ciq Secure Stack Rlc Ai Style (1)</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/ciq-secure-stack-prodcut-page-final.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/ciq-secure-stack-prodcut-page-final.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fciq-secure-stack-prodcut-page-final.html" class="presentation-card 10" 
+         data-path="CIQ Stacks/ciq-secure-stack-prodcut-page-final.html" data-title="ciq secure stack prodcut page final" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/ciq-secure-stack-prodcut-page-final.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_ciq-secure-stack-prodcut-page-final.png" alt="Ciq Secure Stack Prodcut Page Final" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Ciq Secure Stack Prodcut Page Final</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/ciq-secure-stack-integration.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/ciq-secure-stack-integration.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fciq-secure-stack-integration.html" class="presentation-card 11" 
+         data-path="CIQ Stacks/ciq-secure-stack-integration.html" data-title="ciq secure stack integration" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/ciq-secure-stack-integration.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_ciq-secure-stack-integration.png" alt="Ciq Secure Stack Integration" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Ciq Secure Stack Integration</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/ciq-secure-stack-integration (1).html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/ciq-secure-stack-integration (1).html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fciq-secure-stack-integration%20(1).html" class="presentation-card 12" 
+         data-path="CIQ Stacks/ciq-secure-stack-integration (1).html" data-title="ciq secure stack integration (1)" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/ciq-secure-stack-integration (1).html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_ciq-secure-stack-integration%20(1).png" alt="Ciq Secure Stack Integration (1)" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Ciq Secure Stack Integration (1)</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/ciq-secure-stack-defense-ethereal.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/ciq-secure-stack-defense-ethereal.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fciq-secure-stack-defense-ethereal.html" class="presentation-card 13" 
+         data-path="CIQ Stacks/ciq-secure-stack-defense-ethereal.html" data-title="ciq secure stack defense ethereal" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/ciq-secure-stack-defense-ethereal.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_ciq-secure-stack-defense-ethereal.png" alt="Ciq Secure Stack Defense Ethereal" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Ciq Secure Stack Defense Ethereal</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/ciq-platform-executive-summary-deck.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/ciq-platform-executive-summary-deck.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fciq-platform-executive-summary-deck.html" class="presentation-card 14" 
+         data-path="CIQ Stacks/ciq-platform-executive-summary-deck.html" data-title="ciq platform executive summary deck" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/ciq-platform-executive-summary-deck.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_ciq-platform-executive-summary-deck.png" alt="Ciq Platform Executive Summary Deck" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Ciq Platform Executive Summary Deck</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2FCIQ-Stack-Architecture-Visual_2.html" class="presentation-card 15" 
+         data-path="CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html" data-title="ciq stack architecture visual_2" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_CIQ-Stack-Architecture-Visual_2.png" alt="CIQ Stack Architecture Visual_2" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">CIQ Stack Architecture Visual_2</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2FCIQ-Secure-Stack-Architecture-Visualization_3.html" class="presentation-card 16" 
+         data-path="CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html" data-title="ciq secure stack architecture visualization_3" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_CIQ-Secure-Stack-Architecture-Visualization_3.png" alt="CIQ Secure Stack Architecture Visualization_3" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">CIQ Secure Stack Architecture Visualization_3</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/CIQ-Pricing-Analysis-Visual.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/CIQ-Pricing-Analysis-Visual.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2FCIQ-Pricing-Analysis-Visual.html" class="presentation-card 17" 
+         data-path="CIQ Stacks/CIQ-Pricing-Analysis-Visual.html" data-title="ciq pricing analysis visual" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/CIQ-Pricing-Analysis-Visual.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_CIQ-Pricing-Analysis-Visual.png" alt="CIQ Pricing Analysis Visual" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">CIQ Pricing Analysis Visual</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/CIQ-Deployment-Models-Visual_2.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/CIQ-Deployment-Models-Visual_2.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2FCIQ-Deployment-Models-Visual_2.html" class="presentation-card 18" 
+         data-path="CIQ Stacks/CIQ-Deployment-Models-Visual_2.html" data-title="ciq deployment models visual_2" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/CIQ-Deployment-Models-Visual_2.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_CIQ-Deployment-Models-Visual_2.png" alt="CIQ Deployment Models Visual_2" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">CIQ Deployment Models Visual_2</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/CIQ-Competitive-Analysis-Visual.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/CIQ-Competitive-Analysis-Visual.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2FCIQ-Competitive-Analysis-Visual.html" class="presentation-card 19" 
+         data-path="CIQ Stacks/CIQ-Competitive-Analysis-Visual.html" data-title="ciq competitive analysis visual" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/CIQ-Competitive-Analysis-Visual.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_CIQ-Competitive-Analysis-Visual.png" alt="CIQ Competitive Analysis Visual" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">CIQ Competitive Analysis Visual</div>
+          <div class="card-meta">
+            <span>2026-01-07</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+        </div>
+      </div>
+    </div>
+        
     </div>
     
     <div class="footer">
-        Built with CIQ Presentation Library Builder • Last updated: ${new Date().toLocaleDateString()}
+        Built with CIQ Presentation Library Builder • Last updated: 1/6/2026
     </div>
     
     <script>
         // Path configuration for client-side rendering
-        const BASE_PATH = '${relativePathPrefix}';
+        const BASE_PATH = '../';
         
         // Presentation registry for dynamic sections
-        const presentations = ${JSON.stringify(allPresentations.map(p => ({
-    path: p.relPath,
-    title: p.title,
-    folder: p.folder,
-    date: p.date,
-    author: p.author,
-    thumbnail: p.relPath.split('/').join('_').replace('.html', '.png')
-  })))};
+        const presentations = [{"path":"CIQ Stacks/wazuh-rlch-strategy-hud.html","title":"Wazuh Rlch Strategy Hud","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_wazuh-rlch-strategy-hud.png"},{"path":"CIQ Stacks/wasm-cod-hud.html","title":"Wasm Cod Hud","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_wasm-cod-hud.png"},{"path":"CIQ Stacks/wasm-cod-hud (1).html","title":"Wasm Cod Hud (1)","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_wasm-cod-hud (1).png"},{"path":"CIQ Stacks/rocky-security-platform-mockup.html","title":"Rocky Security Platform Mockup","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_rocky-security-platform-mockup.png"},{"path":"CIQ Stacks/rocky-security-platform-desktop.html","title":"Rocky Security Platform Desktop","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_rocky-security-platform-desktop.png"},{"path":"CIQ Stacks/ciq-vs-rke2-suse-battlecard.html","title":"Ciq Vs Rke2 Suse Battlecard","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_ciq-vs-rke2-suse-battlecard.png"},{"path":"CIQ Stacks/ciq-vs-rke2-rlc-ai-style.html","title":"Ciq Vs Rke2 Rlc Ai Style","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_ciq-vs-rke2-rlc-ai-style.png"},{"path":"CIQ Stacks/ciq-vs-rke2-rlc-ai-style (1).html","title":"Ciq Vs Rke2 Rlc Ai Style (1)","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_ciq-vs-rke2-rlc-ai-style (1).png"},{"path":"CIQ Stacks/ciq-secure-stack-rlc-ai-style.html","title":"Ciq Secure Stack Rlc Ai Style","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-rlc-ai-style.png"},{"path":"CIQ Stacks/ciq-secure-stack-rlc-ai-style (1).html","title":"Ciq Secure Stack Rlc Ai Style (1)","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-rlc-ai-style (1).png"},{"path":"CIQ Stacks/ciq-secure-stack-prodcut-page-final.html","title":"Ciq Secure Stack Prodcut Page Final","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-prodcut-page-final.png"},{"path":"CIQ Stacks/ciq-secure-stack-integration.html","title":"Ciq Secure Stack Integration","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-integration.png"},{"path":"CIQ Stacks/ciq-secure-stack-integration (1).html","title":"Ciq Secure Stack Integration (1)","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-integration (1).png"},{"path":"CIQ Stacks/ciq-secure-stack-defense-ethereal.html","title":"Ciq Secure Stack Defense Ethereal","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-defense-ethereal.png"},{"path":"CIQ Stacks/ciq-platform-executive-summary-deck.html","title":"Ciq Platform Executive Summary Deck","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_ciq-platform-executive-summary-deck.png"},{"path":"CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html","title":"CIQ Stack Architecture Visual_2","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Stack-Architecture-Visual_2.png"},{"path":"CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html","title":"CIQ Secure Stack Architecture Visualization_3","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Secure-Stack-Architecture-Visualization_3.png"},{"path":"CIQ Stacks/CIQ-Pricing-Analysis-Visual.html","title":"CIQ Pricing Analysis Visual","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Pricing-Analysis-Visual.png"},{"path":"CIQ Stacks/CIQ-Deployment-Models-Visual_2.html","title":"CIQ Deployment Models Visual_2","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Deployment-Models-Visual_2.png"},{"path":"CIQ Stacks/CIQ-Competitive-Analysis-Visual.html","title":"CIQ Competitive Analysis Visual","folder":"CIQ Stacks","date":"2026-01-07","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Competitive-Analysis-Visual.png"}];
         
         // Access Code Gate
-        const ACCESS_CODES = ${JSON.stringify(CONFIG.accessCodes || [])};
-        const ADMIN_CODES = ${JSON.stringify(CONFIG.adminCodes || [])};
+        const ACCESS_CODES = ["8888"];
+        const ADMIN_CODES = ["ciq2026","getmoney"];
         const ACCESS_EXPIRY_MS = 60 * 60 * 1000; // 1 hour in milliseconds
         
         function isAccessValid() {
