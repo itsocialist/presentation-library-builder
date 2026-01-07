@@ -25,9 +25,10 @@ const CONFIG = {
 function extractMetadata(htmlPath, relPath) {
   const html = fs.readFileSync(htmlPath, 'utf-8');
 
-  // Determine folder from relative path
+  // Determine folder from relative path (support nested folders like "H1 2026/RLC-AI")
   const pathParts = relPath.split('/');
-  const folder = pathParts.length > 1 ? pathParts[0] : 'Uncategorized';
+  // Use all path segments except the filename as the folder path
+  const folder = pathParts.length > 1 ? pathParts.slice(0, -1).join('/') : 'Uncategorized';
 
   const metadata = {
     filename: path.basename(htmlPath),
@@ -64,8 +65,9 @@ function extractMetadata(htmlPath, relPath) {
 // Extract metadata for any file format (HTML, PDF, PPTX)
 function extractMetadataForFile(filePath, relPath) {
   const ext = path.extname(filePath).toLowerCase();
+  // Determine folder from relative path (support nested folders)
   const pathParts = relPath.split('/');
-  const folder = pathParts.length > 1 ? pathParts[0] : 'Uncategorized';
+  const folder = pathParts.length > 1 ? pathParts.slice(0, -1).join('/') : 'Uncategorized';
   const basename = path.basename(filePath, ext);
 
   const baseMetadata = {
@@ -1129,7 +1131,7 @@ async function buildLibrary() {
   console.log('🔍 Scanning for presentations...');
   const presentationFiles = await glob('**/*.{html,pdf,pptx}', {
     cwd: CONFIG.presentationsDir,
-    ignore: ['**/node_modules/**', '**/assets/**']
+    ignore: ['**/node_modules/**', '**/assets/**', '**/.*/**', '.*/**']
   });
   console.log(`   Found ${presentationFiles.length} presentation(s)\n`);
 
