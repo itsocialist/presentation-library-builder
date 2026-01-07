@@ -15,7 +15,7 @@ const CONFIG = {
   libraryTitle: 'CIQ Presentation Library',
   accessCodes: ['8888'], // Static code for reliability
   adminCodes: ['ciq2026', 'getmoney'], // Persistent admin codes that don't expire
-  skipThumbnails: true, // Disable thumbnails to save disk space
+  skipThumbnails: false, // Enable thumbnails for visual previews
   // Folders with protected presentations (Base64-encoded, no raw files served)
   protectedFolders: ['CIQ Stacks']
 };
@@ -1244,7 +1244,7 @@ async function buildLibrary() {
 
   // 4. Sort presentations within each folder by date (newest first)
   for (const folder of Object.keys(presentationsByFolder)) {
-    presentationsByFolder[folder].sort((a, b) => new Date(b.date) - new Date(a.date));
+    presentationsByFolder[folder].sort((a, b) => new Date(a.date) - new Date(b.date)); // Oldest first
 
   }
 
