@@ -16,8 +16,11 @@ const CONFIG = {
   // Generate random 4-digit access code at build time
   accessCodes: [String(Math.floor(1000 + Math.random() * 9000))],
   adminCodes: ['ciq2026', 'getmoney'], // Persistent admin codes that don't expire
-  skipThumbnails: true // Disable thumbnails to save disk space
+  skipThumbnails: true, // Disable thumbnails to save disk space
+  // Folders with protected presentations (Base64-encoded, no raw files served)
+  protectedFolders: ['CIQ Stacks']
 };
+
 
 // Extract metadata from HTML file
 function extractMetadata(htmlPath, relPath) {
@@ -1099,6 +1102,7 @@ async function buildLibrary() {
 
   // 3. Process each presentation, grouping by folder
   const presentationsByFolder = {};
+  const encodedPresentations = {}; // For protected folders
 
   for (const relPath of presentationFiles) {
     console.log(`📄 Processing: ${relPath}`);
@@ -1107,56 +1111,74 @@ async function buildLibrary() {
     const ext = path.extname(relPath).toLowerCase().replace('.', '');
     const metadata = extractMetadataForFile(filePath, relPath);
 
-    // Ensure folder exists in output
-    const outputDir = path.join(CONFIG.docsDir, 'presentations', path.dirname(relPath));
-    await fs.ensureDir(outputDir);
+    // Check if this presentation is in a protected folder
+    const isProtected = CONFIG.protectedFolders.some(folder =>
+      relPath.startsWith(folder + '/') || relPath.startsWith(folder + '\\')
+    );
 
-    // Copy file to docs (preserving folder structure)
-    const destPath = path.join(CONFIG.docsDir, 'presentations', relPath);
-
-    if (ext === 'html') {
+    if (isProtected && ext === 'html') {
+      // Base64 encode for protected viewer (no raw file copy)
       let content = await fs.readFile(filePath, 'utf8');
       const umamiScript = `<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>`;
 
-      // Inject before </head> if not already present
       if (content.includes('</head>') && !content.includes('cloud.umami.is/script.js')) {
         content = content.replace('</head>', `${umamiScript}\n</head>`);
-        console.log(`  ✓ Injected Umami tracking`);
       }
-      await fs.writeFile(destPath, content);
-      console.log(`  ✓ Processed HTML to ${destPath}`);
+
+      // Encode: Base64 then reverse (simple obfuscation)
+      const encoded = Buffer.from(content).toString('base64').split('').reverse().join('');
+      encodedPresentations[relPath] = encoded;
+      console.log(`  🔒 Encoded for protected viewer (${Math.round(encoded.length / 1024)}KB)`);
     } else {
-      await fs.copy(filePath, destPath);
-      console.log(`  ✓ Copied to ${destPath}`);
-    }
+      // Standard handling - copy to docs
+      const outputDir = path.join(CONFIG.docsDir, 'presentations', path.dirname(relPath));
+      await fs.ensureDir(outputDir);
+      const destPath = path.join(CONFIG.docsDir, 'presentations', relPath);
 
-    // Copy any sibling assets (for HTML files only)
-    if (ext === 'html') {
-      const siblingAssets = await glob('*.{png,jpg,jpeg,gif,svg,webp,css,js,woff,woff2,ttf}', {
-        cwd: path.dirname(filePath)
-      });
-      for (const asset of siblingAssets) {
-        const src = path.join(path.dirname(filePath), asset);
-        const dest = path.join(outputDir, asset);
-        await fs.copy(src, dest);
+      if (ext === 'html') {
+        let content = await fs.readFile(filePath, 'utf8');
+        const umamiScript = `<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>`;
+
+        // Inject before </head> if not already present
+        if (content.includes('</head>') && !content.includes('cloud.umami.is/script.js')) {
+          content = content.replace('</head>', `${umamiScript}\n</head>`);
+          console.log(`  ✓ Injected Umami tracking`);
+        }
+        await fs.writeFile(destPath, content);
+        console.log(`  ✓ Processed HTML to ${destPath}`);
+      } else {
+        await fs.copy(filePath, destPath);
+        console.log(`  ✓ Copied to ${destPath}`);
       }
 
-      // Also copy assets subfolder if it exists
-      const assetsDir = path.join(path.dirname(filePath), 'assets');
-      if (fs.existsSync(assetsDir)) {
-        await fs.copy(assetsDir, path.join(outputDir, 'assets'));
-        console.log(`  ✓ Copied assets folder`);
+      // Copy any sibling assets (for HTML files only)
+      if (ext === 'html') {
+        const siblingAssets = await glob('*.{png,jpg,jpeg,gif,svg,webp,css,js,woff,woff2,ttf}', {
+          cwd: path.dirname(filePath)
+        });
+        for (const asset of siblingAssets) {
+          const src = path.join(path.dirname(filePath), asset);
+          const dest = path.join(outputDir, asset);
+          await fs.copy(src, dest);
+        }
+
+        // Also copy assets subfolder if it exists
+        const assetsDir = path.join(path.dirname(filePath), 'assets');
+        if (fs.existsSync(assetsDir)) {
+          await fs.copy(assetsDir, path.join(outputDir, 'assets'));
+          console.log(`  ✓ Copied assets folder`);
+        }
+      }
+
+      // Generate thumbnail (flatten path for thumbnail filename)
+      if (!CONFIG.skipThumbnails) {
+        const thumbnailName = relPath.replace(/\//g, '_').replace('.' + ext, '.png');
+        const thumbnailPath = path.join(CONFIG.docsDir, 'thumbnails', thumbnailName);
+        await generateThumbnailForFile(filePath, thumbnailPath, ext);
       }
     }
 
-    // Generate thumbnail (flatten path for thumbnail filename)
-    if (!CONFIG.skipThumbnails) {
-      const thumbnailName = relPath.replace(/\//g, '_').replace('.' + ext, '.png');
-      const thumbnailPath = path.join(CONFIG.docsDir, 'thumbnails', thumbnailName);
-      await generateThumbnailForFile(filePath, thumbnailPath, ext);
-    }
-
-    // Group by folder
+    // Group by folder (for ALL presentations, protected or not)
     if (!presentationsByFolder[metadata.folder]) {
       presentationsByFolder[metadata.folder] = [];
     }
@@ -1167,6 +1189,7 @@ async function buildLibrary() {
   // 4. Sort presentations within each folder by date (newest first)
   for (const folder of Object.keys(presentationsByFolder)) {
     presentationsByFolder[folder].sort((a, b) => new Date(b.date) - new Date(a.date));
+
   }
 
   // Collect all presentations for Most Recent section
@@ -1179,20 +1202,34 @@ async function buildLibrary() {
   await fs.writeFile(path.join(CONFIG.docsDir, 'index.html'), indexHtml);
   console.log('  ✓ index.html created');
 
-  // 5.5 Update protected-viewer.html with current access code
+  // 5.5 Update protected-viewer.html with access codes AND encoded presentations
   const viewerPath = path.join(CONFIG.docsDir, 'protected-viewer.html');
   if (fs.existsSync(viewerPath)) {
     let viewerHtml = await fs.readFile(viewerPath, 'utf-8');
+
+    // Inject access codes
     viewerHtml = viewerHtml.replace(
-      /const ACCESS_CODES = \\[.*?\\];/,
+      /const ACCESS_CODES = \[.*?\];/,
       `const ACCESS_CODES = ${JSON.stringify(CONFIG.accessCodes)};`
     ).replace(
-      /const ADMIN_CODES = \\[.*?\\];/,
+      /const ADMIN_CODES = \[.*?\];/,
       `const ADMIN_CODES = ${JSON.stringify(CONFIG.adminCodes || [])};`
     );
+
+    // Inject encoded presentations (for protected folders)
+    const encodedCount = Object.keys(encodedPresentations).length;
+    if (encodedCount > 0) {
+      viewerHtml = viewerHtml.replace(
+        /const ENCODED_PRESENTATIONS = \{[^}]*\};/,
+        `const ENCODED_PRESENTATIONS = ${JSON.stringify(encodedPresentations)};`
+      );
+      console.log(`  ✓ Injected ${encodedCount} Base64-encoded presentation(s)`);
+    }
+
     await fs.writeFile(viewerPath, viewerHtml);
     console.log(`  ✓ protected-viewer.html updated with access code: ${CONFIG.accessCodes[0]}`);
   }
+
 
   // 6. Summary
   console.log('');
