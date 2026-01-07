@@ -1119,6 +1119,24 @@ async function buildLibrary() {
     if (isProtected && ext === 'html') {
       // Base64 encode for protected viewer (no raw file copy)
       let content = await fs.readFile(filePath, 'utf8');
+
+      // Clean content (remove autoscroll controls and logic)
+      content = content.replace(/<div class="scroll-controls">[\s\S]*?<\/div>/g,
+        '<div class="scroll-controls"><button class="control-button" id="fadeBtn"><span id="fadeIcon">◐</span> <span id="fadeTxt">Fade</span></button><div id="dots"></div></div>');
+
+      // Remove auto-scroll script logic
+      // Remove function start() block
+      content = content.replace(/function start\(\)\s*\{[\s\S]*?\}(?=\s*function)/g, '');
+      // Remove function pause() block
+      content = content.replace(/function pause\(\)\s*\{[\s\S]*?\}(?=\s*function)/g, '');
+      // Remove function resume() block
+      content = content.replace(/function resume\(\)\s*\{[\s\S]*?\}(?=\s*document)/g, '');
+      // Remove the auto-resume timer logic
+      content = content.replace(/let tm;\['wheel'[\s\S]*?\}\)\);/g, '');
+      // Remove UI event listeners for removed elements
+      content = content.replace(/btn\.addEventListener[\s\S]*?\);/g, '');
+      content = content.replace(/document\.querySelectorAll\('\.speed-button'\)[\s\S]*?\}\)\);/g, '');
+
       const umamiScript = `<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>`;
 
       if (content.includes('</head>') && !content.includes('cloud.umami.is/script.js')) {

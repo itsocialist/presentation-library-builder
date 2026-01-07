@@ -666,12 +666,8 @@
 <body>
     <div class="grid-background"></div>
     <div class="vignette"></div>
-    <div class="scroll-controls"><button class="control-button" id="btn"><span id="icon">⏸</span> <span
-                id="txt">Auto</span></button>
+    <div class="scroll-controls">
         <button class="control-button" id="fadeBtn"><span id="fadeIcon">◐</span> <span id="fadeTxt">Fade</span></button>
-        <div style="display:flex;gap:0.5rem"><button class="speed-button" data-speed="0.5">0.5x</button><button
-                class="speed-button active" data-speed="1">1x</button><button class="speed-button"
-                data-speed="1.5">1.5x</button></div>
         <div id="dots"></div>
     </div>
     <section>
@@ -719,7 +715,8 @@
                         provider (<span class="emphasis">$1,500</span>-2,500/node).</p>
                     <p><span class="emphasis">Address underserved segments</span>: <span
                             class="emphasis">compliance</span>-heavy industries, HPC/AI workloads, enterprises fleeing
-                        <span class="emphasis">Rancher</span> price volatility.</p>
+                        <span class="emphasis">Rancher</span> price volatility.
+                    </p>
                 </div>
                 <div class="metrics-row">
                     <div class="metric-item">
@@ -1059,7 +1056,8 @@
                 </div>
                 <div class="migration-insight"><span class="emphasis">Platform</span> revenue growing 10-15x faster than
                     <span class="emphasis">OS</span> revenue. Value migrated to <span
-                        class="emphasis">orchestration</span> layer.</div>
+                        class="emphasis">orchestration</span> layer.
+                </div>
             </div>
         </div>
     </section>
@@ -1350,20 +1348,16 @@
         </div>
     </section>
     <script>
-        const ss = document.querySelectorAll('section'), T = ss.length; let cur = 0, auto = true, spd = 1, iv = null, fadeEnabled = true;
-        const dots = document.getElementById('dots'), btn = document.getElementById('btn'), icon = document.getElementById('icon'), txt = document.getElementById('txt'), fadeBtn = document.getElementById('fadeBtn'), fadeIcon = document.getElementById('fadeIcon'), fadeTxt = document.getElementById('fadeTxt');
+        const ss = document.querySelectorAll('section'), T = ss.length; let cur = 0, fadeEnabled = true;
+        const dots = document.getElementById('dots'), fadeBtn = document.getElementById('fadeBtn'), fadeIcon = document.getElementById('fadeIcon'), fadeTxt = document.getElementById('fadeTxt');
         for (let i = 0; i < T; i++) { const d = document.createElement('div'); d.className = 'progress-dot'; dots.appendChild(d) }
         const pd = document.querySelectorAll('.progress-dot');
         function upd() { pd.forEach((d, i) => d.classList.toggle('active', i === cur)) }
         function go(i) { if (i >= 0 && i < T) { cur = i; ss[i].scrollIntoView({ behavior: 'smooth' }); upd() } }
-        function start() { if (iv) clearInterval(iv); if (!auto) return; iv = setInterval(() => { if (!auto) return; cur++; if (cur >= T) cur = 0; go(cur) }, (70000 / spd) / T) }
-        function pause() { auto = false; if (iv) clearInterval(iv); icon.textContent = '▶'; txt.textContent = 'Play'; btn.classList.add('paused') }
-        function resume() { auto = true; icon.textContent = '⏸'; txt.textContent = 'Auto'; btn.classList.remove('paused'); start() }
-        document.querySelectorAll('.speed-button').forEach(b => b.addEventListener('click', () => { spd = parseFloat(b.dataset.speed); document.querySelectorAll('.speed-button').forEach(x => x.classList.remove('active')); b.classList.add('active'); if (auto && iv) start() }));
-        btn.addEventListener('click', () => auto ? pause() : resume());
+
         fadeBtn.addEventListener('click', () => { fadeEnabled = !fadeEnabled; fadeIcon.textContent = fadeEnabled ? '◐' : '◑'; fadeTxt.textContent = fadeEnabled ? 'Fade' : 'Fade'; fadeBtn.classList.toggle('paused', !fadeEnabled); if (!fadeEnabled) { ss.forEach(s => { const c = s.querySelector('.content'); if (c) { c.style.opacity = 1; c.style.transform = 'translateY(0) scale(1)' } }) } });
-        pd.forEach((d, i) => d.addEventListener('click', () => { pause(); go(i) }));
-        let tm;['wheel', 'touchstart', 'keydown'].forEach(e => window.addEventListener(e, ev => { if (ev.target.closest('.scroll-controls')) return; pause(); clearTimeout(tm); tm = setTimeout(resume, 8000) }));
+        pd.forEach((d, i) => d.addEventListener('click', () => { go(i) }));
+
         window.addEventListener('scroll', () => {
             const p = window.scrollY + window.innerHeight / 2; ss.forEach((s, i) => { const t = s.offsetTop; if (p >= t && p < t + s.offsetHeight && cur !== i) { cur = i; upd() } });
             requestAnimationFrame(() => {
