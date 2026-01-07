@@ -1225,7 +1225,7 @@ async function buildLibrary() {
   if (presentationsByFolder[ciqFolder]) {
     const ciqByFolder = { [ciqFolder]: presentationsByFolder[ciqFolder] };
     const ciqPresentations = presentationsByFolder[ciqFolder];
-    const ciqHtml = buildLandingPage(ciqByFolder, ciqPresentations.length, ciqPresentations, 'CIQ Executive Presentations');
+    const ciqHtml = buildLandingPage(ciqByFolder, ciqPresentations.length, ciqPresentations, 'CIQ Executive Presentations', '../');
 
     const ciqPath = path.join(CONFIG.docsDir, 'ciq');
     await fs.ensureDir(ciqPath);
