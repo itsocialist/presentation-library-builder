@@ -1220,6 +1220,19 @@ async function buildLibrary() {
   await fs.writeFile(path.join(CONFIG.docsDir, 'index.html'), indexHtml);
   console.log('  ✓ index.html created');
 
+  // 5.1 Generate CIQ-only path (docs/ciq/index.html)
+  const ciqFolder = 'CIQ Stacks';
+  if (presentationsByFolder[ciqFolder]) {
+    const ciqByFolder = { [ciqFolder]: presentationsByFolder[ciqFolder] };
+    const ciqPresentations = presentationsByFolder[ciqFolder];
+    const ciqHtml = buildLandingPage(ciqByFolder, ciqPresentations.length, ciqPresentations, 'CIQ Executive Presentations');
+
+    const ciqPath = path.join(CONFIG.docsDir, 'ciq');
+    await fs.ensureDir(ciqPath);
+    await fs.writeFile(path.join(ciqPath, 'index.html'), ciqHtml);
+    console.log(`  ✓ CIQ-only path created at /ciq/index.html (${ciqPresentations.length} presentations)`);
+  }
+
   // 5.5 Update protected-viewer.html with access codes AND encoded presentations
   const viewerPath = path.join(CONFIG.docsDir, 'protected-viewer.html');
   if (fs.existsSync(viewerPath)) {
