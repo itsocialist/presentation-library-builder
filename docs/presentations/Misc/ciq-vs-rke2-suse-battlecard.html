@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CIQ Secure Stack vs RKE2/SUSE Rancher Prime</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --ciq-dark: #13161B;
+            --ciq-teal: #00A9A5;
+            --ciq-green: #00B188;
+            --text-primary: #E8E8E8;
+            --text-secondary: #A0A0A0;
+            --card-bg: rgba(25, 28, 33, 0.95);
+            --border-color: rgba(0, 169, 165, 0.3);
+            --advantage-us: #00B188;
+            --advantage-them: #FF6B6B;
+            --advantage-equiv: #FFB800;
+        }
+        
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--ciq-dark);
+            color: var(--text-primary);
+            padding: 20px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        header {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(0, 169, 165, 0.1), rgba(0, 177, 136, 0.1));
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+        }
+        
+        h1 {
+            font-size: clamp(24px, 6vw, 40px);
+            font-weight: 800;
+            color: var(--ciq-teal);
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
+        }
+        
+        .vs {
+            font-size: clamp(18px, 4vw, 24px);
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin: 10px 0;
+        }
+        
+        .executive-summary {
+            background: rgba(0, 177, 136, 0.15);
+            border-left: 4px solid var(--ciq-green);
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 8px;
+            font-size: clamp(14px, 3vw, 16px);
+            line-height: 1.8;
+        }
+        
+        .executive-summary strong {
+            color: var(--ciq-green);
+        }
+        
+        section {
+            margin: 40px 0;
+        }
+        
+        h2 {
+            font-size: clamp(22px, 5vw, 30px);
+            font-weight: 700;
+            color: var(--ciq-green);
+            margin-bottom: 20px;
+            letter-spacing: -0.3px;
+        }
+        
+        h3 {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: 600;
+            color: var(--ciq-teal);
+            margin: 25px 0 15px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 20px 0;
+            overflow-x: auto;
+            display: block;
+        }
+        
+        @media (min-width: 768px) {
+            .comparison-table {
+                display: table;
+            }
+        }
+        
+        .comparison-table thead tr {
+            background: rgba(0, 169, 165, 0.2);
+        }
+        
+        .comparison-table th {
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 700;
+            font-size: clamp(12px, 2.5vw, 14px);
+            color: var(--ciq-teal);
+            border-bottom: 2px solid var(--border-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .comparison-table td {
+            padding: 15px 12px;
+            font-size: clamp(12px, 2.5vw, 14px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .comparison-table tbody tr {
+            background: var(--card-bg);
+        }
+        
+        .comparison-table tbody tr:hover {
+            background: rgba(0, 169, 165, 0.08);
+        }
+        
+        .advantage {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            font-size: clamp(11px, 2.5vw, 13px);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        .advantage-us {
+            background: rgba(0, 177, 136, 0.2);
+            color: var(--advantage-us);
+            border: 1px solid var(--advantage-us);
+        }
+        
+        .advantage-them {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--advantage-them);
+            border: 1px solid var(--advantage-them);
+        }
+        
+        .advantage-equiv {
+            background: rgba(255, 184, 0, 0.2);
+            color: var(--advantage-equiv);
+            border: 1px solid var(--advantage-equiv);
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .strength-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .strength-list li {
+            padding: 12px 0 12px 30px;
+            position: relative;
+            font-size: clamp(13px, 3vw, 15px);
+            line-height: 1.6;
+        }
+        
+        .strength-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--ciq-green);
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .objection-block {
+            background: rgba(255, 107, 107, 0.08);
+            border-left: 3px solid #FF6B6B;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+        }
+        
+        .objection-block strong {
+            color: #FF6B6B;
+            display: block;
+            margin-bottom: 8px;
+            font-size: clamp(13px, 3vw, 15px);
+        }
+        
+        .response-block {
+            background: rgba(0, 177, 136, 0.08);
+            border-left: 3px solid var(--ciq-green);
+            padding: 15px;
+            margin: 10px 0 15px 20px;
+            border-radius: 6px;
+        }
+        
+        .response-block strong {
+            color: var(--ciq-green);
+            display: block;
+            margin-bottom: 8px;
+            font-size: clamp(13px, 3vw, 15px);
+        }
+        
+        .win-theme {
+            background: linear-gradient(135deg, rgba(0, 169, 165, 0.1), rgba(0, 177, 136, 0.1));
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 18px;
+            margin: 15px 0;
+        }
+        
+        .win-theme-title {
+            font-weight: 700;
+            color: var(--ciq-teal);
+            font-size: clamp(14px, 3vw, 16px);
+            margin-bottom: 8px;
+        }
+        
+        .win-theme-desc {
+            font-size: clamp(13px, 3vw, 14px);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .proof-point {
+            background: rgba(0, 169, 165, 0.05);
+            padding: 15px;
+            margin: 12px 0;
+            border-left: 3px solid var(--ciq-teal);
+            border-radius: 4px;
+            font-size: clamp(12px, 2.5vw, 14px);
+        }
+        
+        .proof-point strong {
+            color: var(--ciq-teal);
+        }
+        
+        .quick-ref {
+            background: linear-gradient(135deg, rgba(255, 184, 0, 0.1), rgba(0, 177, 136, 0.1));
+            border: 2px solid var(--ciq-teal);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .quick-ref h3 {
+            color: var(--ciq-teal);
+            margin-top: 0;
+        }
+        
+        .pricing-note {
+            background: rgba(255, 184, 0, 0.15);
+            border-left: 4px solid #FFB800;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            font-size: clamp(13px, 3vw, 14px);
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            header {
+                padding: 20px;
+            }
+            
+            .comparison-table {
+                font-size: 12px;
+            }
+            
+            .comparison-table th,
+            .comparison-table td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚔️ CIQ Secure Stack</h1>
+            <div class="vs">vs</div>
+            <h1 style="color: #FF6B6B;">RKE2 / SUSE Rancher Prime</h1>
+        </header>
+
+        <div class="executive-summary">
+            <strong>Why customers choose CIQ Secure Stack:</strong> Same enterprise-grade Kubernetes orchestration and security at 40-60% lower total cost, with proactive hardening built into the OS foundation rather than bolted on top. No SUSE dependency means no competitor revenue leakage and direct access to Linux kernel experts rather than tier 1 support queues.
+        </div>
+
+        <section>
+            <h2>Head-to-Head Comparison</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature/Capability</th>
+                        <th>CIQ Secure Stack</th>
+                        <th>RKE2/SUSE Rancher Prime</th>
+                        <th>Advantage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Base OS Security</strong></td>
+                        <td>RLC-H with LKRG (proactive kernel protection), STIG-hardened, continuous compliance</td>
+                        <td>SLE Micro (SUSE dependency), bolt-on hardening, point-in-time compliance</td>
+                        <td><span class="advantage advantage-us">✓ Us</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>K8s Distribution</strong></td>
+                        <td>CIQ-hardened vanilla K8s OR Spectro Cloud Palette, RKE2-compatible</td>
+                        <td>RKE2 (proprietary enhancements), vendor lock-in to SUSE ecosystem</td>
+                        <td><span class="advantage advantage-equiv">⚖ Equivalent</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Multi-Cluster Management</strong></td>
+                        <td>Fuzzball + optional Spectro Cloud Palette, policy-based automation</td>
+                        <td>Rancher Prime 3.0, centralized control plane, established platform</td>
+                        <td><span class="advantage advantage-them">🟡 Them</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pricing (per node/year)</strong></td>
+                        <td>$800-1,500 (RLC-H base), modular stack pricing</td>
+                        <td>$1,300-2,100+ (Rancher Prime), $7,595-41,831 (full suite)</td>
+                        <td><span class="advantage advantage-us">✓ Us</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Support Model</strong></td>
+                        <td>Direct access to Linux kernel engineers who built CentOS, <4hr response</td>
+                        <td>Tiered support structure, 24hr+ standard response, expert access premium</td>
+                        <td><span class="advantage advantage-us">✓ Us</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security Approach</strong></td>
+                        <td>Proactive hardening at OS layer (LKRG), continuous enforcement</td>
+                        <td>Reactive hardening, configuration management, periodic scanning</td>
+                        <td><span class="advantage advantage-us">✓ Us</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Container Security</strong></td>
+                        <td>Partner with Chainguard OR CIQ-hardened registry (roadmap)</td>
+                        <td>Rancher Prime Application Collection (SLSA Level 3), daily patches</td>
+                        <td><span class="advantage advantage-equiv">⚖ Equivalent</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Compliance</strong></td>
+                        <td>STIG-hardened OS, FIPS support (roadmap), continuous validation</td>
+                        <td>FIPS 140-2 validated, CIS Benchmark v1.7/1.8, FedRAMP (Palette VerteX)</td>
+                        <td><span class="advantage advantage-them">🟡 Them</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Brand Recognition</strong></td>
+                        <td>Built by CentOS creators, trusted by NASA/NOAA/Sandia Labs</td>
+                        <td>SUSE enterprise brand, Gartner Magic Quadrant recognized</td>
+                        <td><span class="advantage advantage-them">🟡 Them</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vendor Lock-in</strong></td>
+                        <td>Open source foundation, no proprietary extensions, community-backed</td>
+                        <td>SUSE ecosystem lock-in, proprietary tooling, limited portability</td>
+                        <td><span class="advantage advantage-us">✓ Us</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Our Strengths</h2>
+            
+            <div class="card">
+                <ul class="strength-list">
+                    <li><strong>40-60% lower TCO</strong> - $800-1,500/node vs $1,300-2,100+ for Rancher Prime. No forced bundling. Modular pricing lets customers buy only what they need.</li>
+                    <li><strong>Proactive kernel protection (LKRG)</strong> - Continuous runtime security vs SUSE's configuration-based hardening. Blocks zero-day exploits at kernel level before they reach containers.</li>
+                    <li><strong>Expert-level support</strong> - Direct access to engineers who built CentOS (15+ years production at scale). <4hr response vs SUSE's tiered model with 24hr+ standard SLA.</li>
+                    <li><strong>Zero competitor dependency</strong> - No revenue to SUSE. Full platform control. Customers not subject to SUSE licensing changes or ecosystem shifts.</li>
+                    <li><strong>Built-in compliance</strong> - STIG-hardened at OS layer. Continuous enforcement via Ascender Pro automation vs periodic scanning.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>Their Strengths (How to Handle)</h2>
+            
+            <div class="card">
+                <div class="objection-block">
+                    <strong>"Rancher Prime is the industry-standard multi-cluster K8s platform with proven enterprise adoption."</strong>
+                </div>
+                <div class="response-block">
+                    <strong>Response:</strong> "Rancher Prime is strong for multi-cluster management - that's why CIQ Secure Stack offers Spectro Cloud Palette integration for customers who need that capability. The difference is our security starts at the OS foundation with proactive kernel protection, not configuration management on top of a standard Linux base. You get the cluster management you need without the SUSE dependency and at 40% lower cost."
+                </div>
+                
+                <div class="objection-block">
+                    <strong>"SUSE has FIPS 140-2 validation and FedRAMP authorization that regulated customers require."</strong>
+                </div>
+                <div class="response-block">
+                    <strong>Response:</strong> "Fair point. SUSE has those certifications today. CIQ's FIPS validation is in our H2 2026 roadmap. However, many regulated customers find STIG-hardened OS with continuous compliance enforcement meets their security requirements without the SUSE premium. NASA, NOAA, and Sandia National Labs trust CIQ for critical infrastructure today. If FIPS is an absolute requirement, we have a clear timeline. If continuous security posture matters more than a certification checkbox, we're ready now."
+                </div>
+                
+                <div class="objection-block">
+                    <strong>"SUSE provides Application Collection with hardened container images (SLSA Level 3, zero CVEs)."</strong>
+                </div>
+                <div class="response-block">
+                    <strong>Response:</strong> "SUSE's Application Collection is solid. CIQ partners with Chainguard for hardened containers (97.6% fewer CVEs, daily rebuilds, 7-day critical patch SLA). Difference is we give you choice - partner with best-in-class today while our hardened registry comes online in late 2026. You're not locked into the SUSE ecosystem."
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Common Objections & Responses</h2>
+            
+            <div class="card">
+                <div class="objection-block">
+                    <strong>Objection:</strong> "We're already running RKE2, migration risk is too high."
+                </div>
+                <div class="response-block">
+                    <strong>Response:</strong>
+                    <p><strong>Acknowledge:</strong> Migration risk is a legitimate concern for production workloads.</p>
+                    <p><strong>Reframe:</strong> CIQ Secure Stack supports RKE2 cluster imports and provides migration paths via Spectro Cloud Palette. The Kubernetes API is standardized - your workloads don't change, just the management layer and OS foundation.</p>
+                    <p><strong>Prove:</strong> "We've successfully migrated 500+ node RHEL deployments with zero downtime. K8s workload portability is better than traditional OS migrations. Plus, you eliminate the SUSE license dependency that's costing you 40-60% more annually."</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="objection-block">
+                    <strong>Objection:</strong> "CIQ doesn't have the brand recognition or enterprise customer base of SUSE."
+                </div>
+                <div class="response-block">
+                    <strong>Response:</strong>
+                    <p><strong>Acknowledge:</strong> SUSE is an established enterprise brand with strong market presence.</p>
+                    <p><strong>Reframe:</strong> CIQ was founded by the creator of CentOS, which powered millions of production systems for 15+ years - likely including your infrastructure. We're not a startup experimenting with Linux. We're the engineers who built the foundation Red Hat commercialized.</p>
+                    <p><strong>Prove:</strong> "NASA, NOAA, and Sandia National Labs trust us with mission-critical infrastructure today. Rocky Linux Commercial has 85%+ Fortune 500 evaluation pipeline. The question isn't whether we can support enterprise workloads - we've been doing it for decades. The question is whether you want to pay SUSE's premium for the same capability."</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="objection-block">
+                    <strong>Objection:</strong> "What if you get acquired or go out of business? SUSE is publicly traded and financially stable."
+                </div>
+                <div class="response-block">
+                    <strong>Response:</strong>
+                    <p><strong>Acknowledge:</strong> Financial stability matters for long-term infrastructure decisions.</p>
+                    <p><strong>Reframe:</strong> CIQ is privately funded with strong backing and profitable operations. But more importantly, Rocky Linux Commercial is built on Rocky Linux, which is community-backed open source. If CIQ disappeared tomorrow, Rocky Linux continues. Can SUSE say the same about Rancher Prime proprietary extensions?</p>
+                    <p><strong>Prove:</strong> "Our community insurance is stronger than SUSE's corporate balance sheet. You're betting on open source sustainability, not quarterly earnings. That's why government agencies and critical infrastructure operators choose us."</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Win Themes</h2>
+            
+            <div class="win-theme">
+                <div class="win-theme-title">1. Cost + Security at Foundation</div>
+                <div class="win-theme-desc">Same enterprise-grade Kubernetes management at 40-60% lower cost with superior security starting at the OS layer (LKRG proactive kernel protection) rather than configuration management on top.</div>
+            </div>
+            
+            <div class="win-theme">
+                <div class="win-theme-title">2. Expert Support Without the Queue</div>
+                <div class="win-theme-desc">Direct access to Linux kernel engineers who built CentOS with <4hr response SLA vs SUSE's tiered support model with 24hr+ standard response and premium charges for expert access.</div>
+            </div>
+            
+            <div class="win-theme">
+                <div class="win-theme-title">3. Zero Vendor Lock-in</div>
+                <div class="win-theme-desc">Community-backed open source foundation with no proprietary SUSE ecosystem dependencies. Modular pricing means buy only what you need. No competitor revenue leakage.</div>
+            </div>
+            
+            <div class="win-theme">
+                <div class="win-theme-title">4. Continuous Compliance, Not Point-in-Time</div>
+                <div class="win-theme-desc">STIG-hardened OS with continuous enforcement via automation (Ascender Pro) rather than periodic scanning and manual remediation. Proactive security posture, not reactive patching.</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Proof Points</h2>
+            
+            <div class="card">
+                <div class="proof-point">
+                    <strong>Customer:</strong> Government contractor - "Migrated 200 nodes from RHEL to RLC-H with zero downtime. Achieved 94% CIS compliance in 30 minutes vs 40+ hours manual configuration."
+                </div>
+                
+                <div class="proof-point">
+                    <strong>Benchmark:</strong> Cost comparison - RLC-H $800-1,500/node vs Rancher Prime $1,300-2,100+ per node annual subscription. <cite>SUSE pricing from TrustRadius, 2025</cite>
+                </div>
+                
+                <div class="proof-point">
+                    <strong>Technical:</strong> LKRG (Linux Kernel Runtime Guard) provides proactive exploit mitigation at kernel level, blocking attacks before they reach userspace or containers. <cite>CIQ Security Architecture, 2025</cite>
+                </div>
+                
+                <div class="proof-point">
+                    <strong>Adoption:</strong> NASA, NOAA, Sandia National Labs, and 85%+ Fortune 500 companies actively evaluating or deploying Rocky Linux Commercial for mission-critical infrastructure. <cite>CIQ customer base, 2025</cite>
+                </div>
+                
+                <div class="proof-point">
+                    <strong>Market Position:</strong> IDC study shows 258% ROI for Spectro Cloud Palette deployments with multimillion-dollar benefits. CIQ Secure Stack offers same platform at lower OS licensing cost. <cite>IDC ROI Study for Spectro Cloud Palette, 2024</cite>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="quick-ref">
+                <h3>⚡ Quick Reference Card (Sales Call Cheat Sheet)</h3>
+                
+                <h3 style="margin-top: 25px;">WHY WE WIN:</h3>
+                <ul class="strength-list">
+                    <li><strong>40-60% lower cost</strong> - $800-1,500 vs $1,300-2,100+ per node</li>
+                    <li><strong>Proactive security</strong> - LKRG kernel protection vs configuration management</li>
+                    <li><strong>Expert support</strong> - <4hr response, direct access to CentOS creators</li>
+                    <li><strong>No vendor lock-in</strong> - Community-backed, no SUSE dependency</li>
+                </ul>
+                
+                <h3 style="margin-top: 25px;">HANDLE OBJECTIONS:</h3>
+                <div style="margin: 15px 0;">
+                    <strong>"Already on RKE2"</strong> → "We support RKE2 imports via Spectro Cloud. API-compatible, zero workload changes."
+                </div>
+                <div style="margin: 15px 0;">
+                    <strong>"Need FIPS"</strong> → "H2 2026 roadmap. STIG-hardened today meets most requirements. NASA/NOAA trust us now."
+                </div>
+                <div style="margin: 15px 0;">
+                    <strong>"Brand concern"</strong> → "Built by CentOS creators. 15+ years powering millions of systems. Community-backed open source."
+                </div>
+                
+                <h3 style="margin-top: 25px;">KEY PROOF POINT:</h3>
+                <div style="margin: 15px 0; font-style: italic; color: var(--ciq-green);">
+                    "Government contractor: Migrated 200 nodes, zero downtime, 94% CIS compliance in 30 minutes vs 40+ hours manual. At 40% lower annual cost than SUSE."
+                </div>
+            </div>
+        </section>
+
+        <div class="pricing-note">
+            <strong>📊 Pricing Context:</strong> SUSE Rancher Prime editions range from $7,595 to $41,831 per tier (TrustRadius, 2025). Rancher Prime 3.0 introduced "Rancher Enterprise" bundle with multi-cluster management, OS management, VM management, storage (Longhorn), and SLE Micro - comprehensive but expensive. CIQ Secure Stack offers modular approach: buy RLC-H foundation ($800-1,500) + only the orchestration components you need.
+        </div>
+
+        <footer style="margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-secondary); font-size: 14px;">
+            <p><strong>Battle Card:</strong> CIQ Secure Stack vs RKE2/SUSE Rancher Prime</p>
+            <p style="margin-top: 10px;">Research Sources: SUSE documentation, Spectro Cloud competitive analysis, TrustRadius pricing, GigaOm Kubernetes reports, IDC ROI studies</p>
+            <p style="margin-top: 5px;">Last Updated: January 2026 • Version 1.0</p>
+        </footer>
+    </div>
+</body>
+</html>

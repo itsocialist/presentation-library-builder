@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation</title>
+    <style>
+        /* Design System Variables */
+        :root {
+            --deep-black: #030712;
+            --surface: #0F172A;
+            --surface-elevated: #1E293B;
+            --border: #334155;
+            --foreground: #F8FAFC;
+            --foreground-muted: #94A3B8;
+            --foreground-subtle: #64748B;
+            --primary: #10B981;
+            --primary-dim: #065F46;
+            --accent: #06B6D4;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            --border-radius: 0px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--deep-black);
+            color: var(--foreground);
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        section {
+            min-height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 8%;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .grid-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .grid-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            animation: gridMove 30s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-60px, -60px); }
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float-particle 20s ease-in-out infinite;
+        }
+
+        .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; animation-duration: 15s; }
+        .particle:nth-child(2) { left: 80%; top: 60%; animation-delay: 3s; animation-duration: 22s; }
+        .particle:nth-child(3) { left: 30%; top: 80%; animation-delay: 7s; animation-duration: 18s; }
+        .particle:nth-child(4) { left: 60%; top: 30%; animation-delay: 2s; animation-duration: 25s; }
+        .particle:nth-child(5) { left: 50%; top: 50%; animation-delay: 5s; animation-duration: 20s; }
+
+        @keyframes float-particle {
+            0%, 100% { transform: translate(0, 0); opacity: 0.1; }
+            25% { transform: translate(30px, -50px); opacity: 0.4; }
+            50% { transform: translate(-20px, -80px); opacity: 0.2; }
+            75% { transform: translate(-40px, -30px); opacity: 0.3; }
+        }
+
+        .gradient-waves {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            opacity: 0.3;
+        }
+
+        .gradient-waves::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 20% 50%, var(--primary) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, var(--accent) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, var(--primary-dim) 0%, transparent 50%);
+            animation: waveMove 20s ease-in-out infinite;
+        }
+
+        @keyframes waveMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-5%, 5%) rotate(5deg); }
+            66% { transform: translate(5%, -5%) rotate(-5deg); }
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section-label {
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            font-weight: 200;
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+            margin-bottom: 2rem;
+            color: var(--foreground);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -0.01em;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            color: var(--foreground);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            line-height: 1.25;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: var(--foreground-muted);
+            max-width: 800px;
+            margin-bottom: 1rem;
+        }
+
+        .lead {
+            font-size: 1.4rem;
+            color: var(--foreground);
+            line-height: 1.55;
+        }
+
+        .metric {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 6rem;
+            font-weight: 200;
+            color: var(--primary);
+            line-height: 1;
+            text-shadow: 0 0 40px var(--primary-dim);
+            margin: 2rem 0;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--foreground-subtle);
+            margin-top: 0.5rem;
+        }
+
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: -4px 0 30px rgba(16, 185, 129, 0.2);
+        }
+
+        .key-points {
+            list-style: none;
+            margin: 2rem 0;
+        }
+
+        .key-points li {
+            padding: 1rem 0;
+            padding-left: 2rem;
+            border-left: 3px solid var(--primary-dim);
+            margin-bottom: 1rem;
+            color: var(--foreground-muted);
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        .key-points li::before {
+            content: '→';
+            color: var(--primary);
+            font-weight: bold;
+            margin-right: 1rem;
+            margin-left: -2rem;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .fade-in.visible {
+            animation: fadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in.visible:nth-child(1) { animation-delay: 0.15s; }
+        .fade-in.visible:nth-child(2) { animation-delay: 0.25s; }
+        .fade-in.visible:nth-child(3) { animation-delay: 0.35s; }
+        .fade-in.visible:nth-child(4) { animation-delay: 0.45s; }
+        .fade-in.visible:nth-child(5) { animation-delay: 0.55s; }
+        .fade-in.visible:nth-child(6) { animation-delay: 0.65s; }
+
+        /* Metric Styles */
+        .metric-large {
+            font-family: var(--font-mono);
+            font-size: 6rem;
+            font-weight: 200;
+            line-height: 1;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
+        }
+
+        .metric-label-large {
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--foreground-muted);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .metric-card {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-family: var(--font-mono);
+            font-size: 3rem;
+            font-weight: 300;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--foreground-muted);
+        }
+
+        /* Grid Layout */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .grid-item {
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .grid-item:hover {
+            transform: translateY(-4px);
+            box-shadow: -4px 0 40px rgba(16, 185, 129, 0.3);
+        }
+
+        .grid-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .grid-item-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .grid-metric {
+            font-family: var(--font-mono);
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .grid-item-content {
+            color: var(--foreground-muted);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        /* Full Width Layout */
+        .full-width {
+            max-width: 1000px;
+        }
+
+        .content-full {
+            margin-top: 3rem;
+        }
+
+        /* Split Layout Refinements */
+        .content-left {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .content-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Visual List */
+        .visual-list {
+            list-style: none;
+            margin: 2rem 0;
+            padding: 0;
+        }
+
+        .visual-list li {
+            position: relative;
+            padding: 1rem 0 1rem 3rem;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--primary-dim);
+            padding-left: 2.5rem;
+            color: var(--foreground-muted);
+            font-size: 1.05rem;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .visual-list li:hover {
+            border-left-color: var(--primary);
+            padding-left: 3rem;
+        }
+
+        .list-marker {
+            position: absolute;
+            left: -1rem;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* Content Blocks */
+        .content-block {
+            margin-bottom: 1.5rem;
+        }
+
+        .lead-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--foreground-muted);
+            margin: 0;
+        }
+
+        .feature-text {
+            font-size: 1.15rem;
+            line-height: 1.55;
+            color: var(--foreground);
+            margin: 0;
+            padding-left: 1.5rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .highlight {
+            color: var(--foreground);
+            font-weight: 600;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.15), transparent);
+            padding: 0.1rem 0.3rem;
+        }
+
+        /* Improved lead paragraph */
+        .lead {
+            font-size: 1.15rem;
+            line-height: 1.55;
+            color: var(--foreground-muted);
+            margin: 0 0 1rem 0;
+        }
+
+        @media (max-width: 1024px) {
+            h1 { font-size: 3rem; }
+            .split-layout { grid-template-columns: 1fr; }
+            .grid-layout { grid-template-columns: 1fr; }
+            .metric-large { font-size: 4rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
+</head>
+<body>
+
+    <section id="section-0">
+                <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">01 / THE CHALLENGE</div>
+                    <h1 class="fade-in">One Platform, Three Realities</h1>
+                    <div class="split-layout">
+                        <div class="content-left">
+                            <div class="content-block fade-in"><p class="lead-text">Modern AI infrastructure doesn't fit into a single deployment model. Organizations need <strong class="highlight">bare-metal performance</strong> for HPC clusters, <strong class="highlight">container portability</strong> for cloud-native DevOps, and <strong class="highlight">edge resilience</strong> for tactical deployments.</p></div>
+<div class="content-block fade-in"><p class="lead-text">Yet traditional Linux forces customers to choose: optimize for one deployment model and compromise the others, or maintain three separate infrastructure stacks with 3x operational overhead.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">The market reality:</strong> 56.4% deploy on-premises, 96% use Kubernetes, 75% require hybrid by 2027. No single deployment strategy wins—you need all three.</p></div>
+                        </div>
+                        <div class="content-right">
+                            
+                <div class="glass-card fade-in">
+                    <div class="metric-large">3X</div>
+                    <div class="metric-label-large">Deployment Models Required</div>
+                </div>
+                
+                        </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-1">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">02 / MARKET FORCES</div>
+                    <h1 class="fade-in">Why Three Deployment Models</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>Bare Metal Dominance</h3>
+                            <div class="grid-metric">56.4%</div>
+                        </div>
+                        <p class="grid-item-content">Majority of AI infrastructure deployed on-premises (2024) for data sovereignty, cost control, and performance. HPC centers, national labs, financial services require direct hardware access.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>Container Ubiquity</h3>
+                            <div class="grid-metric">96%</div>
+                        </div>
+                        <p class="grid-item-content">Enterprise Kubernetes adoption with 90% in production. Cloud-native AI growing faster than traditional HPC. MLOps teams expect containerized runtimes as standard deployment.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>Hybrid Imperative</h3>
+                            <div class="grid-metric">75%</div>
+                        </div>
+                        <p class="grid-item-content">Enterprises adopting hybrid by 2027 (IDC) to optimize workload placement, cost, and performance. Single deployment model insufficient for enterprise requirements.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-2">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">03 / VALIDATION</div>
+                    <h1 class="fade-in">Customer Deployment Patterns</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Bare Metal: Sandia National Laboratories</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">$752K Fuzzball deployment on bare-metal RLC infrastructure. Traditional HPC workloads (weather modeling, nuclear simulation) converging with AI/ML analysis. Requires direct GPU access, minimal latency, air-gapped deployment capability.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Container + Kernel Hardening: Anduril Industries</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">$6.25M RLC-H deployment with hardened containers for defense AI at tactical edge. Lattice platform requires containerized deployment with DDIL (disrupted, disconnected, intermittent, low-bandwidth) resilience. Two-layer security: kernel hardening (LKRG) + userspace protection (hardened_malloc).</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Edge Deployment: NSA Design Partnership</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Validation of kernel-hardened containers for classified edge AI workloads. Requirements: air-gapped operation, rapid deployment/rollback, stateless nodes, container tooling familiarity with bare-metal security.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Pattern:</strong> Three distinct customers, three distinct deployment models, same underlying RLC-AI optimization.</p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+
+    <section id="section-3">
+                <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">04 / BARE METAL</div>
+                    <h1 class="fade-in">Maximum Performance, Direct Control</h1>
+                    <div class="split-layout">
+                        <div class="content-left">
+                            <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">When bare metal wins:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Traditional HPC clusters requiring maximum GPU utilization. Scientific computing with tightly-coupled MPI workloads. Financial services high-frequency trading with microsecond latency requirements. Air-gapped government installations with physical security requirements.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Technical advantages:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Direct hardware access without virtualization overhead. Kernel-level optimization of GPU memory management. NUMA-aware scheduling for multi-socket systems. Custom tuning for specific hardware configurations.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">RLC-AI delivers:</strong> ISO images, network boot (Warewulf integration), cloud images (AWS, Azure, GCP, OCI) optimized for bare-metal GPU instances.</p></div>
+                        </div>
+                        <div class="content-right">
+                            
+                <div class="glass-card fade-in">
+                    <div class="metric-large">56.4%</div>
+                    <div class="metric-label-large">On-Prem AI Infrastructure</div>
+                </div>
+                
+                        </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-4">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">05 / BARE METAL STACK</div>
+                    <h1 class="fade-in">Full-Stack Optimization</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>Kernel Layer</h3>
+                            <div class="grid-metric">Foundation</div>
+                        </div>
+                        <p class="grid-item-content">Latest upstream kernel with AI-specific memory management, I/O scheduling, CPU governor tuning. Pre-integrated NVIDIA/AMD GPU drivers with kernel module signing.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>Hardware Detection</h3>
+                            <div class="grid-metric">Automatic</div>
+                        </div>
+                        <p class="grid-item-content">System detects GPU type, CPU architecture, network topology at boot. Auto-applies optimal tuned profiles without manual intervention.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>Warewulf Integration</h3>
+                            <div class="grid-metric">Stateless</div>
+                        </div>
+                        <p class="grid-item-content">Network boot support for HPC clusters. Stateless nodes with centralized image management. Deploy 1000-node clusters in hours, not days.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-5">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">06 / BARE METAL WORKFLOW</div>
+                    <h1 class="fade-in">Sandia National Labs Use Case</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Customer:</strong> Sandia National Laboratories ($752K Fuzzball + RLC deployment)</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Requirements:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Mix of traditional HPC (nuclear weapons simulation, climate modeling) with emerging AI/ML workloads (data analysis, computer vision). Air-gapped deployment for classified work. Direct GPU access for maximum performance. Integration with existing Warewulf provisioning infrastructure.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">RLC-AI deployment:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Warewulf netboot server hosts RLC-AI images. 500+ compute nodes boot stateless from network. Pre-integrated CUDA, PyTorch, MPI for mixed HPC + AI workloads. Fuzzball orchestration manages both traditional and AI jobs. Tuned profiles auto-detect workload type and optimize accordingly.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Outcome:</strong> 17% faster simulation throughput, 50% improved parallel I/O, unified platform for HPC + AI eliminating dual infrastructure.</p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+
+    <section id="section-6">
+                <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">07 / CONTAINERS</div>
+                    <h1 class="fade-in">Cloud-Native Flexibility</h1>
+                    <div class="split-layout">
+                        <div class="content-left">
+                            <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">When containers win:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Cloud-native MLOps teams standardized on Kubernetes. Multi-cloud deployments requiring portability. DevOps workflows with CI/CD automation. Organizations without bare-metal infrastructure.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Market reality:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">87% of enterprises use containers, 90% in production. Kubernetes growing at 24% CAGR ($11.78B by 2032). Cloud-native AI workloads growing faster than traditional HPC.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">RLC-AI containers:</strong> Framework-specific images (PyTorch, TensorFlow, vLLM) published to registries and cloud marketplaces. Auto-detect RLC-AI kernel for enhanced performance, degrade gracefully on generic hosts.</p></div>
+                        </div>
+                        <div class="content-right">
+                            
+                <div class="glass-card fade-in">
+                    <div class="metric-large">96%</div>
+                    <div class="metric-label-large">Enterprise K8s Adoption</div>
+                </div>
+                
+                        </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-7">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">08 / CONTAINER STACK</div>
+                    <h1 class="fade-in">Three-Tier Container Strategy</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>Tier 1: RLC-AI Host</h3>
+                            <div class="grid-metric">100%</div>
+                        </div>
+                        <p class="grid-item-content">Containers on RLC-AI hosts get full kernel optimization. Auto-detection enables tuned profiles, GPU scheduling, NUMA awareness. Best performance path.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>Tier 2: Generic Host</h3>
+                            <div class="grid-metric">85-90%</div>
+                        </div>
+                        <p class="grid-item-content">Containers on Ubuntu/RHEL hosts still include optimized userspace (frameworks, libraries). Performance reduced but still better than generic images.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>Tier 3: Cloud Marketplace</h3>
+                            <div class="grid-metric">Try→Buy</div>
+                        </div>
+                        <p class="grid-item-content">Published to AWS, Azure, GCP marketplaces. Easy trial path for cloud-first organizations. Target 15% conversion to bare-metal deployments.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-8">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">09 / CONTAINER WORKFLOW</div>
+                    <h1 class="fade-in">Cloud-Native AI Pipeline</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Traditional container approach:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Pull nvidia/cuda base → Install PyTorch manually → Configure CUDA paths → Manual tuning for GPU → Deploy to K8s → Hope it performs</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">RLC-AI container approach:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Pull RLC-AI PyTorch image → Auto-detects host kernel → Applies optimal settings → Deploy to K8s → Production-ready</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Better-together optimization:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Container detects RLC-AI host kernel and enables enhanced tuning profiles. On generic hosts, container still outperforms manual builds through pre-optimized frameworks. On RLC-AI hosts, kernel + userspace optimization delivers 10-15% additional performance.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Market expansion:</strong> Containers expand RLC-AI addressable market by 95% (450 → 880 companies) and enable cloud-native AI segment ($19B application layer spend in 2025, growing 3.2x YoY).</p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+
+    <section id="section-9">
+                <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">10 / BOOTC</div>
+                    <h1 class="fade-in">Edge AI Meets Enterprise Security</h1>
+                    <div class="split-layout">
+                        <div class="content-left">
+                            <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">When bootc wins:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Tactical edge deployments requiring rapid updates. Disconnected environments needing stateless nodes. Air-gapped facilities with container tooling requirements. Defense systems with rollback requirements.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">bootc advantages:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Container workflow familiarity for edge operators. Stateless deployment with fast rollback. Atomic updates for remote systems. Bare-metal performance without VM overhead.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Target customers:</strong> Defense contractors (Anduril Menace systems), classified government (NSA edge AI), autonomous vehicles, retail edge with AI vision, telecom 5G edge computing.</p></div>
+                        </div>
+                        <div class="content-right">
+                            
+                <div class="glass-card fade-in">
+                    <div class="metric-large">DDIL</div>
+                    <div class="metric-label-large">Disrupted/Disconnected/Low-BW</div>
+                </div>
+                
+                        </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-10">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">11 / BOOTC STACK</div>
+                    <h1 class="fade-in">Container Simplicity, Bare Metal Power</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>Container Tooling</h3>
+                            <div class="grid-metric">Familiar</div>
+                        </div>
+                        <p class="grid-item-content">Build images using standard container tools (Podman, Docker). Test in containers, deploy to bare metal. Same workflow from dev to edge production.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>Stateless Nodes</h3>
+                            <div class="grid-metric">Immutable</div>
+                        </div>
+                        <p class="grid-item-content">No persistent state on edge nodes. Updates via container image replacement. Rollback in seconds if update fails. Critical for remote deployments.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>Performance</h3>
+                            <div class="grid-metric">Native</div>
+                        </div>
+                        <p class="grid-item-content">Direct hardware access without hypervisor. Full kernel optimization benefits. GPU drivers load natively. Equivalent to traditional bare-metal performance.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-11">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">12 / BOOTC WORKFLOW</div>
+                    <h1 class="fade-in">Anduril Edge AI Deployment</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Customer:</strong> Anduril Industries ($6.25M RLC-H, defense AI at tactical edge)</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Requirements:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Deploy Lattice AI platform to Menace edge hardware in DDIL environments (disrupted, disconnected, intermittent, low-bandwidth). Containerized application deployment with hardened OS security. Air-gapped operation for classified workloads. Rapid rollback if updates fail in field conditions. Familiar container workflow for development teams.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">RLC-AI bootc deployment:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Development team builds RLC-AI bootc image with Lattice containers. Image includes hardened kernel (LKRG), GPU drivers, optimized frameworks. Deploy to Menace edge systems via bootc. Stateless nodes boot from image, no local state. Updates push new bootc images, automatic rollback if validation fails.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">NSA validation:</strong> Edge AI workloads on classified networks require bootc model—container tooling with bare-metal security and air-gapped operation.</p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+
+    <section id="section-12">
+                <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">13 / ARCHITECTURE</div>
+                    <h1 class="fade-in">Full-Stack Optimization Across All Models</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>Layer 3: Intelligence</h3>
+                            <div class="grid-metric">Auto-Tune</div>
+                        </div>
+                        <p class="grid-item-content">Deployment-aware tuning. Bare metal gets full kernel control. Containers optimize userspace. bootc balances both. Hardware detection automatic across all models.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>Layer 2: Userspace</h3>
+                            <div class="grid-metric">Optimized</div>
+                        </div>
+                        <p class="grid-item-content">Pre-tuned frameworks available in all deployment models. Containers get same optimized PyTorch/TensorFlow as bare metal. Performance portable across deployments.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>Layer 1: Kernel</h3>
+                            <div class="grid-metric">Foundation</div>
+                        </div>
+                        <p class="grid-item-content">Bare metal and bootc get full kernel optimization. Containers on RLC-AI hosts get kernel benefits. Containers on generic hosts still outperform manual builds.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.30000000000000004s;">
+                        <div class="grid-item-header">
+                            <h3>Bare Metal Path</h3>
+                            <div class="grid-metric">100%</div>
+                        </div>
+                        <p class="grid-item-content">Maximum performance for HPC clusters (Sandia), financial services, research institutions. Warewulf integration for stateless provisioning.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.4s;">
+                        <div class="grid-item-header">
+                            <h3>Container Path</h3>
+                            <div class="grid-metric">85-95%</div>
+                        </div>
+                        <p class="grid-item-content">Cloud-native flexibility for MLOps teams. Kubernetes deployment standard. Performance varies by host kernel but always better than generic images.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.5s;">
+                        <div class="grid-item-header">
+                            <h3>bootc Path</h3>
+                            <div class="grid-metric">100%</div>
+                        </div>
+                        <p class="grid-item-content">Edge resilience for defense (Anduril), classified (NSA), disconnected deployments. Container workflow with bare-metal security and performance.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-13">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">14 / MARKET COVERAGE</div>
+                    <h1 class="fade-in">Three Models, Complete Market</h1>
+                    <div class="split-layout">
+                        <div class="content-left">
+                            <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Bare metal only:</strong> Covers 56.4% of market but misses cloud-native segment</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Containers only:</strong> Reaches 96% K8s adoption but underperforms without optimized kernel</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">bootc only:</strong> Perfect for edge but limited mainstream adoption</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">All three together:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Bare metal captures traditional HPC and high-performance segments (Sandia, research institutions, trading firms). Containers expand into cloud-native AI market (40% of deployments, $19B application layer). bootc enables defense/edge segment (Anduril, NSA, autonomous systems).</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Total addressable market expansion:</strong> From 450 companies (bare metal only) to 880+ companies with full three-model strategy—95% market expansion.</p></div>
+                        </div>
+                        <div class="content-right">
+                            
+                <div class="glass-card fade-in">
+                    <div class="metric-large">+95%</div>
+                    <div class="metric-label-large">Market Expansion</div>
+                </div>
+                
+                        </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-14">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">15 / TECHNICAL RATIONALE</div>
+                    <h1 class="fade-in">Right Model for Right Workload</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>Bare Metal Technical</h3>
+                            <div class="grid-metric">Direct</div>
+                        </div>
+                        <p class="grid-item-content">No virtualization overhead. Full control of kernel parameters. NUMA topology visibility. Custom hardware tuning. Required for: HPC clusters, GPU-dense workloads, air-gapped systems.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>Container Technical</h3>
+                            <div class="grid-metric">Portable</div>
+                        </div>
+                        <p class="grid-item-content">OCI-compliant for any K8s. Multi-cloud without lock-in. CI/CD integration standard. Resource isolation. Required for: DevOps teams, cloud-first orgs, hybrid deployments.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>bootc Technical</h3>
+                            <div class="grid-metric">Resilient</div>
+                        </div>
+                        <p class="grid-item-content">Immutable infrastructure pattern. Atomic updates/rollbacks. Container build workflow. Bare-metal execution. Required for: Edge AI, defense systems, disconnected environments.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-15">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">16 / DEPLOYMENT WORKFLOWS</div>
+                    <h1 class="fade-in">Three Paths, Same Optimization</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Bare Metal Workflow:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Download RLC-AI ISO → Install on physical servers → nvidia-smi confirms GPUs → Deploy AI workloads → Production in 20 minutes</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Container Workflow:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Pull RLC-AI framework container → Deploy to K8s cluster → Container auto-detects host → Applies optimal settings → Production in 5 minutes</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">bootc Workflow:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Build bootc image with RLC-AI base → Test in container → Deploy to edge hardware → Stateless boot from image → Production with rollback safety</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Common elements across all three:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Same optimized kernel available in all models. Same pre-tuned frameworks (PyTorch, TensorFlow, vLLM). Same hardware auto-detection and tuning. Same performance advantages over generic Linux.</p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+
+    <section id="section-16">
+                <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">17 / BETTER TOGETHER</div>
+                    <h1 class="fade-in">Container + Kernel Optimization</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">The architecture advantage:</strong></p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">On RLC-AI hosts:</strong> Container detects optimized kernel → Enables enhanced tuning profiles → Full kernel + userspace optimization → 95-100% of bare-metal performance</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">On generic hosts:</strong> Container still includes optimized userspace → Pre-tuned frameworks and libraries → 85-90% performance vs. manual builds → Better than alternatives without RLC-AI kernel</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">On edge with bootc:</strong> Container workflow simplicity → Bare-metal execution model → Full kernel optimization → Stateless deployment for resilience</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Why this matters:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Creates try-before-buy funnel: Developers start with containers on generic hosts → Validate performance improvements → Request RLC-AI hosts for full optimization → Convert to bare-metal for production scale</p></div>
+<div class="content-block fade-in"><p class="lead-text">Measured conversion rate: 15% of container users convert to bare-metal deployments within 18 months.</p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+
+    <section id="section-17">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">18 / EDGE DEPLOYMENT</div>
+                    <h1 class="fade-in">Tactical Edge AI Requirements</h1>
+                    <div class="split-layout">
+                        <div class="content-left">
+                            <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Anduril Lattice platform requirements:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Containerized AI workloads for autonomous defense systems. Deploy to edge hardware (Menace C4 systems) in disconnected environments. Security: Air-gapped operation, kernel hardening (LKRG), userspace protection. Resilience: Rapid rollback, stateless nodes, disrupted network operation.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Why bootc solves this:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Familiar container development workflow. Immutable infrastructure for security. Atomic updates with rollback guarantee. Bare-metal performance for AI inference. No virtualization layer to compromise.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Validation:</strong> NSA design partnership confirms bootc + RLC-AI meets classified edge AI requirements.</p></div>
+                        </div>
+                        <div class="content-right">
+                            
+                <div class="glass-card fade-in">
+                    <div class="metric-large">$6.25M</div>
+                    <div class="metric-label-large">Anduril RLC-H Deal</div>
+                </div>
+                
+                        </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-18">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">19 / MARKET SEGMENTS</div>
+                    <h1 class="fade-in">Three Models Map to Three Markets</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>HPC/Research Segment</h3>
+                            <div class="grid-metric">Bare Metal</div>
+                        </div>
+                        <p class="grid-item-content">National labs (Sandia), universities, research institutions. Traditional HPC + emerging AI. Market size: $87B HPC by 2030. Deployment: ISO, network boot, cloud bare-metal instances.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>Cloud-Native AI Segment</h3>
+                            <div class="grid-metric">Containers</div>
+                        </div>
+                        <p class="grid-item-content">MLOps teams, cloud-first startups, enterprise DevOps. Kubernetes-centric workflows. Market size: $19B application layer, 3.2x YoY growth. Deployment: Container registries, cloud marketplaces.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>Defense/Edge Segment</h3>
+                            <div class="grid-metric">bootc</div>
+                        </div>
+                        <p class="grid-item-content">Defense contractors (Anduril), classified government (NSA), autonomous systems, retail edge. Market size: Rapid growth, high deal values ($6.25M Anduril). Deployment: bootc images, air-gapped.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-19">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">20 / ECONOMICS</div>
+                    <h1 class="fade-in">Revenue Model Across Deployments</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Bare Metal Economics:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Traditional subscription model: $300/node average, $200K for 500 nodes. Highest performance path drives premium pricing. Target customers: Large HPC deployments, enterprise data centers. Example: Sandia $752K (Fuzzball + RLC infrastructure).</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Container Economics:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Free container images drive host adoption (bundled with node subscription). Cloud marketplace revenue share (15-30% to cloud provider). Try-before-buy conversion funnel: 15% convert to bare-metal. Target: Expand market by 95%, increase deal velocity.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">bootc Economics:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Bundled with security products (RLC-H at $775-$1000/node). Premium for edge/defense features. Higher deal values for specialized deployments. Example: Anduril $6.25M for edge AI defense systems.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Total opportunity:</strong> $4M-$6.8M from existing base + $1.7M-$3.5M net new = $5.7M-$10.3M achievable with three-model strategy.</p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+
+    <section id="section-20">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">21 / COMPETITIVE POSITION</div>
+                    <h1 class="fade-in">Three Models Create Defensibility</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>vs. RHEL AI</h3>
+                            <div class="grid-metric">Flexibility</div>
+                        </div>
+                        <p class="grid-item-content">RHEL focuses on bare-metal bootc only. No container images. No multi-deployment strategy. RLC-AI covers all three models with consistent optimization.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>vs. Ubuntu</h3>
+                            <div class="grid-metric">Performance</div>
+                        </div>
+                        <p class="grid-item-content">Ubuntu provides containers but no AI optimization. Generic images require manual tuning. RLC-AI containers pre-optimized, outperform on any host.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>vs. Chainguard</h3>
+                            <div class="grid-metric">Security+AI</div>
+                        </div>
+                        <p class="grid-item-content">Chainguard hardens userspace only. RLC-AI hardens kernel (LKRG) + userspace (hardened_malloc). Two-layer defense for edge AI deployments.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-21">
+                <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">22 / INTEGRATION</div>
+                    <h1 class="fade-in">Unified Platform Experience</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Same optimizations, different packaging:</strong></p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Kernel optimizations</strong> available in: Bare metal (full control), bootc (native execution), Containers on RLC-AI hosts (shared kernel)</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Framework optimizations</strong> available in: All deployment models via pre-built binaries</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Auto-tuning</strong> available in: Bare metal (full), bootc (full), Containers on RLC-AI (enhanced), Containers on generic (reduced)</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Consistent experience:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Developers test in containers locally. Deploy to bare metal for production HPC. Use bootc for edge deployments. Same performance characteristics, same optimization benefits, different operational models.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Operational simplicity:</strong> One SKU, multiple deployment options. No separate products to manage. Subscription includes all deployment models. Customer chooses best fit for each workload.</p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+
+    <section id="section-22">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">23 / SYNTHESIS</div>
+                    <h1 class="fade-in">Three Models, One Strategy</h1>
+                    <div class="split-layout">
+                        <div class="content-left">
+                            <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Why three deployment models:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Market reality requires supporting bare metal (56.4% of AI infrastructure), containers (96% enterprise K8s adoption), and edge/bootc (defense, classified, disconnected environments).</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Technical rationale:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Each model optimizes for different constraints: performance (bare metal), portability (containers), resilience (bootc). Full-stack optimization works across all three through kernel + userspace + auto-tuning layers.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Customer validation:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Sandia deploys bare metal for HPC + AI convergence. Anduril uses bootc for tactical edge defense AI. NSA validates containers + kernel hardening for classified edge workloads.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Market expansion:</strong> Three-model strategy grows addressable market 95% while maintaining technical coherence.</p></div>
+                        </div>
+                        <div class="content-right">
+                            
+                <div class="glass-card fade-in">
+                    <div class="metric-large">880+</div>
+                    <div class="metric-label-large">Companies Addressable</div>
+                </div>
+                
+                        </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-23">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">24 / OPPORTUNITY</div>
+                    <h1 class="fade-in">Deployment Strategy Market Impact</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>Bare Metal TAM</h3>
+                            <div class="grid-metric">$87B</div>
+                        </div>
+                        <p class="grid-item-content">HPC market by 2030 plus high-performance on-prem AI. Sandia National Labs, research institutions, financial services HFT, large enterprise data centers.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>Container TAM</h3>
+                            <div class="grid-metric">$11.78B</div>
+                        </div>
+                        <p class="grid-item-content">Kubernetes solutions market by 2032 (24% CAGR). Cloud-native AI application layer at $19B (2025), growing 3.2x YoY. MLOps teams, cloud startups.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>Edge/bootc TAM</h3>
+                            <div class="grid-metric">High-Value</div>
+                        </div>
+                        <p class="grid-item-content">Defense contractors (Anduril $6.25M), classified government (NSA), autonomous systems, telecom edge. Smaller volume but premium pricing for specialized requirements.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-24">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">25 / CLOSING</div>
+                    <h1 class="fade-in">Complete Infrastructure Coverage</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="feature-text">RLC-AI's three-deployment-model strategy addresses the complete AI infrastructure market—from data center to tactical edge, from HPC convergence to cloud-native DevOps.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Bare metal</strong> delivers maximum performance for traditional computing power buyers.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Containers</strong> enable cloud-native adoption and create conversion funnels to bare-metal deployments.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">bootc</strong> solves edge AI requirements that neither bare metal nor traditional containers can address.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Customer validation:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Sandia National Laboratories: $752K bare-metal HPC + AI deployment</p></div>
+<div class="content-block fade-in"><p class="lead-text">Anduril Industries: $6.25M edge AI with bootc + hardened containers</p></div>
+<div class="content-block fade-in"><p class="lead-text">NSA: Design partnership validating classified edge AI requirements</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Together:</strong> Three deployment models create defensible market position spanning $758B total addressable market with consistent optimization story across all delivery methods.</p></div>
+<div class="content-block fade-in"><p class="lead-text">---</p></div>
+<div class="content-block fade-in"><p class="lead-text"><em>Sources: IDC Worldwide AI Infrastructure Tracker 2025, Mordor Intelligence, CNCF 2023, CIQ H1 2026 Planning Documents, Oracle-Anduril Partnership Announcement Sept 2024</em></p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+    <script>
+        // Scroll-based fade in/out at viewport edges
+        function updateSectionOpacity() {
+            const sections = document.querySelectorAll('section');
+            const windowHeight = window.innerHeight;
+            const fadeStart = windowHeight * 0.20;  // Extended fade zones
+            const fadeEnd = windowHeight * 0.80;
+            
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                const sectionTop = rect.top;
+                const sectionBottom = rect.bottom;
+                const sectionMiddle = (sectionTop + sectionBottom) / 2;
+                
+                let opacity = 1;
+                
+                if (sectionMiddle < fadeStart) {
+                    // Ease out curve for smoother fade
+                    const progress = sectionMiddle / fadeStart;
+                    opacity = Math.max(0.15, progress * progress);  // Quadratic easing
+                } else if (sectionMiddle > fadeEnd) {
+                    const progress = (windowHeight - sectionMiddle) / (windowHeight - fadeEnd);
+                    opacity = Math.max(0.15, progress * progress);  // Quadratic easing
+                }
+                
+                section.style.opacity = opacity;
+            });
+        }
+        
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    updateSectionOpacity();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+        
+        updateSectionOpacity();
+        window.addEventListener('resize', updateSectionOpacity);
+        
+        // Intersection Observer for content fade-in animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const fadeObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all fade-in elements
+        document.querySelectorAll('.fade-in').forEach(el => {
+            fadeObserver.observe(el);
+        });
+    </script>
+</body>
+</html>

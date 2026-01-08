@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brian Dawson - Tactical Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0a0e14;
+            --secondary-bg: #141924;
+            --accent-steel: #5a6c7d;
+            --accent-silver: #9ca8b4;
+            --accent-light: #c4cdd5;
+            --text-primary: #ffffff;
+            --text-secondary: #7a8a99;
+            --grid-color: rgba(90, 108, 125, 0.08);
+            --glow-subtle: rgba(156, 168, 180, 0.15);
+            
+            /* Color accents */
+            --accent-blue: #4a90c4;
+            --accent-blue-dim: #3d7aa8;
+            --accent-orange: #e8904f;
+            --accent-orange-dim: #d97736;
+            --accent-yellow: #f5c563;
+            --accent-yellow-dim: #e8b74f;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        /* Canvas layers */
+        #particleCanvas, #chartCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Animated breathing background */
+        .background-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-gradient-1 {
+            background: radial-gradient(ellipse at 20% 30%, rgba(90, 108, 125, 0.15) 0%, transparent 50%);
+            animation: breathe1 16s ease-in-out infinite; /* Slowed from 8s */
+        }
+
+        .bg-gradient-2 {
+            background: radial-gradient(ellipse at 80% 70%, rgba(156, 168, 180, 0.12) 0%, transparent 50%);
+            animation: breathe2 20s ease-in-out infinite; /* Slowed from 10s */
+        }
+
+        .bg-gradient-3 {
+            background: radial-gradient(ellipse at 50% 50%, rgba(90, 108, 125, 0.08) 0%, transparent 60%);
+            animation: breathe3 24s ease-in-out infinite; /* Slowed from 12s */
+        }
+
+        @keyframes breathe1 {
+            0%, 100% { opacity: 0.4; transform: scale(1) translate(0, 0); }
+            50% { opacity: 0.7; transform: scale(1.1) translate(-2%, 3%); }
+        }
+
+        @keyframes breathe2 {
+            0%, 100% { opacity: 0.3; transform: scale(1) translate(0, 0); }
+            50% { opacity: 0.6; transform: scale(1.15) translate(3%, -2%); }
+        }
+
+        @keyframes breathe3 {
+            0%, 100% { opacity: 0.5; transform: scale(1) translate(0, 0); }
+            50% { opacity: 0.8; transform: scale(1.2) translate(-1%, 1%); }
+        }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    var(--grid-color) 2px,
+                    var(--grid-color) 3px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    var(--grid-color) 2px,
+                    var(--grid-color) 3px
+                );
+            background-size: 60px 60px;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        /* HUD Container */
+        .hud-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-areas:
+                "top-left top-center top-right"
+                "mid-left center mid-right"
+                "bottom-left bottom-center bottom-right";
+            grid-template-columns: 1fr auto 1fr;
+            grid-template-rows: auto 1fr auto;
+            padding: 40px;
+            gap: 20px;
+            z-index: 1;
+        }
+
+        /* Interactive panels */
+        .hud-panel {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .hud-panel:hover {
+            transform: scale(1.02);
+            z-index: 10;
+        }
+
+        .hud-panel:hover .panel-content {
+            box-shadow: 0 0 40px var(--glow-subtle);
+        }
+
+        .panel-content {
+            background: linear-gradient(135deg, rgba(20, 25, 36, 0.85) 0%, rgba(20, 25, 36, 0.7) 100%);
+            border: 2px solid var(--accent-steel);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Specular highlight - top left corner */
+        .panel-content::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(ellipse at top left, 
+                rgba(196, 205, 213, 0.25) 0%, 
+                rgba(156, 168, 180, 0.12) 30%, 
+                transparent 60%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Specular highlight - bottom right */
+        .panel-content::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(ellipse at bottom right, 
+                rgba(156, 168, 180, 0.15) 0%, 
+                transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Roaming glare effect */
+        .panel-content .panel-glare {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 30%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(196, 205, 213, 0.2) 50%, 
+                transparent 100%);
+            pointer-events: none;
+            z-index: 2;
+            animation: glareRoam 12s ease-in-out infinite; /* Slowed from 6s */
+            transform: skewX(-20deg);
+        }
+
+        @keyframes glareRoam {
+            0%, 100% { left: -100%; opacity: 0; }
+            10% { opacity: 1; }
+            50% { left: 100%; opacity: 1; }
+            60%, 100% { opacity: 0; }
+        }
+
+        /* Edge glare - travels along borders */
+        .panel-content .edge-glare {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, rgba(196, 205, 213, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 3;
+            box-shadow: 0 0 10px rgba(196, 205, 213, 0.5);
+        }
+
+        .panel-content .edge-glare-1 {
+            animation: glareEdgeTopRight 10s linear infinite; /* Slowed from 5s */
+        }
+
+        .panel-content .edge-glare-2 {
+            animation: glareEdgeBottomLeft 14s linear infinite; /* Slowed from 7s */
+            animation-delay: 3s; /* Increased from 2s */
+        }
+
+        @keyframes glareEdgeTopRight {
+            0% { top: 0; left: 0; }
+            25% { top: 0; left: 100%; }
+            50% { top: 100%; left: 100%; }
+            75% { top: 100%; left: 0; }
+            100% { top: 0; left: 0; }
+        }
+
+        @keyframes glareEdgeBottomLeft {
+            0% { bottom: 0; right: 0; top: auto; left: auto; }
+            25% { bottom: 0; right: 100%; }
+            50% { bottom: 100%; right: 100%; top: 0; }
+            75% { bottom: auto; right: 0; top: 0; left: auto; }
+            100% { bottom: 0; right: 0; top: auto; }
+        }
+
+        /* Level 2: Detail panel */
+        .detail-panel {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(20, 25, 36, 0.95) 0%, rgba(20, 25, 36, 0.9) 100%);
+            border: 2px solid var(--accent-silver);
+            padding: 25px;
+            max-width: 450px;
+            max-height: 500px;
+            overflow-y: auto;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            backdrop-filter: blur(15px);
+            z-index: 100;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+            transform: translateY(-10px);
+        }
+
+        /* Specular highlights for detail panels */
+        .detail-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 70%;
+            height: 50%;
+            background: radial-gradient(ellipse at top left, 
+                rgba(196, 205, 213, 0.2) 0%, 
+                rgba(156, 168, 180, 0.1) 40%, 
+                transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .detail-panel::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 50%;
+            height: 40%;
+            background: radial-gradient(ellipse at bottom right, 
+                rgba(156, 168, 180, 0.12) 0%, 
+                transparent 60%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .detail-panel.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .detail-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .detail-panel::-webkit-scrollbar-track {
+            background: rgba(90, 108, 125, 0.1);
+        }
+
+        .detail-panel::-webkit-scrollbar-thumb {
+            background: var(--accent-steel);
+        }
+
+        .detail-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            color: var(--accent-light);
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--accent-steel);
+            padding-bottom: 10px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .detail-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(90, 108, 125, 0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 5;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-item:hover {
+            background: rgba(90, 108, 125, 0.1);
+            padding-left: 10px;
+            margin-left: -10px;
+            border-radius: 4px;
+        }
+
+        .detail-item.expandable::after {
+            content: '›';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: var(--accent-steel);
+        }
+
+        .detail-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* Level 3: Sub-detail panel (slides out) */
+        .subdetail-panel {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(15, 20, 30, 0.98) 0%, rgba(15, 20, 30, 0.95) 100%);
+            border: 2px solid var(--accent-light);
+            padding: 30px;
+            max-width: 500px;
+            max-height: 600px;
+            overflow-y: auto;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            box-shadow: 0 15px 60px rgba(0, 0, 0, 0.7);
+            transform: translateX(-30px);
+        }
+
+        /* Specular highlights for subdetail panels */
+        .subdetail-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 80%;
+            height: 60%;
+            background: radial-gradient(ellipse at top left, 
+                rgba(196, 205, 213, 0.25) 0%, 
+                rgba(156, 168, 180, 0.15) 35%, 
+                transparent 65%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .subdetail-panel::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 60%;
+            height: 50%;
+            background: radial-gradient(ellipse at bottom right, 
+                rgba(156, 168, 180, 0.18) 0%, 
+                transparent 55%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .subdetail-panel.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0);
+        }
+
+        .subdetail-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .subdetail-panel::-webkit-scrollbar-track {
+            background: rgba(90, 108, 125, 0.1);
+        }
+
+        .subdetail-panel::-webkit-scrollbar-thumb {
+            background: var(--accent-light);
+        }
+
+        .subdetail-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            color: var(--accent-light);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            border-bottom: 2px solid var(--accent-light);
+            padding-bottom: 12px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .subdetail-section {
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .subdetail-heading {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--accent-silver);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .subdetail-text {
+            font-size: 15px;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .subdetail-list {
+            list-style: none;
+            padding-left: 15px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .subdetail-list li {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .subdetail-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--accent-steel);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 30px;
+            height: 30px;
+            background: none;
+            border: 2px solid var(--accent-steel);
+            color: var(--accent-silver);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-button:hover {
+            border-color: var(--accent-light);
+            color: var(--accent-light);
+            transform: rotate(90deg);
+        }
+
+        /* Top Left - Player Info */
+        .player-nameplate {
+            grid-area: top-left;
+            align-self: start;
+            justify-self: start;
+        }
+
+        .nameplate-container {
+            padding: 20px 30px;
+            clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+        }
+
+        .player-level {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            color: var(--accent-orange);
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .player-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .player-title {
+            font-size: 15px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* Top Right - Stats */
+        .stats-panel {
+            grid-area: top-right;
+            align-self: start;
+            justify-self: end;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .stat-item {
+            padding: 15px 25px;
+            clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--accent-silver);
+            line-height: 1;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* Phase 1 Color Accents */
+        .stat-item:first-child .stat-value {
+            color: var(--accent-blue);
+            text-shadow: 0 0 20px rgba(74, 144, 196, 0.3);
+        }
+
+        .stat-item:nth-child(2) .stat-value {
+            color: var(--accent-yellow);
+            text-shadow: 0 0 20px rgba(245, 197, 99, 0.3);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* Center - Career Timeline */
+        .career-display {
+            grid-area: center;
+            align-self: center;
+            justify-self: center;
+            text-align: center;
+        }
+
+        .career-node {
+            margin-bottom: 20px;
+        }
+
+        .company-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-light);
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 5;
+        }
+
+        .company-role {
+            font-size: 14px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            margin-bottom: 3px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .company-years {
+            font-size: 12px;
+            color: var(--accent-steel);
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 5;
+        }
+
+        /* Bottom panels */
+        .position-panel {
+            grid-area: bottom-left;
+            align-self: end;
+            justify-self: start;
+        }
+
+        .position-container {
+            padding: 20px 30px;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+        }
+
+        .position-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 5;
+        }
+
+        .position-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--accent-orange);
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 5;
+            text-shadow: 0 0 20px rgba(232, 144, 79, 0.3);
+        }
+
+        .achievements-bar {
+            grid-area: bottom-center;
+            align-self: end;
+            justify-self: center;
+        }
+
+        .achievements-container {
+            padding: 15px 40px;
+            text-align: center;
+        }
+
+        .achievements-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            color: var(--accent-silver);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .achievement-icons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .achievement-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-silver);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-silver);
+        }
+
+        .publications-panel {
+            grid-area: bottom-right;
+            align-self: end;
+            justify-self: end;
+            display: flex;
+            gap: 15px;
+        }
+
+        .publication-badge {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+
+        .badge-icon {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-silver);
+            position: relative;
+            z-index: 5;
+        }
+
+        /* Scanline effect */
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-steel), transparent);
+            animation: scan 8s linear infinite; /* Slowed from 4s */
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+
+        .hover-hint {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            font-size: 10px;
+            color: var(--text-secondary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .hud-panel:hover .hover-hint {
+            opacity: 1;
+        }
+    </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
+</head>
+<body>
+    <!-- Canvas layers -->
+    <canvas id="chartCanvas"></canvas>
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Background layers -->
+    <div class="background-layer bg-gradient-1"></div>
+    <div class="background-layer bg-gradient-2"></div>
+    <div class="background-layer bg-gradient-3"></div>
+    <div class="grid-overlay"></div>
+    <div class="scanline"></div>
+
+    <!-- HUD Container -->
+    <div class="hud-container">
+        <!-- Top Left: Player Nameplate -->
+        <div class="player-nameplate hud-panel" data-detail="profile">
+            <div class="nameplate-container panel-content">
+                <div class="player-level">PRODUCT LEADER</div>
+                <div class="player-name">BRIAN DAWSON</div>
+                <div class="player-title">Developer Relations | Product Leader | Strategic Advisor</div>
+                <div class="hover-hint">CLICK</div>
+            </div>
+            <div class="detail-panel" id="detail-profile">
+                <div class="detail-title">CAREER DEPLOYMENTS</div>
+                <div class="detail-item expandable" data-subdetail="ciq">
+                    <div class="detail-label">2024 — Present</div>
+                    <div class="detail-value">CIQ • Product Leader</div>
+                </div>
+                <div class="detail-item expandable" data-subdetail="ripple">
+                    <div class="detail-label">2022 — 2023</div>
+                    <div class="detail-value">Ripple • Global Head of Partner Relations</div>
+                </div>
+                <div class="detail-item expandable" data-subdetail="linux">
+                    <div class="detail-label">2021 — 2022</div>
+                    <div class="detail-value">Linux Foundation • VP Developer Relations</div>
+                </div>
+                <div class="detail-item expandable" data-subdetail="cloudbees">
+                    <div class="detail-label">2015 — 2020</div>
+                    <div class="detail-value">CloudBees • Sr. Director Product Marketing</div>
+                </div>
+                <div class="detail-item expandable" data-subdetail="playstation">
+                    <div class="detail-label">1995 — 2004</div>
+                    <div class="detail-value">PlayStation • Director Tools & Technology</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level 3 Sub-detail panels -->
+        <div class="subdetail-panel" id="subdetail-ciq" style="top: 10%; left: 25%;">
+            <button class="close-button">✕</button>
+            <div class="subdetail-title">CIQ</div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Role</div>
+                <div class="subdetail-text">Product Leader (2024 — Present)</div>
+            </div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Mission</div>
+                <div class="subdetail-text">Driving product strategy and delivery for enterprise Linux solutions, with core focus on AI/ML and HPC workloads.</div>
+            </div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Key Achievements</div>
+                <ul class="subdetail-list">
+                    <li>Defined and delivered Linux solutions optimized for AI workloads</li>
+                    <li>Contributing to CIQ becoming the first Linux distribution authorized to deliver the complete NVIDIA AI software stack</li>
+                    <li>Utilized LLMs (Claude, Gemini Pro, ChatGPT) for market research, competitive analysis, and product documentation</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="subdetail-panel" id="subdetail-ripple" style="top: 10%; left: 25%;">
+            <button class="close-button">✕</button>
+            <div class="subdetail-title">RIPPLE</div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Role</div>
+                <div class="subdetail-text">Global Head of Partner Relations/Success (Feb 2022 — Jun 2023)</div>
+            </div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Built From Ground Up</div>
+                <div class="subdetail-text">Founded and led the partner relations/success function, building the team and program from the ground up.</div>
+            </div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Scale & Impact</div>
+                <ul class="subdetail-list">
+                    <li>Managed and nurtured a global network of over 150 partners</li>
+                    <li>Representing more than $750 million in capital investment</li>
+                    <li>Guided partners in architecture, solution development, and go-to-market strategies</li>
+                    <li>Judged XRPL developer and Creator Fund grant programs</li>
+                    <li>Assessed 50+ grant applications</li>
+                </ul>
+            </div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Recognition</div>
+                <div class="subdetail-text">Selected as one of only 8 (out of 800) staff members approved for media and press interviews.</div>
+            </div>
+        </div>
+
+        <div class="subdetail-panel" id="subdetail-linux" style="top: 10%; left: 25%;">
+            <button class="close-button">✕</button>
+            <div class="subdetail-title">LINUX FOUNDATION</div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Role</div>
+                <div class="subdetail-text">VP of Developer Relations and Ecosystem Development (May 2021 — Jan 2022)</div>
+            </div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Key Initiatives</div>
+                <ul class="subdetail-list">
+                    <li>Led developer relations and ecosystem development initiatives</li>
+                    <li>Drove community engagement and technical adoption</li>
+                    <li>Developed ecosystem strategies driving technical adoption across multiple open-source communities</li>
+                    <li>Created and implemented training programs enhancing developer skills</li>
+                    <li>Led community initiatives fostering developer collaboration</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="subdetail-panel" id="subdetail-cloudbees" style="top: 10%; left: 25%;">
+            <button class="close-button">✕</button>
+            <div class="subdetail-title">CLOUDBEES</div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Role</div>
+                <div class="subdetail-text">Senior Director, Product & Solutions Marketing (Sep 2015 — May 2020)</div>
+            </div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Founding Impact</div>
+                <div class="subdetail-text">Founding member of product marketing team. Drove product and solutions marketing efforts, enhancing market reach and adoption of CloudBees' DevOps solutions.</div>
+            </div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Thought Leadership</div>
+                <ul class="subdetail-list">
+                    <li>Hosted top-ranked DevOps Radio podcast for 2+ years with 30+ episodes</li>
+                    <li>Delivered keynotes at Quality Jam 2018 and DevOps World/Jenkins World (2016-2020)</li>
+                    <li>Conceived and developed the academically-cited DevOps Quadrant Maturity Framework</li>
+                    <li>Co-authored 'Building Cloud Native Apps Painlessly'</li>
+                    <li>Contributed to O'Reilly's 'Jenkins 2: Up and Running'</li>
+                    <li>Evangelized DevOps through 100+ public webinars, presentations, and workshops</li>
+                </ul>
+            </div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Recognition</div>
+                <ul class="subdetail-list">
+                    <li>Marketing Content MVP Award (2018)</li>
+                    <li>2x Presidents Club non-sales (2017-2018)</li>
+                    <li>DevOps Evangelist Finalist (2017-2020)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="subdetail-panel" id="subdetail-playstation" style="top: 10%; left: 25%;">
+            <button class="close-button">✕</button>
+            <div class="subdetail-title">PLAYSTATION</div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Role</div>
+                <div class="subdetail-text">Director of Tools and Technology (Sep 1995 — Aug 2004)</div>
+            </div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Pioneer Status</div>
+                <div class="subdetail-text">Employee #90 at Sony Computer Entertainment of America. Founded the Tools and Middleware Program and led the Tools and Technology team.</div>
+            </div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Platform Impact</div>
+                <ul class="subdetail-list">
+                    <li>Directed tools and technology development for PlayStation 1, 2, and 3</li>
+                    <li>Led cross-functional teams to deliver innovative solutions for game developers</li>
+                    <li>Contributed to the success of 34+ shipped video game titles</li>
+                    <li>Including Ratchet & Clank and SOCOM II</li>
+                    <li>Introduced voice recognition technology still in use today</li>
+                </ul>
+            </div>
+            <div class="subdetail-section">
+                <div class="subdetail-heading">Recognition</div>
+                <div class="subdetail-text">Received Sony Computer Entertainment International Global Excellence Award (2004)</div>
+            </div>
+        </div>
+
+        <!-- Top Right: Stats Panel -->
+        <div class="stats-panel">
+            <div class="stat-item panel-content hud-panel" data-detail="arr">
+                <div class="stat-value">15x</div>
+                <div class="stat-label">ARR Growth</div>
+                <div class="hover-hint">CLICK</div>
+            </div>
+            <div class="stat-item panel-content hud-panel" data-detail="keynotes">
+                <div class="stat-value">100+</div>
+                <div class="stat-label">Keynotes</div>
+                <div class="hover-hint">CLICK</div>
+            </div>
+        </div>
+
+        <div class="detail-panel" id="detail-arr" style="top: 100px; right: 50px;">
+            <div class="detail-title">ARR GROWTH</div>
+            <div class="detail-item">
+                <div class="detail-value">Demonstrated track record of 15x annual recurring revenue growth through strategic product and partnership initiatives.</div>
+            </div>
+        </div>
+
+        <div class="detail-panel" id="detail-keynotes" style="top: 200px; right: 50px;">
+            <div class="detail-title">SPEAKING ENGAGEMENTS</div>
+            <div class="detail-item">
+                <div class="detail-label">Major Events</div>
+                <div class="detail-value">Quality Jam 2018, DevOps World/Jenkins World (2016-2020)</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">DevOps Radio Podcast</div>
+                <div class="detail-value">Top-ranked podcast host for 2+ years, 30+ episodes</div>
+            </div>
+        </div>
+
+        <!-- Center: Career Nodes -->
+        <div class="career-display">
+            <div class="career-node hud-panel" data-detail="profile">
+                <div class="company-name">CIQ</div>
+                <div class="company-role">Product Leader</div>
+                <div class="company-years">2024 — Present</div>
+                <div class="hover-hint">CLICK</div>
+            </div>
+        </div>
+
+        <!-- Bottom panels -->
+        <div class="position-panel hud-panel" data-detail="frameworks">
+            <div class="position-container panel-content">
+                <div class="position-label">Thought Leadership</div>
+                <div class="position-name">FRAMEWORKS</div>
+                <div class="hover-hint">CLICK</div>
+            </div>
+            <div class="detail-panel" id="detail-frameworks" style="bottom: 100px; left: 50px;">
+                <div class="detail-title">FRAMEWORKS</div>
+                <div class="detail-item">
+                    <div class="detail-label">4 Quadrants of DevOps Maturity Model</div>
+                    <div class="detail-value">Widely adopted enterprise DevOps transformation framework, academically cited and keynoted at Quality Jam 2018.</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">The DevOps Trinity</div>
+                    <div class="detail-value">Core DevOps implementation framework (People & Culture, Process & Practices, Tools & Technology), cited in O'Reilly publications.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="achievements-bar hud-panel" data-detail="awards">
+            <div class="achievements-container panel-content">
+                <div class="achievements-text">Awards & Recognition</div>
+                <div class="achievement-icons">
+                    <div class="achievement-dot"></div>
+                    <div class="achievement-dot"></div>
+                    <div class="achievement-dot"></div>
+                    <div class="achievement-dot"></div>
+                </div>
+                <div class="hover-hint">CLICK</div>
+            </div>
+            <div class="detail-panel" id="detail-awards" style="bottom: 100px; left: 50%; transform: translateX(-50%);">
+                <div class="detail-title">AWARDS & IMPACT</div>
+                <div class="detail-item">
+                    <div class="detail-label">DevOps Evangelist Finalist</div>
+                    <div class="detail-value">DevOps.com • 2017-2020</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Marketing Content MVP Award</div>
+                    <div class="detail-value">CloudBees • 2018</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">2x Presidents Club (non-sales)</div>
+                    <div class="detail-value">CloudBees • 2017-2018</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Global Excellence Award</div>
+                    <div class="detail-value">Sony Computer Entertainment • 2004</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="publications-panel">
+            <div class="publication-badge panel-content hud-panel" data-detail="publications">
+                <div class="badge-icon">PUB</div>
+                <div class="hover-hint">CLICK</div>
+            </div>
+        </div>
+
+        <div class="detail-panel" id="detail-publications" style="bottom: 150px; right: 50px;">
+            <div class="detail-title">PUBLICATIONS</div>
+            <div class="detail-item">
+                <div class="detail-label">Building Cloud Native Apps Painlessly</div>
+                <div class="detail-value">Co-author of CloudBees publication on cloud-native development.</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Jenkins 2: Up and Running</div>
+                <div class="detail-value">Contributor to O'Reilly publication, jacket endorser.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add glare effects to all panels
+        document.querySelectorAll('.panel-content').forEach(panel => {
+            // Add roaming glare
+            const glare = document.createElement('div');
+            glare.className = 'panel-glare';
+            panel.appendChild(glare);
+
+            // Add edge glares
+            const edgeGlare1 = document.createElement('div');
+            edgeGlare1.className = 'edge-glare edge-glare-1';
+            panel.appendChild(edgeGlare1);
+
+            const edgeGlare2 = document.createElement('div');
+            edgeGlare2.className = 'edge-glare edge-glare-2';
+            panel.appendChild(edgeGlare2);
+        });
+
+        // Chart Canvas - Floating adoption/growth charts
+        const chartCanvas = document.getElementById('chartCanvas');
+        const chartCtx = chartCanvas.getContext('2d');
+        
+        chartCanvas.width = window.innerWidth;
+        chartCanvas.height = window.innerHeight;
+
+        class FloatingChart {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.opacity = 0.08 + Math.random() * 0.07;
+                this.pulseSpeed = 0.0005 + Math.random() * 0.0008; // Slowed from 0.001-0.003
+                this.pulsePhase = Math.random() * Math.PI * 2;
+            }
+
+            drawLineChart() {
+                const width = 315; // 75% larger (was 180)
+                const height = 140; // 75% larger (was 80)
+                const points = 8;
+                const data = [];
+                
+                // Generate growth curve data
+                for (let i = 0; i < points; i++) {
+                    data.push(20 + Math.random() * 30 + (i * 3));
+                }
+
+                chartCtx.save();
+                chartCtx.globalAlpha = this.opacity;
+                chartCtx.strokeStyle = '#5a6c7d';
+                chartCtx.lineWidth = 2; // Slightly thicker for larger size
+
+                chartCtx.beginPath();
+                for (let i = 0; i < points; i++) {
+                    const x = this.x + (i * width / (points - 1));
+                    const y = this.y + height - data[i];
+                    if (i === 0) {
+                        chartCtx.moveTo(x, y);
+                    } else {
+                        chartCtx.lineTo(x, y);
+                    }
+                }
+                chartCtx.stroke();
+
+                // Draw axes
+                chartCtx.strokeStyle = '#5a6c7d';
+                chartCtx.lineWidth = 1;
+                chartCtx.beginPath();
+                chartCtx.moveTo(this.x, this.y);
+                chartCtx.lineTo(this.x, this.y + height);
+                chartCtx.lineTo(this.x + width, this.y + height);
+                chartCtx.stroke();
+
+                chartCtx.restore();
+            }
+
+            drawBarChart() {
+                const width = 280; // 75% larger (was 160)
+                const height = 122; // 75% larger (was 70)
+                const bars = 6;
+                const barWidth = width / (bars * 2);
+
+                chartCtx.save();
+                chartCtx.globalAlpha = this.opacity;
+                chartCtx.fillStyle = '#5a6c7d';
+
+                for (let i = 0; i < bars; i++) {
+                    const barHeight = 20 + Math.random() * 45;
+                    const x = this.x + (i * barWidth * 2);
+                    const y = this.y + height - barHeight;
+                    chartCtx.fillRect(x, y, barWidth, barHeight);
+                }
+
+                chartCtx.restore();
+            }
+
+            drawPieChart() {
+                const radius = 70; // 75% larger (was 40)
+                const segments = 4;
+                let startAngle = 0;
+
+                chartCtx.save();
+                chartCtx.globalAlpha = this.opacity;
+
+                for (let i = 0; i < segments; i++) {
+                    const segmentAngle = (Math.PI * 2) * (0.15 + Math.random() * 0.25);
+                    chartCtx.beginPath();
+                    chartCtx.arc(this.x + radius, this.y + radius, radius, startAngle, startAngle + segmentAngle);
+                    chartCtx.lineTo(this.x + radius, this.y + radius);
+                    chartCtx.fillStyle = `rgba(90, 108, 125, ${0.3 + i * 0.15})`;
+                    chartCtx.fill();
+                    startAngle += segmentAngle;
+                }
+
+                chartCtx.restore();
+            }
+
+            update() {
+                this.pulsePhase += this.pulseSpeed;
+                this.opacity = 0.06 + Math.sin(this.pulsePhase) * 0.04;
+            }
+
+            draw() {
+                if (this.type === 'line') this.drawLineChart();
+                else if (this.type === 'bar') this.drawBarChart();
+                else if (this.type === 'pie') this.drawPieChart();
+            }
+        }
+
+        const charts = [
+            new FloatingChart(150, 200, 'line'),
+            new FloatingChart(window.innerWidth - 350, 150, 'bar'),
+            new FloatingChart(200, window.innerHeight - 250, 'pie'),
+            new FloatingChart(window.innerWidth - 300, window.innerHeight - 300, 'line'),
+            new FloatingChart(window.innerWidth / 2 - 200, 100, 'bar'),
+            new FloatingChart(window.innerWidth / 2 + 100, window.innerHeight - 200, 'line'),
+        ];
+
+        // Particle system
+        const particleCanvas = document.getElementById('particleCanvas');
+        const ctx = particleCanvas.getContext('2d');
+        
+        particleCanvas.width = window.innerWidth;
+        particleCanvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            particleCanvas.width = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
+            chartCanvas.width = window.innerWidth;
+            chartCanvas.height = window.innerHeight;
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * particleCanvas.width;
+                this.y = Math.random() * particleCanvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 1.5 + 0.5;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > particleCanvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > particleCanvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(90, 108, 125, 0.4)';
+                ctx.fill();
+            }
+        }
+
+        const particles = [];
+        const particleCount = 80;
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function drawLines() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(90, 108, 125, ${0.15 * (1 - distance / 150)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            // Clear canvases
+            ctx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            chartCtx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+            
+            // Update and draw charts
+            charts.forEach(chart => {
+                chart.update();
+                chart.draw();
+            });
+
+            // Update and draw particles
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            drawLines();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Interactive disclosure system (3 levels)
+        let activeLevel2Panel = null;
+        let activeLevel3Panel = null;
+
+        // Level 1 -> Level 2
+        document.querySelectorAll('.hud-panel').forEach(panel => {
+            panel.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const detailId = panel.getAttribute('data-detail');
+                const detailPanel = document.getElementById(`detail-${detailId}`);
+                
+                if (detailPanel) {
+                    if (activeLevel2Panel && activeLevel2Panel !== detailPanel) {
+                        activeLevel2Panel.classList.remove('active');
+                    }
+                    
+                    if (activeLevel3Panel) {
+                        activeLevel3Panel.classList.remove('active');
+                        activeLevel3Panel = null;
+                    }
+                    
+                    detailPanel.classList.toggle('active');
+                    activeLevel2Panel = detailPanel.classList.contains('active') ? detailPanel : null;
+                }
+            });
+        });
+
+        // Level 2 -> Level 3
+        document.querySelectorAll('.detail-item.expandable').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const subdetailId = item.getAttribute('data-subdetail');
+                const subdetailPanel = document.getElementById(`subdetail-${subdetailId}`);
+                
+                if (subdetailPanel) {
+                    if (activeLevel3Panel && activeLevel3Panel !== subdetailPanel) {
+                        activeLevel3Panel.classList.remove('active');
+                    }
+                    
+                    subdetailPanel.classList.toggle('active');
+                    activeLevel3Panel = subdetailPanel.classList.contains('active') ? subdetailPanel : null;
+                }
+            });
+        });
+
+        // Close buttons for level 3
+        document.querySelectorAll('.close-button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const panel = btn.closest('.subdetail-panel');
+                if (panel) {
+                    panel.classList.remove('active');
+                    activeLevel3Panel = null;
+                }
+            });
+        });
+
+        // Close all when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.detail-panel') && 
+                !e.target.closest('.subdetail-panel') && 
+                !e.target.closest('.hud-panel')) {
+                document.querySelectorAll('.detail-panel').forEach(panel => {
+                    panel.classList.remove('active');
+                });
+                document.querySelectorAll('.subdetail-panel').forEach(panel => {
+                    panel.classList.remove('active');
+                });
+                activeLevel2Panel = null;
+                activeLevel3Panel = null;
+            }
+        });
+
+        // Prevent panels from closing themselves
+        document.querySelectorAll('.detail-panel, .subdetail-panel').forEach(panel => {
+            panel.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+    </script>
+</body>
+</html>
