@@ -65,6 +65,9 @@ mv "presentations/[folder-name]" .
 
 ```bash
 # turbo
+# IMPORTANT: Clean docs output folder first (prevents stale content on GitHub Pages)
+rm -rf docs/presentations/* docs/thumbnails/* docs/ciq
+
 # Rebuild and deploy
 npm run build && git add -A && git commit -m "Switch presentations [up/down]" && git push
 ```
