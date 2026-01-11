@@ -12,7 +12,7 @@ const CONFIG = {
   docsDir: path.join(__dirname, '../docs'),
   allowedExtensions: ['.html', '.pdf', '.pptx'],
   thumbnailSize: { width: 800, height: 450 },
-  libraryTitle: 'CIQ Presentation Library',
+  libraryTitle: 'Firefly.TSM Living Decks',
   accessCodes: ['8888'], // Static code for reliability
   adminCodes: ['ciq2026', 'getmoney'], // Persistent admin codes that don't expire
   skipThumbnails: false, // Enable thumbnails for visual previews
@@ -328,7 +328,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --ciq-green: #12A66F;
+            --accent-color: #D97706;
             --deep-black: #030712;
             --slate-900: #0F172A;
             --slate-800: #1E293B;
@@ -372,7 +372,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
         
         h1 { font-size: 2.5rem; font-weight: 300; color: var(--slate-200); margin-bottom: 0.5rem; }
         .subtitle { font-size: 1.1rem; color: var(--slate-400); }
-        .count { font-family: 'JetBrains Mono', monospace; color: var(--ciq-green); font-weight: 600; }
+        .count { font-family: 'JetBrains Mono', monospace; color: var(--accent-color); font-weight: 600; }
         
         .search-bar { max-width: 600px; margin: 2rem 0 0 0; }
         .search-input {
@@ -381,7 +381,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
             font-size: 1rem;
             background: var(--slate-800);
             border: 1px solid var(--slate-700);
-            border-left: 3px solid var(--ciq-green);
+            border-left: 3px solid var(--accent-color);
             color: var(--slate-200);
             font-family: 'Inter', sans-serif;
         }
@@ -410,7 +410,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
         .folder-header:hover { background: var(--slate-800); }
         
         .folder-icon {
-            color: var(--ciq-green);
+            color: var(--accent-color);
             font-size: 0.8rem;
             transition: transform 0.3s;
         }
@@ -426,7 +426,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
         .folder-count {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.9rem;
-            color: var(--ciq-green);
+            color: var(--accent-color);
             background: rgba(18, 166, 111, 0.1);
             padding: 0.25rem 0.75rem;
             border-radius: 12px;
@@ -472,7 +472,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, var(--ciq-green), transparent);
+            background: linear-gradient(90deg, var(--accent-color), transparent);
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -482,7 +482,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
                 inset 0 1px 0 rgba(255, 255, 255, 0.15),
                 0 12px 40px rgba(18, 166, 111, 0.15),
                 0 0 1px rgba(255, 255, 255, 0.1);
-            border-color: rgba(18, 166, 111, 0.3);
+            border-color: rgba(217, 119, 6, 0.3);
         }
         .presentation-card:hover::before {
             opacity: 1;
@@ -521,16 +521,16 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
             opacity: 1;
         }
         .pin-btn:hover {
-            background: rgba(18, 166, 111, 0.3);
-            border-color: var(--ciq-green);
-            color: var(--ciq-green);
+            background: rgba(217, 119, 6, 0.3);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
             transform: scale(1.1);
         }
         .pin-btn.pinned {
             opacity: 1;
             background: rgba(18, 166, 111, 0.4);
-            color: var(--ciq-green);
-            border-color: var(--ciq-green);
+            color: var(--accent-color);
+            border-color: var(--accent-color);
         }
         
         /* Featured cards - larger, more prominent */
@@ -540,7 +540,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
         }
         .featured-card::before {
             opacity: 1;
-            background: linear-gradient(90deg, var(--ciq-green), rgba(18, 166, 111, 0.3));
+            background: linear-gradient(90deg, var(--accent-color), rgba(217, 119, 6, 0.3));
         }
         
         .thumbnail {
@@ -563,10 +563,10 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
         .card-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
         .tag {
             background: rgba(18, 166, 111, 0.1);
-            color: var(--ciq-green);
+            color: var(--accent-color);
             padding: 0.2rem 0.6rem;
             font-size: 0.7rem;
-            border: 1px solid rgba(18, 166, 111, 0.3);
+            border: 1px solid rgba(217, 119, 6, 0.3);
             font-family: 'JetBrains Mono', monospace;
         }
         
@@ -623,7 +623,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
             content: '';
             width: 4px;
             height: 24px;
-            background: var(--ciq-green);
+            background: var(--accent-color);
             border-radius: 2px;
         }
         
@@ -725,13 +725,13 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
         }
         .access-form input:focus {
             outline: none;
-            border-color: var(--ciq-green);
+            border-color: var(--accent-color);
             box-shadow: 0 0 0 2px rgba(18, 166, 111, 0.2);
         }
         .access-form button {
             width: 100%;
             padding: 0.8rem;
-            background: var(--ciq-green);
+            background: var(--accent-color);
             border: none;
             border-radius: 8px;
             color: #fff;
@@ -788,7 +788,7 @@ function buildLandingPage(presentationsByFolder, totalCount, allPresentations, t
     </div>
     
     <div class="footer">
-        Built with CIQ Presentation Library Builder • Last updated: ${new Date().toLocaleDateString()}
+        Built with Firefly.TSM Living Decks • Last updated: ${new Date().toLocaleDateString()}
     </div>
     
     <script>
@@ -1116,7 +1116,7 @@ async function extractZipFiles() {
 
 // Main build function
 async function buildLibrary() {
-  console.log('🚀 Building CIQ Presentation Library...\n');
+  console.log('🚀 Building Firefly.TSM Living Decks...\n');
 
   // 0. Extract any zip files first
   await extractZipFiles();
