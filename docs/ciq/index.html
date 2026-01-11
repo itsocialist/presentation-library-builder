@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIQ Presentation Library</title>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ciq-green: #12A66F;
+            --deep-black: #030712;
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-400: #94A3B8;
+            --slate-200: #E2E8F0;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--deep-black);
+            color: var(--slate-400);
+            min-height: 100vh;
+        }
+        
+        /* Mouse-tracking gradient light */
+        .mouse-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+            background: radial-gradient(
+                600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(18, 166, 111, 0.15),
+                transparent 40%
+            );
+            transition: opacity 0.3s ease;
+        }
+        
+        .header {
+            background: var(--slate-900);
+            border-bottom: 1px solid var(--slate-800);
+            padding: 2rem 3rem;
+        }
+        
+        h1 { font-size: 2.5rem; font-weight: 300; color: var(--slate-200); margin-bottom: 0.5rem; }
+        .subtitle { font-size: 1.1rem; color: var(--slate-400); }
+        .count { font-family: 'JetBrains Mono', monospace; color: var(--ciq-green); font-weight: 600; }
+        
+        .search-bar { max-width: 600px; margin: 2rem 0 0 0; }
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            background: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-left: 3px solid var(--ciq-green);
+            color: var(--slate-200);
+            font-family: 'Inter', sans-serif;
+        }
+        .search-input:focus { outline: none; border-left-width: 4px; background: var(--slate-900); }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem 3rem; }
+        
+        /* Folder sections */
+        .folder-section {
+            margin-bottom: 2rem;
+            border: 1px solid var(--slate-800);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .folder-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: var(--slate-900);
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .folder-header:hover { background: var(--slate-800); }
+        
+        .folder-icon {
+            color: var(--ciq-green);
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+        .folder-section.collapsed .folder-icon { transform: rotate(-90deg); }
+        
+        .folder-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--slate-200);
+            flex: 1;
+        }
+        
+        .folder-count {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--ciq-green);
+            background: rgba(18, 166, 111, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+        }
+        
+        .folder-content {
+            padding: 1.5rem;
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s;
+        }
+        .folder-section.collapsed .folder-content {
+            max-height: 0;
+            padding: 0 1.5rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        /* Liquid Glass Cards */
+        .presentation-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 4px 24px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            text-decoration: none;
+            display: block;
+            position: relative;
+        }
+        .presentation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--ciq-green), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .presentation-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                0 12px 40px rgba(18, 166, 111, 0.15),
+                0 0 1px rgba(255, 255, 255, 0.1);
+            border-color: rgba(18, 166, 111, 0.3);
+        }
+        .presentation-card:hover::before {
+            opacity: 1;
+        }
+        .presentation-card.hidden { display: none; }
+        
+        /* Card wrapper for pin button positioning */
+        .card-wrapper {
+            position: relative;
+        }
+        .card-wrapper.hidden { display: none; }
+        
+        /* Pin button */
+        .pin-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 10;
+            width: 32px;
+            height: 32px;
+            padding: 6px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--slate-400);
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s ease;
+        }
+        .pin-btn svg {
+            width: 100%;
+            height: 100%;
+        }
+        .card-wrapper:hover .pin-btn {
+            opacity: 1;
+        }
+        .pin-btn:hover {
+            background: rgba(18, 166, 111, 0.3);
+            border-color: var(--ciq-green);
+            color: var(--ciq-green);
+            transform: scale(1.1);
+        }
+        .pin-btn.pinned {
+            opacity: 1;
+            background: rgba(18, 166, 111, 0.4);
+            color: var(--ciq-green);
+            border-color: var(--ciq-green);
+        }
+        
+        /* Featured cards - larger, more prominent */
+        .featured-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(18, 166, 111, 0.2);
+        }
+        .featured-card::before {
+            opacity: 1;
+            background: linear-gradient(90deg, var(--ciq-green), rgba(18, 166, 111, 0.3));
+        }
+        
+        .thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .card-content { padding: 1.25rem; }
+        .card-title { font-size: 1.1rem; font-weight: 600; color: var(--slate-200); margin-bottom: 0.5rem; line-height: 1.3; }
+        .card-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--slate-400);
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .card-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .tag {
+            background: rgba(18, 166, 111, 0.1);
+            color: var(--ciq-green);
+            padding: 0.2rem 0.6rem;
+            font-size: 0.7rem;
+            border: 1px solid rgba(18, 166, 111, 0.3);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .folder-badge {
+            display: inline-block;
+            background: var(--slate-800);
+            color: var(--slate-400);
+            padding: 0.15rem 0.5rem;
+            font-size: 0.65rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Format badges for PDF/PPTX */
+        .format-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 5;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            border-radius: 6px;
+            backdrop-filter: blur(8px);
+        }
+        .format-pdf {
+            background: rgba(229, 62, 62, 0.8);
+            color: #fff;
+        }
+        .format-pptx {
+            background: rgba(221, 107, 32, 0.8);
+            color: #fff;
+        }
+        
+        /* Most Recent Section */
+        .most-recent-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--slate-800);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--slate-200);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--ciq-green);
+            border-radius: 2px;
+        }
+        
+        /* Featured Section */
+        .featured-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--slate-800);
+        }
+        
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        @media (max-width: 1024px) {
+            .featured-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .featured-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* Most Recent Section */
+        .most-recent-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--slate-800);
+        }
+        
+        .recent-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        @media (max-width: 1024px) {
+            .recent-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .recent-grid { grid-template-columns: 1fr; }
+        }
+        
+        .recent-card {
+            border-left-color: #3B82F6; /* Blue accent for recent */
+        }
+        .recent-card:hover {
+            box-shadow: -6px 0 40px rgba(59, 130, 246, 0.2);
+        }
+        
+        .footer { text-align: center; padding: 3rem; color: var(--slate-700); font-size: 0.9rem; }
+        
+        .empty-state { text-align: center; padding: 6rem 2rem; color: var(--slate-400); }
+        .empty-state h2 { font-size: 1.5rem; color: var(--slate-300); margin-bottom: 1rem; }
+        
+        /* Access Code Modal */
+        .access-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(3, 7, 18, 0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .access-modal.hidden { display: none; }
+        .access-form {
+            background: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .access-form h2 {
+            color: var(--slate-100);
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+        }
+        .access-form p {
+            color: var(--slate-400);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .access-form input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: var(--slate-800);
+            border: 1px solid var(--slate-600);
+            border-radius: 8px;
+            color: var(--slate-100);
+            font-size: 1rem;
+            text-align: center;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+        .access-form input:focus {
+            outline: none;
+            border-color: var(--ciq-green);
+            box-shadow: 0 0 0 2px rgba(18, 166, 111, 0.2);
+        }
+        .access-form button {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--ciq-green);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .access-form button:hover { background: #0d8a5a; }
+        .access-error {
+            color: #E53E3E;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .access-error.visible { display: block; }
+    </style>
+</head>
+<body>
+    <!-- Access Code Modal -->
+    
+    <div class="access-modal" id="accessModal">
+        <div class="access-form">
+            <h2>Access Required</h2>
+            <p>Enter the access code to view presentations</p>
+            <input type="password" id="accessCodeInput" placeholder="Enter code" autocomplete="off">
+            <button onclick="checkAccessCode()">Enter</button>
+            <div class="access-error" id="accessError">Invalid access code</div>
+        </div>
+    </div>
+    
+    <div class="mouse-gradient"></div>
+    <div class="header">
+        <h1>CIQ Executive Presentations</h1>
+        <p class="subtitle">
+            <span class="count">9</span> presentations in <span class="count">1</span> category
+        </p>
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search presentations...">
+        </div>
+    </div>
+    
+    <div class="container">
+        
+        
+    <div class="featured-section" id="featuredSection" style="display: none;">
+      <h2 class="section-title">Featured</h2>
+      <div class="featured-grid" id="featuredGrid">
+        <!-- Populated by JS from pinned items -->
+      </div>
+    </div>
+        
+    <div class="folder-section" id="mostRecentSection" style="display: none;">
+      <div class="folder-header" onclick="toggleSection(this)">
+        <span class="folder-icon">▼</span>
+        <h2 class="folder-title">Recently Viewed</h2>
+        <span class="folder-count" id="recentCount">0</span>
+      </div>
+      <div class="folder-content">
+        <div class="grid" id="recentGrid">
+          <!-- Populated by JS from localStorage -->
+        </div>
+      </div>
+    </div>
+        
+    <div class="folder-section collapsed" data-folder="ciq stacks">
+      <div class="folder-header" onclick="toggleSection(this)">
+        <span class="folder-icon">▼</span>
+        <h2 class="folder-title">CIQ Stacks</h2>
+        <span class="folder-count">9</span>
+      </div>
+      <div class="folder-content">
+        <div class="grid">
+          
+    <div class="card-wrapper" data-path="CIQ Stacks/ciq-secure-stack-prodcut-page-final.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/ciq-secure-stack-prodcut-page-final.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fciq-secure-stack-prodcut-page-final.html" class="presentation-card 0" 
+         data-path="CIQ Stacks/ciq-secure-stack-prodcut-page-final.html" data-title="ciq secure stack prodcut page final" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/ciq-secure-stack-prodcut-page-final.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_ciq-secure-stack-prodcut-page-final.png" alt="Ciq Secure Stack Prodcut Page Final" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Ciq Secure Stack Prodcut Page Final</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/ciq-platform-executive-summary-deck.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/ciq-platform-executive-summary-deck.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2Fciq-platform-executive-summary-deck.html" class="presentation-card 1" 
+         data-path="CIQ Stacks/ciq-platform-executive-summary-deck.html" data-title="ciq platform executive summary deck" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/ciq-platform-executive-summary-deck.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_ciq-platform-executive-summary-deck.png" alt="Ciq Platform Executive Summary Deck" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Ciq Platform Executive Summary Deck</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/CIQ-Stacks-Comparison-Simplified.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/CIQ-Stacks-Comparison-Simplified.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2FCIQ-Stacks-Comparison-Simplified.html" class="presentation-card 2" 
+         data-path="CIQ Stacks/CIQ-Stacks-Comparison-Simplified.html" data-title="ciq stacks comparison simplified" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/CIQ-Stacks-Comparison-Simplified.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_CIQ-Stacks-Comparison-Simplified.png" alt="CIQ Stacks Comparison Simplified" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">CIQ Stacks Comparison Simplified</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2FCIQ-Stack-Architecture-Visual_2.html" class="presentation-card 3" 
+         data-path="CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html" data-title="ciq stack architecture visual_2" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_CIQ-Stack-Architecture-Visual_2.png" alt="CIQ Stack Architecture Visual_2" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">CIQ Stack Architecture Visual_2</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2FCIQ-Secure-Stack-Architecture-Visualization_3.html" class="presentation-card 4" 
+         data-path="CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html" data-title="ciq secure stack architecture visualization_3" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_CIQ-Secure-Stack-Architecture-Visualization_3.png" alt="CIQ Secure Stack Architecture Visualization_3" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">CIQ Secure Stack Architecture Visualization_3</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/CIQ-Secure-Stack-Ad-Display-Banner.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/CIQ-Secure-Stack-Ad-Display-Banner.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2FCIQ-Secure-Stack-Ad-Display-Banner.html" class="presentation-card 5" 
+         data-path="CIQ Stacks/CIQ-Secure-Stack-Ad-Display-Banner.html" data-title="ciq secure stack ad display banner" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/CIQ-Secure-Stack-Ad-Display-Banner.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_CIQ-Secure-Stack-Ad-Display-Banner.png" alt="CIQ Secure Stack Ad Display Banner" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">CIQ Secure Stack Ad Display Banner</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/CIQ-Pricing-Analysis-Visual.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/CIQ-Pricing-Analysis-Visual.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2FCIQ-Pricing-Analysis-Visual.html" class="presentation-card 6" 
+         data-path="CIQ Stacks/CIQ-Pricing-Analysis-Visual.html" data-title="ciq pricing analysis visual" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/CIQ-Pricing-Analysis-Visual.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_CIQ-Pricing-Analysis-Visual.png" alt="CIQ Pricing Analysis Visual" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">CIQ Pricing Analysis Visual</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/CIQ-Deployment-Models-Visual_2.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/CIQ-Deployment-Models-Visual_2.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2FCIQ-Deployment-Models-Visual_2.html" class="presentation-card 7" 
+         data-path="CIQ Stacks/CIQ-Deployment-Models-Visual_2.html" data-title="ciq deployment models visual_2" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/CIQ-Deployment-Models-Visual_2.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_CIQ-Deployment-Models-Visual_2.png" alt="CIQ Deployment Models Visual_2" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">CIQ Deployment Models Visual_2</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="CIQ Stacks/CIQ-Competitive-Analysis-Visual.html">
+      <button class="pin-btn" onclick="handlePin(event, 'CIQ Stacks/CIQ-Competitive-Analysis-Visual.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="../protected-viewer.html?p=CIQ%20Stacks%2FCIQ-Competitive-Analysis-Visual.html" class="presentation-card 8" 
+         data-path="CIQ Stacks/CIQ-Competitive-Analysis-Visual.html" data-title="ciq competitive analysis visual" 
+         data-tags="" data-folder="ciq stacks"
+         data-format="html"
+         onclick="trackView('CIQ Stacks/CIQ-Competitive-Analysis-Visual.html')">
+        
+        <img src="../thumbnails/CIQ%20Stacks_CIQ-Competitive-Analysis-Visual.png" alt="CIQ Competitive Analysis Visual" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">CIQ Competitive Analysis Visual</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">CIQ Stacks</span>
+          
+        </div>
+      </a>
+    </div>
+        </div>
+      </div>
+    </div>
+        
+    </div>
+    
+    <div class="footer">
+        Built with CIQ Presentation Library Builder • Last updated: 1/11/2026
+    </div>
+    
+    <script>
+        // Path configuration for client-side rendering
+        const BASE_PATH = '../';
+        
+        // Presentation registry for dynamic sections
+        const presentations = [{"path":"CIQ Stacks/ciq-secure-stack-prodcut-page-final.html","title":"Ciq Secure Stack Prodcut Page Final","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-prodcut-page-final.png"},{"path":"CIQ Stacks/ciq-platform-executive-summary-deck.html","title":"Ciq Platform Executive Summary Deck","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_ciq-platform-executive-summary-deck.png"},{"path":"CIQ Stacks/CIQ-Stacks-Comparison-Simplified.html","title":"CIQ Stacks Comparison Simplified","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Stacks-Comparison-Simplified.png"},{"path":"CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html","title":"CIQ Stack Architecture Visual_2","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Stack-Architecture-Visual_2.png"},{"path":"CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html","title":"CIQ Secure Stack Architecture Visualization_3","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Secure-Stack-Architecture-Visualization_3.png"},{"path":"CIQ Stacks/CIQ-Secure-Stack-Ad-Display-Banner.html","title":"CIQ Secure Stack Ad Display Banner","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Secure-Stack-Ad-Display-Banner.png"},{"path":"CIQ Stacks/CIQ-Pricing-Analysis-Visual.html","title":"CIQ Pricing Analysis Visual","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Pricing-Analysis-Visual.png"},{"path":"CIQ Stacks/CIQ-Deployment-Models-Visual_2.html","title":"CIQ Deployment Models Visual_2","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Deployment-Models-Visual_2.png"},{"path":"CIQ Stacks/CIQ-Competitive-Analysis-Visual.html","title":"CIQ Competitive Analysis Visual","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Competitive-Analysis-Visual.png"}];
+        
+        // Access Code Gate
+        const ACCESS_CODES = ["8888"];
+        const ADMIN_CODES = ["ciq2026","getmoney"];
+        const ACCESS_EXPIRY_MS = 60 * 60 * 1000; // 1 hour in milliseconds
+        
+        function isAccessValid() {
+            const role = localStorage.getItem('accessRole');
+            if (role === 'admin') return true; // Admin access never expires
+            
+            const grantedAt = localStorage.getItem('accessGrantedAt');
+            if (!grantedAt) return false;
+            const elapsed = Date.now() - parseInt(grantedAt, 10);
+            return elapsed < ACCESS_EXPIRY_MS;
+        }
+        
+        function checkAccessCode() {
+            const input = document.getElementById('accessCodeInput');
+            const error = document.getElementById('accessError');
+            const val = input.value.trim();
+            
+            if (ADMIN_CODES.includes(val)) {
+                localStorage.setItem('accessGranted', 'true');
+                localStorage.setItem('accessRole', 'admin');
+                localStorage.setItem('accessGrantedAt', Date.now().toString());
+                document.getElementById('accessModal').classList.add('hidden');
+                if (typeof umami !== 'undefined') umami.track('access-granted-admin');
+            } else if (ACCESS_CODES.includes(val)) {
+                localStorage.setItem('accessGranted', 'true');
+                localStorage.setItem('accessRole', 'viewer');
+                localStorage.setItem('accessGrantedAt', Date.now().toString());
+                document.getElementById('accessModal').classList.add('hidden');
+                if (typeof umami !== 'undefined') umami.track('access-granted');
+            } else {
+                error.classList.add('visible');
+                input.value = '';
+                input.focus();
+                if (typeof umami !== 'undefined') umami.track('access-denied');
+            }
+        }
+        
+        // Check access on load (with expiry)
+        if (ACCESS_CODES.length > 0 && !isAccessValid()) {
+            localStorage.removeItem('accessGranted');
+            localStorage.removeItem('accessRole');
+            localStorage.removeItem('accessGrantedAt');
+            document.getElementById('accessModal').classList.remove('hidden');
+            document.getElementById('accessCodeInput').addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') checkAccessCode();
+            });
+        } else if (document.getElementById('accessModal')) {
+            document.getElementById('accessModal').classList.add('hidden');
+        }
+        
+        // Track view in localStorage
+        function trackView(path) {
+            const views = JSON.parse(localStorage.getItem('recentViews') || '[]');
+            const now = Date.now();
+            // Remove existing entry for this path
+            const filtered = views.filter(v => v.path !== path);
+            // Add to front with timestamp
+            filtered.unshift({ path, timestamp: now });
+            // Keep only last 10
+            const trimmed = filtered.slice(0, 10);
+            localStorage.setItem('recentViews', JSON.stringify(trimmed));
+        }
+        
+        // Pinned/Featured management
+        function getPinned() {
+            return JSON.parse(localStorage.getItem('pinnedPresentations') || '[]');
+        }
+        
+        function togglePin(path) {
+            const pinned = getPinned();
+            const index = pinned.indexOf(path);
+            if (index === -1 && pinned.length < 3) {
+                pinned.push(path);
+            } else if (index !== -1) {
+                pinned.splice(index, 1);
+            }
+            localStorage.setItem('pinnedPresentations', JSON.stringify(pinned));
+            renderDynamicSections();
+        }
+        
+        // Handle pin button click (event wrapper)
+        function handlePin(event, path) {
+            event.preventDefault();
+            event.stopPropagation();
+            togglePin(path);
+        }
+        
+        // Update pin button states in UI
+        function updatePinStates() {
+            const pinned = getPinned();
+            document.querySelectorAll('.pin-btn').forEach(btn => {
+                const wrapper = btn.closest('.card-wrapper');
+                if (wrapper) {
+                    const path = wrapper.dataset.path;
+                    btn.classList.toggle('pinned', pinned.includes(path));
+                }
+            });
+        }
+        
+        // Render a card from data
+        function renderCardHTML(p, extraClass = '') {
+            const format = p.format || 'html';
+            const ext = '.' + format;
+            const thumbnailName = p.thumbnail || p.path.split('/').join('_').replace(ext, '.png');
+            const formatBadge = format !== 'html' ? `<span class="format-badge format-${format}">${format.toUpperCase()}</span>` : '';
+            
+            // Construct paths
+            const viewerPath = BASE_PATH ? `${BASE_PATH}protected-viewer.html` : 'protected-viewer.html';
+            const pdfViewerPath = BASE_PATH ? `${BASE_PATH}viewer.html` : 'viewer.html';
+            const presentationPath = BASE_PATH ? `${BASE_PATH}presentations/${p.path}` : `presentations/${p.path}`;
+            const thumbnailPath = BASE_PATH ? `${BASE_PATH}thumbnails/${encodeURIComponent(thumbnailName)}` : `thumbnails/${encodeURIComponent(thumbnailName)}`;
+            
+            let href, downloadAttr = '';
+            
+            if (format === 'pdf') {
+              href = `${pdfViewerPath}?file=${encodeURIComponent(presentationPath)}`;
+            } else if (format === 'pptx') {
+              href = presentationPath;
+              downloadAttr = ' download';
+            } else {
+              href = `${viewerPath}?p=${encodeURIComponent(p.path)}`;
+            }
+            
+            return `
+            <div class="card-wrapper" data-path="${p.path}">
+                <button class="pin-btn" onclick="handlePin(event, '${p.path}')" title="Pin to Featured">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+                </button>
+                <a href="${href}" class="presentation-card ${extraClass}" 
+                   data-path="${p.path}" data-title="${p.title.toLowerCase()}"
+                   onclick="trackView('${p.path}')"${downloadAttr}>
+                  ${formatBadge}
+                  <img src="${thumbnailPath}" alt="${p.title}" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+                  <div class="card-content">
+                    <div class="card-title">${p.title}</div>
+                    <div class="card-meta">
+                      <span>${p.date}</span>
+                      <span>•</span>
+                      <span>${p.author}</span>
+                    </div>
+                    <span class="folder-badge">${p.folder}</span>
+                  </div>
+                </a>
+            </div>`;
+        }
+        
+        // Render Featured section
+        function renderFeaturedSection() {
+            const pinned = getPinned();
+            const section = document.getElementById('featuredSection');
+            const grid = document.getElementById('featuredGrid');
+            
+            if (pinned.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            const pinnedPresentations = pinned
+                .map(path => presentations.find(p => p.path === path))
+                .filter(Boolean);
+            
+            grid.innerHTML = pinnedPresentations
+                .map(p => renderCardHTML(p, 'featured-card'))
+                .join('');
+            section.style.display = 'block';
+        }
+        
+        // Render Recently Viewed section
+        function renderRecentSection() {
+            const views = JSON.parse(localStorage.getItem('recentViews') || '[]');
+            const section = document.getElementById('mostRecentSection');
+            const grid = document.getElementById('recentGrid');
+            const count = document.getElementById('recentCount');
+            
+            if (views.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            const recentPresentations = views
+                .map(v => presentations.find(p => p.path === v.path))
+                .filter(Boolean)
+                .slice(0, 6);
+            
+            grid.innerHTML = recentPresentations
+                .map(p => renderCardHTML(p))
+                .join('');
+            count.textContent = recentPresentations.length;
+            section.style.display = 'block';
+        }
+        
+        // Render all dynamic sections
+        function renderDynamicSections() {
+            renderFeaturedSection();
+            renderRecentSection();
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', renderDynamicSections);
+        
+        // Mouse-tracking gradient
+        document.addEventListener('mousemove', (e) => {
+            document.documentElement.style.setProperty('--mouse-x', e.clientX + 'px');
+            document.documentElement.style.setProperty('--mouse-y', e.clientY + 'px');
+        });
+        
+        function toggleSection(header) {
+            const section = header.parentElement;
+            section.classList.toggle('collapsed');
+        }
+        
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const sections = document.querySelectorAll('.folder-section');
+                
+                sections.forEach(section => {
+                    const cards = section.querySelectorAll('.presentation-card');
+                    let visibleCount = 0;
+                    
+                    cards.forEach(card => {
+                        const title = card.dataset.title || card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+                        const matches = !query || title.includes(query);
+                        card.classList.toggle('hidden', !matches);
+                        if (matches) visibleCount++;
+                    });
+                    
+                    section.style.display = visibleCount === 0 ? 'none' : 'block';
+                    if (query && visibleCount > 0) {
+                        section.classList.remove('collapsed');
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIQ Competitive Analysis - Interactive Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #13161b;
+            color: #ECECED;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #12A66F;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #097049;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 22px;
+            color: #61656c;
+            margin-bottom: 8px;
+        }
+
+        .confidential {
+            font-size: 14px;
+            color: #61656c;
+            font-style: italic;
+        }
+
+        .viz-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .viz-container {
+            background: #373A41;
+            padding: 30px;
+            border-radius: 8px;
+            border: 2px solid #12A66F;
+        }
+
+        .viz-container.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .viz-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #12A66F;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .chart {
+            margin-top: 20px;
+        }
+
+        .tooltip {
+            position: absolute;
+            padding: 12px 16px;
+            background: #373A41;
+            border: 2px solid #12A66F;
+            border-radius: 6px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 13px;
+            color: #ECECED;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            max-width: 300px;
+            z-index: 1000;
+        }
+
+        .tooltip strong {
+            color: #2BE099;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+
+        .tooltip-metric {
+            margin: 4px 0;
+            font-size: 12px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .metric-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: #373A41;
+            padding: 25px;
+            border-radius: 8px;
+            border: 2px solid #12A66F;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2BE099;
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #61656c;
+            margin-bottom: 4px;
+        }
+
+        .metric-detail {
+            font-size: 12px;
+            color: #ECECED;
+            margin-top: 8px;
+        }
+
+        .win-message {
+            background: rgba(18, 166, 111, 0.1);
+            border-left: 4px solid #12A66F;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .win-message-title {
+            color: #2BE099;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .win-message-text {
+            color: #ECECED;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid #61656c;
+            color: #61656c;
+            font-size: 13px;
+        }
+
+        .axis text {
+            fill: #ECECED;
+            font-size: 11px;
+        }
+
+        .axis line, .axis path {
+            stroke: #61656c;
+        }
+
+        .grid line {
+            stroke: #61656c;
+            stroke-opacity: 0.2;
+            stroke-dasharray: 3,3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>CIQ COMPETITIVE ANALYSIS</h1>
+            <div class="subtitle">Market Positioning & Win Strategies</div>
+            <div class="confidential">CONFIDENTIAL - Internal Strategic Planning</div>
+        </header>
+
+        <!-- Key Metrics -->
+        <div class="metric-cards">
+            <div class="metric-card">
+                <div class="metric-label">CIQ Price Advantage</div>
+                <div class="metric-value">20-30%</div>
+                <div class="metric-detail">Lower than OpenShift</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Rancher Price Shock</div>
+                <div class="metric-value">4-9x</div>
+                <div class="metric-detail">2025 increase creates switching opportunity</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">OpenShift ARR</div>
+                <div class="metric-value">$1.8B</div>
+                <div class="metric-detail">Proves platform economics work</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">HPC Container Share</div>
+                <div class="metric-value">90%</div>
+                <div class="metric-detail">Apptainer dominance</div>
+            </div>
+        </div>
+
+        <div class="viz-grid">
+            <!-- Pricing Comparison -->
+            <div class="viz-container full-width">
+                <div class="viz-title">Price per Node/Year Comparison</div>
+                <div id="pricing-chart" class="chart"></div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #12A66F;"></div>
+                        <span>CIQ Stacks</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #61656c;"></div>
+                        <span>Competitors</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #93370D;"></div>
+                        <span>Free Alternative</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Comparison Matrix -->
+            <div class="viz-container">
+                <div class="viz-title">Feature Comparison Heat Map</div>
+                <div id="feature-matrix" class="chart"></div>
+            </div>
+
+            <!-- Market Positioning Quadrant -->
+            <div class="viz-container">
+                <div class="viz-title">Market Positioning</div>
+                <div id="positioning-chart" class="chart"></div>
+            </div>
+
+            <!-- Competitor Revenue Growth -->
+            <div class="viz-container full-width">
+                <div class="viz-title">Competitor Platform Success (Why They Invested)</div>
+                <div id="growth-chart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Win Messages -->
+        <div class="viz-container full-width">
+            <div class="viz-title">Win Strategies by Competitor</div>
+            
+            <div class="win-message">
+                <div class="win-message-title">vs. Red Hat OpenShift</div>
+                <div class="win-message-text"><strong style="color: #12A66F;">"All the compliance, half the complexity, 30% less cost"</strong><br/>
+                STIG-certified Day 0 (not post-hardening) • 20-30% price advantage • 2-3x faster for HPC workloads • Lower vendor lock-in (K8s-compatible)</div>
+            </div>
+
+            <div class="win-message">
+                <div class="win-message-title">vs. SUSE Rancher</div>
+                <div class="win-message-text"><strong style="color: #12A66F;">"Stable pricing, purpose-built for security or HPC"</strong><br/>
+                Predictable per-node pricing (no vCPU surprises) • Built-in compliance (not customer's problem) • HPC pedigree with Warewulf heritage</div>
+            </div>
+
+            <div class="win-message">
+                <div class="win-message-title">vs. Canonical (FREE Kubernetes)</div>
+                <div class="win-message-text"><strong style="color: #12A66F;">"Free isn't free when you need certs and SLAs"</strong><br/>
+                DISA STIG attestation included • FedRAMP packages pre-configured • Enterprise 24/7 support • Audit-ready compliance</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div>CIQ Competitive Analysis - Interactive Visualization</div>
+            <div style="margin-top: 8px;">Prepared by: Brian Dawson, Product Management | December 30, 2024</div>
+            <div style="margin-top: 8px;">Ctrl IQ, Inc. | ciq.com</div>
+        </div>
+    </div>
+
+    <div class="tooltip"></div>
+
+    <script>
+        // Pricing Data
+        const pricingData = [
+            { platform: 'Canonical\nFREE', price: 0, category: 'free', note: 'No support, no certifications, community only' },
+            { platform: 'CIQ\nAutomation', price: 1200, category: 'ciq', note: 'Ansible-native, compliance ready, 40% cheaper than AAP+OpenShift' },
+            { platform: 'SUSE\nRancher', price: 1300, category: 'competitor', note: 'Recent 4-9x price increase, customer backlash' },
+            { platform: 'Red Hat\nOpenShift Base', price: 1230, category: 'competitor', note: 'Requires post-hardening for STIG compliance' },
+            { platform: 'CIQ\nSecure', price: 1500, category: 'ciq', note: 'STIG Day 0, FedRAMP ready, 30% cheaper than OpenShift' },
+            { platform: 'Red Hat\nOpenShift High', price: 1800, category: 'competitor', note: 'Full enterprise features, highest cost' },
+            { platform: 'CIQ\nHPC', price: 2000, category: 'ciq', note: 'Only HPC-optimized cloud platform, +$500/GPU' },
+            { platform: 'CIQ\nHybrid', price: 2500, category: 'ciq', note: 'Multi-tenant, compliance isolation, +$15K platform fee' }
+        ];
+
+        // Feature Matrix Data
+        const features = ['STIG Day 0', 'HPC Optimized', 'Price Stable', 'Multi-Cloud', 'Enterprise Support'];
+        const platforms = ['CIQ', 'OpenShift', 'Rancher', 'Canonical'];
+        const featureScores = {
+            'CIQ': [10, 10, 10, 8, 9],
+            'OpenShift': [4, 3, 8, 9, 10],
+            'Rancher': [2, 2, 2, 10, 8],
+            'Canonical': [0, 5, 10, 7, 3]
+        };
+
+        // Positioning Data (Price vs Features score)
+        const positioningData = [
+            { name: 'CIQ Secure', x: 1500, y: 9.4, size: 75 },
+            { name: 'CIQ HPC', x: 2000, y: 9.4, size: 100 },
+            { name: 'CIQ Automation', x: 1200, y: 9.2, size: 50 },
+            { name: 'OpenShift', x: 1500, y: 6.8, size: 1800 },
+            { name: 'Rancher', x: 1300, y: 5.6, size: 66 },
+            { name: 'Canonical', x: 0, y: 5.0, size: 12 }
+        ];
+
+        // Revenue Growth Data
+        const revenueGrowth = [
+            { platform: 'OpenShift', years: ['2019', '2021', '2023', '2025'], 
+              values: [100, 400, 1000, 1800], color: '#61656c' },
+            { platform: 'Rancher', years: ['2020', '2021', '2022', '2023'], 
+              values: [37, 45, 66, 80], color: '#61656c' },
+            { platform: 'CIQ Projection', years: ['2026', '2027', '2028'], 
+              values: [0.075, 0.8, 3.8], color: '#12A66F' }
+        ];
+
+        const tooltip = d3.select('.tooltip');
+
+        // ============ PRICING CHART ============
+        const margin = { top: 40, right: 30, bottom: 100, left: 80 };
+        const width = 1400 - margin.left - margin.right;
+        const height = 450 - margin.top - margin.bottom;
+
+        const svg1 = d3.select('#pricing-chart')
+            .append('svg')
+            .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+            .append('g')
+            .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        const x1 = d3.scaleBand()
+            .domain(pricingData.map(d => d.platform))
+            .range([0, width])
+            .padding(0.25);
+
+        const y1 = d3.scaleLinear()
+            .domain([0, 3000])
+            .range([height, 0]);
+
+        // Grid
+        svg1.append('g')
+            .attr('class', 'grid')
+            .selectAll('line')
+            .data(y1.ticks(6))
+            .enter()
+            .append('line')
+            .attr('x1', 0)
+            .attr('x2', width)
+            .attr('y1', d => y1(d))
+            .attr('y2', d => y1(d))
+            .attr('stroke', '#61656c')
+            .attr('stroke-opacity', 0.15)
+            .attr('stroke-dasharray', '3,3');
+
+        // Bars
+        svg1.selectAll('.bar')
+            .data(pricingData)
+            .enter()
+            .append('rect')
+            .attr('class', 'bar')
+            .attr('x', d => x1(d.platform))
+            .attr('y', height)
+            .attr('width', x1.bandwidth())
+            .attr('height', 0)
+            .attr('fill', d => {
+                if (d.category === 'ciq') return '#12A66F';
+                if (d.category === 'free') return '#93370D';
+                return '#61656c';
+            })
+            .attr('rx', 4)
+            .style('cursor', 'pointer')
+            .on('mouseover', function(event, d) {
+                d3.select(this).attr('opacity', 0.8);
+                tooltip
+                    .style('opacity', 1)
+                    .html(`<strong>${d.platform.replace('\\n', ' ')}</strong><div class="tooltip-metric">Price: ${d.price === 0 ? 'FREE' : '$' + d.price.toLocaleString() + '/node/year'}</div><div class="tooltip-metric">${d.note}</div>`)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 10) + 'px');
+            })
+            .on('mouseout', function() {
+                d3.select(this).attr('opacity', 1);
+                tooltip.style('opacity', 0);
+            })
+            .transition()
+            .duration(1000)
+            .delay((d, i) => i * 80)
+            .attr('y', d => y1(d.price))
+            .attr('height', d => height - y1(d.price));
+
+        // Price labels on bars
+        svg1.selectAll('.price-label')
+            .data(pricingData)
+            .enter()
+            .append('text')
+            .attr('x', d => x1(d.platform) + x1.bandwidth() / 2)
+            .attr('y', d => y1(d.price) - 8)
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#ECECED')
+            .attr('font-size', '13px')
+            .attr('font-weight', '600')
+            .attr('opacity', 0)
+            .text(d => d.price === 0 ? 'FREE' : `$${d.price.toLocaleString()}`)
+            .transition()
+            .delay(1100)
+            .duration(400)
+            .attr('opacity', 1);
+
+        // X axis
+        svg1.append('g')
+            .attr('class', 'axis')
+            .attr('transform', `translate(0,${height})`)
+            .call(d3.axisBottom(x1).tickSize(0))
+            .selectAll('text')
+            .attr('transform', 'rotate(-20)')
+            .style('text-anchor', 'end')
+            .attr('fill', '#ECECED')
+            .attr('font-size', '12px')
+            .attr('font-weight', '500');
+
+        // Y axis
+        svg1.append('g')
+            .attr('class', 'axis')
+            .call(d3.axisLeft(y1).ticks(6).tickFormat(d => `$${d.toLocaleString()}`))
+            .selectAll('text')
+            .attr('fill', '#ECECED')
+            .attr('font-size', '12px');
+
+        svg1.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', -60)
+            .attr('x', -height / 2)
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#12A66F')
+            .attr('font-size', '14px')
+            .attr('font-weight', '600')
+            .text('Price per Node per Year (USD)');
+
+        // ============ FEATURE MATRIX HEATMAP ============
+        const margin2 = { top: 40, right: 30, bottom: 80, left: 120 };
+        const width2 = 600 - margin2.left - margin2.right;
+        const height2 = 400 - margin2.top - margin2.bottom;
+
+        const svg2 = d3.select('#feature-matrix')
+            .append('svg')
+            .attr('viewBox', `0 0 ${width2 + margin2.left + margin2.right} ${height2 + margin2.top + margin2.bottom}`)
+            .append('g')
+            .attr('transform', `translate(${margin2.left},${margin2.top})`);
+
+        const x2 = d3.scaleBand()
+            .domain(features)
+            .range([0, width2])
+            .padding(0.05);
+
+        const y2 = d3.scaleBand()
+            .domain(platforms)
+            .range([0, height2])
+            .padding(0.05);
+
+        const colorScale = d3.scaleSequential()
+            .domain([0, 10])
+            .interpolator(t => d3.interpolateRgb('#373A41', '#12A66F')(t));
+
+        // Create heatmap cells
+        platforms.forEach((platform, i) => {
+            features.forEach((feature, j) => {
+                const score = featureScores[platform][j];
+                
+                svg2.append('rect')
+                    .attr('x', x2(feature))
+                    .attr('y', y2(platform))
+                    .attr('width', x2.bandwidth())
+                    .attr('height', y2.bandwidth())
+                    .attr('fill', colorScale(score))
+                    .attr('stroke', '#13161b')
+                    .attr('stroke-width', 2)
+                    .attr('rx', 3)
+                    .style('cursor', 'pointer')
+                    .attr('opacity', 0)
+                    .on('mouseover', function(event) {
+                        d3.select(this).attr('stroke', '#2BE099').attr('stroke-width', 3);
+                        tooltip
+                            .style('opacity', 1)
+                            .html(`<strong>${platform}</strong><div class="tooltip-metric">${feature}: ${score}/10</div>`)
+                            .style('left', (event.pageX + 10) + 'px')
+                            .style('top', (event.pageY - 10) + 'px');
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this).attr('stroke', '#13161b').attr('stroke-width', 2);
+                        tooltip.style('opacity', 0);
+                    })
+                    .transition()
+                    .delay((i * features.length + j) * 30)
+                    .duration(400)
+                    .attr('opacity', 1);
+
+                // Score text
+                svg2.append('text')
+                    .attr('x', x2(feature) + x2.bandwidth() / 2)
+                    .attr('y', y2(platform) + y2.bandwidth() / 2 + 5)
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', score > 5 ? '#ECECED' : '#61656c')
+                    .attr('font-size', '16px')
+                    .attr('font-weight', '700')
+                    .attr('opacity', 0)
+                    .text(score)
+                    .transition()
+                    .delay((i * features.length + j) * 30 + 200)
+                    .duration(400)
+                    .attr('opacity', 1);
+            });
+        });
+
+        // X axis (features)
+        svg2.append('g')
+            .attr('class', 'axis')
+            .attr('transform', `translate(0,${height2})`)
+            .call(d3.axisBottom(x2).tickSize(0))
+            .selectAll('text')
+            .attr('transform', 'rotate(-35)')
+            .style('text-anchor', 'end')
+            .attr('fill', '#ECECED')
+            .attr('font-size', '11px');
+
+        // Y axis (platforms)
+        svg2.append('g')
+            .attr('class', 'axis')
+            .call(d3.axisLeft(y2).tickSize(0))
+            .selectAll('text')
+            .attr('fill', '#ECECED')
+            .attr('font-size', '12px')
+            .attr('font-weight', '500');
+
+        // ============ POSITIONING QUADRANT ============
+        const margin3 = { top: 40, right: 30, bottom: 60, left: 80 };
+        const width3 = 600 - margin3.left - margin3.right;
+        const height3 = 400 - margin3.top - margin3.bottom;
+
+        const svg3 = d3.select('#positioning-chart')
+            .append('svg')
+            .attr('viewBox', `0 0 ${width3 + margin3.left + margin3.right} ${height3 + margin3.top + margin3.bottom}`)
+            .append('g')
+            .attr('transform', `translate(${margin3.left},${margin3.top})`);
+
+        const x3 = d3.scaleLinear()
+            .domain([0, 2600])
+            .range([0, width3]);
+
+        const y3 = d3.scaleLinear()
+            .domain([0, 10])
+            .range([height3, 0]);
+
+        const sizeScale = d3.scaleSqrt()
+            .domain([0, 2000])
+            .range([20, 100]);
+
+        // Quadrant lines
+        svg3.append('line')
+            .attr('x1', x3(1250))
+            .attr('x2', x3(1250))
+            .attr('y1', 0)
+            .attr('y2', height3)
+            .attr('stroke', '#61656c')
+            .attr('stroke-dasharray', '5,5')
+            .attr('opacity', 0.3);
+
+        svg3.append('line')
+            .attr('x1', 0)
+            .attr('x2', width3)
+            .attr('y1', y3(7))
+            .attr('y2', y3(7))
+            .attr('stroke', '#61656c')
+            .attr('stroke-dasharray', '5,5')
+            .attr('opacity', 0.3);
+
+        // Quadrant labels
+        svg3.append('text')
+            .attr('x', x3(2300))
+            .attr('y', y3(9))
+            .attr('text-anchor', 'end')
+            .attr('fill', '#61656c')
+            .attr('font-size', '11px')
+            .attr('font-style', 'italic')
+            .text('Premium / High Value');
+
+        svg3.append('text')
+            .attr('x', x3(100))
+            .attr('y', y3(9))
+            .attr('text-anchor', 'start')
+            .attr('fill', '#61656c')
+            .attr('font-size', '11px')
+            .attr('font-style', 'italic')
+            .text('Budget / High Value');
+
+        // Bubbles
+        svg3.selectAll('.bubble')
+            .data(positioningData)
+            .enter()
+            .append('circle')
+            .attr('cx', d => x3(d.x))
+            .attr('cy', d => y3(d.y))
+            .attr('r', 0)
+            .attr('fill', d => d.name.startsWith('CIQ') ? '#12A66F' : '#61656c')
+            .attr('opacity', 0.7)
+            .attr('stroke', d => d.name.startsWith('CIQ') ? '#2BE099' : '#ECECED')
+            .attr('stroke-width', 2)
+            .style('cursor', 'pointer')
+            .on('mouseover', function(event, d) {
+                d3.select(this).attr('opacity', 0.9).attr('stroke-width', 3);
+                tooltip
+                    .style('opacity', 1)
+                    .html(`<strong>${d.name}</strong><div class="tooltip-metric">Price: $${d.x.toLocaleString()}/node/year</div><div class="tooltip-metric">Value Score: ${d.y}/10</div><div class="tooltip-metric">ARR: $${d.size >= 1000 ? (d.size/1000).toFixed(1) + 'B' : d.size + 'M'}</div>`)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 10) + 'px');
+            })
+            .on('mouseout', function() {
+                d3.select(this).attr('opacity', 0.7).attr('stroke-width', 2);
+                tooltip.style('opacity', 0);
+            })
+            .transition()
+            .duration(800)
+            .delay((d, i) => i * 150)
+            .attr('r', d => Math.min(sizeScale(d.size), 40));
+
+        // Labels
+        svg3.selectAll('.bubble-label')
+            .data(positioningData)
+            .enter()
+            .append('text')
+            .attr('x', d => x3(d.x))
+            .attr('y', d => y3(d.y) + 4)
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#ECECED')
+            .attr('font-size', '11px')
+            .attr('font-weight', '600')
+            .attr('opacity', 0)
+            .text(d => d.name)
+            .transition()
+            .delay(1000)
+            .duration(400)
+            .attr('opacity', 1);
+
+        // Axes
+        svg3.append('g')
+            .attr('class', 'axis')
+            .attr('transform', `translate(0,${height3})`)
+            .call(d3.axisBottom(x3).ticks(6).tickFormat(d => d === 0 ? 'FREE' : `$${d/1000}K`));
+
+        svg3.append('g')
+            .attr('class', 'axis')
+            .call(d3.axisLeft(y3).ticks(5));
+
+        svg3.append('text')
+            .attr('x', width3 / 2)
+            .attr('y', height3 + 50)
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#12A66F')
+            .attr('font-size', '13px')
+            .attr('font-weight', '600')
+            .text('Price per Node/Year →');
+
+        svg3.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', -60)
+            .attr('x', -height3 / 2)
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#12A66F')
+            .attr('font-size', '13px')
+            .attr('font-weight', '600')
+            .text('← Feature Value Score');
+
+        // ============ GROWTH CHART ============
+        const margin4 = { top: 40, right: 120, bottom: 60, left: 80 };
+        const width4 = 1400 - margin4.left - margin4.right;
+        const height4 = 400 - margin4.top - margin4.bottom;
+
+        const svg4 = d3.select('#growth-chart')
+            .append('svg')
+            .attr('viewBox', `0 0 ${width4 + margin4.left + margin4.right} ${height4 + margin4.top + margin4.bottom}`)
+            .append('g')
+            .attr('transform', `translate(${margin4.left},${margin4.top})`);
+
+        // Combine all years for x scale
+        const allYears = ['2019', '2020', '2021', '2022', '2023', '2025', '2026', '2027', '2028'];
+        
+        const x4 = d3.scalePoint()
+            .domain(allYears)
+            .range([0, width4])
+            .padding(0.5);
+
+        const y4 = d3.scaleLog()
+            .domain([0.05, 2000])
+            .range([height4, 0]);
+
+        // Grid
+        svg4.append('g')
+            .attr('class', 'grid')
+            .selectAll('line')
+            .data([0.1, 1, 10, 100, 1000])
+            .enter()
+            .append('line')
+            .attr('x1', 0)
+            .attr('x2', width4)
+            .attr('y1', d => y4(d))
+            .attr('y2', d => y4(d))
+            .attr('stroke', '#61656c')
+            .attr('stroke-opacity', 0.15)
+            .attr('stroke-dasharray', '3,3');
+
+        // Lines for each platform
+        const line = d3.line()
+            .x((d, i, nodes) => {
+                const yearIndex = allYears.indexOf(nodes[i].__data__.year);
+                return x4(allYears[yearIndex]);
+            })
+            .y(d => y4(d.value));
+
+        revenueGrowth.forEach((series, idx) => {
+            const lineData = series.years.map((year, i) => ({
+                year: year,
+                value: series.values[i]
+            }));
+
+            const path = svg4.append('path')
+                .datum(lineData)
+                .attr('fill', 'none')
+                .attr('stroke', series.color)
+                .attr('stroke-width', series.platform === 'CIQ Projection' ? 4 : 3)
+                .attr('d', line)
+                .attr('opacity', 0);
+
+            const totalLength = path.node().getTotalLength();
+
+            path
+                .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+                .attr('stroke-dashoffset', totalLength)
+                .attr('opacity', 0.8)
+                .transition()
+                .delay(500 + idx * 300)
+                .duration(1500)
+                .attr('stroke-dashoffset', 0);
+
+            // Data points
+            svg4.selectAll(`.dot-${idx}`)
+                .data(lineData)
+                .enter()
+                .append('circle')
+                .attr('cx', (d, i) => x4(series.years[i]))
+                .attr('cy', d => y4(d.value))
+                .attr('r', 0)
+                .attr('fill', series.color)
+                .attr('stroke', '#ECECED')
+                .attr('stroke-width', 2)
+                .style('cursor', 'pointer')
+                .on('mouseover', function(event, d) {
+                    d3.select(this).attr('r', 8);
+                    tooltip
+                        .style('opacity', 1)
+                        .html(`<strong>${series.platform}</strong><div class="tooltip-metric">${d.year}: $${d.value >= 1 ? d.value.toFixed(1) : (d.value * 1000).toFixed(0) + 'K'}${d.value >= 1 ? 'M' : ''} ARR</div>`)
+                        .style('left', (event.pageX + 10) + 'px')
+                        .style('top', (event.pageY - 10) + 'px');
+                })
+                .on('mouseout', function() {
+                    d3.select(this).attr('r', 5);
+                    tooltip.style('opacity', 0);
+                })
+                .transition()
+                .delay(500 + idx * 300 + 1600)
+                .duration(400)
+                .attr('r', 5);
+
+            // Legend label
+            svg4.append('text')
+                .attr('x', width4 + 15)
+                .attr('y', 30 + idx * 25)
+                .attr('fill', series.color)
+                .attr('font-size', '12px')
+                .attr('font-weight', '600')
+                .text(series.platform);
+
+            svg4.append('line')
+                .attr('x1', width4 + 5)
+                .attr('x2', width4 + 12)
+                .attr('y1', 26 + idx * 25)
+                .attr('y2', 26 + idx * 25)
+                .attr('stroke', series.color)
+                .attr('stroke-width', 3);
+        });
+
+        // Axes
+        svg4.append('g')
+            .attr('class', 'axis')
+            .attr('transform', `translate(0,${height4})`)
+            .call(d3.axisBottom(x4))
+            .selectAll('text')
+            .attr('fill', '#ECECED')
+            .attr('font-size', '11px');
+
+        svg4.append('g')
+            .attr('class', 'axis')
+            .call(d3.axisLeft(y4).ticks(5).tickFormat(d => {
+                if (d >= 1000) return `$${d/1000}B`;
+                if (d >= 1) return `$${d}M`;
+                return `$${d*1000}K`;
+            }))
+            .selectAll('text')
+            .attr('fill', '#ECECED')
+            .attr('font-size', '11px');
+
+        svg4.append('text')
+            .attr('x', width4 / 2)
+            .attr('y', height4 + 50)
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#12A66F')
+            .attr('font-size', '13px')
+            .attr('font-weight', '600')
+            .text('Timeline →');
+
+        svg4.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', -60)
+            .attr('x', -height4 / 2)
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#12A66F')
+            .attr('font-size', '13px')
+            .attr('font-weight', '600')
+            .text('← Annual Recurring Revenue (ARR)');
+
+        // Add annotation for OpenShift growth
+        svg4.append('text')
+            .attr('x', x4('2025'))
+            .attr('y', y4(1800) - 15)
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#2BE099')
+            .attr('font-size', '11px')
+            .attr('font-weight', '600')
+            .attr('opacity', 0)
+            .text('18x growth in 6 years')
+            .transition()
+            .delay(2500)
+            .duration(400)
+            .attr('opacity', 1);
+
+        svg4.append('text')
+            .attr('x', x4('2028'))
+            .attr('y', y4(3.8) + 25)
+            .attr('text-anchor', 'middle')
+            .attr('fill', '#2BE099')
+            .attr('font-size', '11px')
+            .attr('font-weight', '600')
+            .attr('opacity', 0)
+            .text('CIQ Target: $3.8M')
+            .transition()
+            .delay(2700)
+            .duration(400)
+            .attr('opacity', 1);
+    </script>
+</body>
+</html>

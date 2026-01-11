@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RLC-AI - Reddit Ad</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .reddit-ad {
+            width: 1200px;
+            height: 628px;
+            background: linear-gradient(135deg, #0a0e14 0%, #151922 50%, #0a0e14 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .gpu-visual {
+            position: absolute;
+            right: -30px;
+            top: 50%;
+            transform: translateY(-50%) rotateY(-20deg) rotateX(8deg);
+            width: 550px;
+            height: 450px;
+            perspective: 1500px;
+            transform-style: preserve-3d;
+        }
+        .gpu-card {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(10, 14, 20, 0.9) 0%,
+                rgba(18, 166, 111, 0.12) 30%,
+                rgba(43, 224, 153, 0.18) 50%,
+                rgba(9, 112, 73, 0.12) 70%,
+                rgba(10, 14, 20, 0.9) 100%);
+            border: 3px solid rgba(43, 224, 153, 0.4);
+            border-radius: 16px;
+            position: relative;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9), 0 0 120px rgba(43, 224, 153, 0.25);
+            transform: rotateX(5deg);
+        }
+        .circuit-line {
+            position: absolute;
+            background: rgba(43, 224, 153, 0.3);
+            box-shadow: 0 0 10px rgba(43, 224, 153, 0.5);
+        }
+        .circuit-h-1 { top: 30%; left: 10%; width: 200px; height: 2px; }
+        .circuit-h-2 { top: 50%; left: 15%; width: 150px; height: 2px; }
+        .circuit-h-3 { top: 70%; left: 20%; width: 180px; height: 2px; }
+        .circuit-v-1 { top: 20%; left: 40%; width: 2px; height: 100px; }
+        .circuit-v-2 { top: 40%; left: 60%; width: 2px; height: 80px; }
+        .circuit-node {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #2BE099;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #2BE099, 0 0 30px rgba(43, 224, 153, 0.5);
+        }
+        .node-1 { top: 30%; left: 10%; }
+        .node-2 { top: 50%; left: 15%; }
+        .node-3 { top: 70%; left: 20%; }
+        
+        .terminal-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(43, 224, 153, 0.3);
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #2BE099;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+        }
+        .terminal-line { opacity: 0.7; margin: 3px 0; }
+        .terminal-line span { color: #61656c; }
+        
+        .info-box {
+            position: absolute;
+            top: 80px;
+            right: 80px;
+            max-width: 420px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(43, 224, 153, 0.3);
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+        }
+        .info-text {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            color: #ECECED;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+        .info-cta {
+            padding: 10px 24px;
+            background: #2BE099;
+            color: #0a0e14;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 6px;
+            display: inline-block;
+            margin-right: 12px;
+        }
+        .info-link {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #2BE099;
+            text-decoration: none;
+        }
+        
+        .content-area {
+            position: relative;
+            z-index: 10;
+            padding: 80px 80px 60px 80px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            max-width: 650px;
+        }
+        .product-tag {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(43, 224, 153, 0.15);
+            border: 1px solid #2BE099;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #2BE099;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 24px;
+        }
+        .headline-tech {
+            font-size: 56px;
+            font-weight: 900;
+            line-height: 1;
+            color: #ECECED;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+        .headline-tech .gradient-text {
+            background: linear-gradient(135deg, #2BE099 0%, #12A66F 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .tech-specs {
+            margin: 20px 0;
+            padding: 18px 0;
+            border-top: 1px solid rgba(43, 224, 153, 0.2);
+            border-bottom: 1px solid rgba(43, 224, 153, 0.2);
+        }
+        .spec-line {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #ECECED;
+            margin: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .spec-icon { color: #2BE099; font-weight: 700; }
+        .spec-label { color: #61656c; font-weight: 500; min-width: 95px; }
+        .spec-value { color: #ECECED; font-weight: 600; }
+        
+        .brand-footer {
+            position: absolute;
+            bottom: 30px;
+            left: 80px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .ciq-logo-text {
+            font-size: 24px;
+            font-weight: 900;
+            color: #ECECED;
+            letter-spacing: 2px;
+        }
+        .divider-bar {
+            width: 2px;
+            height: 20px;
+            background: #2BE099;
+        }
+        .product-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #2BE099;
+            letter-spacing: 1px;
+        }
+        .perf-badge {
+            position: absolute;
+            bottom: 30px;
+            right: 80px;
+            padding: 10px 20px;
+            background: rgba(43, 224, 153, 0.1);
+            border: 1px solid #2BE099;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: #2BE099;
+        }
+    </style>
+</head>
+<body>
+    <div class="reddit-ad">
+        <div class="terminal-overlay">
+            <div class="terminal-line"><span>$</span> nvidia-smi</div>
+            <div class="terminal-line">GPU 0: H100 PCIe (Driver: 550.x CUDA: 12.3)</div>
+            <div class="terminal-line"><span>$</span> docker pull ciq/rlc-ai-pytorch:latest</div>
+            <div class="terminal-line">Status: Validated ✓ Optimized ✓ Ready</div>
+        </div>
+
+        <div class="gpu-visual">
+            <div class="gpu-card">
+                <div class="circuit-line circuit-h-1"></div>
+                <div class="circuit-line circuit-h-2"></div>
+                <div class="circuit-line circuit-h-3"></div>
+                <div class="circuit-line circuit-v-1"></div>
+                <div class="circuit-line circuit-v-2"></div>
+                <div class="circuit-node node-1"></div>
+                <div class="circuit-node node-2"></div>
+                <div class="circuit-node node-3"></div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-text">
+                Trusted baseline for dynamic workloads across hybrid and multi-cloud. Built for researchers who need speed, not surprises.
+            </div>
+            <a href="#" class="info-cta">Benchmark It</a>
+            <a href="#" class="info-link">Technical specs →</a>
+        </div>
+
+        <div class="content-area">
+            <div class="product-tag">RLC-AI • GPU-Optimized</div>
+            
+            <h1 class="headline-tech">
+                Optimized kernel.<br>
+                <span class="gradient-text">Validated</span><br>
+                <span class="gradient-text">frameworks.</span><br>
+                Zero config.
+            </h1>
+
+            <div class="tech-specs">
+                <div class="spec-line">
+                    <span class="spec-icon">▸</span>
+                    <span class="spec-label">Base OS:</span>
+                    <span class="spec-value">RLC-AI (CUDA 12.3, ROCm 6.0, latest 6.x kernel)</span>
+                </div>
+                <div class="spec-line">
+                    <span class="spec-icon">▸</span>
+                    <span class="spec-label">Containers:</span>
+                    <span class="spec-value">PyTorch 2.2, TensorFlow 2.15, JAX (validated builds)</span>
+                </div>
+                <div class="spec-line">
+                    <span class="spec-icon">▸</span>
+                    <span class="spec-label">Runtime:</span>
+                    <span class="spec-value">Apptainer HPC-native + GPU pass-through + MPI</span>
+                </div>
+                <div class="spec-line">
+                    <span class="spec-icon">▸</span>
+                    <span class="spec-label">Deployment:</span>
+                    <span class="spec-value">bootc image-based (immutable, reproducible)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="brand-footer">
+            <div class="ciq-logo-text">CIQ</div>
+            <div class="divider-bar"></div>
+            <div class="product-name">Rocky Linux from CIQ - AI</div>
+        </div>
+
+        <div class="perf-badge">
+            2-3x faster GPU utilization
+        </div>
+    </div>
+
+    <script>
+        const nodes = document.querySelectorAll('.circuit-node');
+        nodes.forEach((node, i) => {
+            setInterval(() => {
+                node.style.opacity = Math.random() > 0.5 ? '1' : '0.6';
+            }, 1000 + (i * 200));
+        });
+        const terminalLines = document.querySelectorAll('.terminal-line');
+        terminalLines.forEach((line, i) => {
+            line.style.opacity = '0';
+            setTimeout(() => {
+                line.style.transition = 'opacity 0.3s ease';
+                line.style.opacity = '1';
+            }, 500 + (i * 300));
+        });
+    </script>
+</body>
+</html>

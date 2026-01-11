@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FACETS Spatial HUD - Layered Tactical Display</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: #000;
+      color: #e0e0e0;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+    
+    /* ============================================
+       SCENE CONTAINER - 3D PERSPECTIVE
+       ============================================ */
+    .scene {
+      width: 100vw;
+      height: 100vh;
+      perspective: 1200px;
+      perspective-origin: 50% 50%;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Animated background grid */
+    .bg-grid {
+      position: absolute;
+      inset: -50%;
+      background-image: 
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      transform: rotateX(60deg) translateZ(-200px);
+      animation: gridScroll 20s linear infinite;
+    }
+    
+    @keyframes gridScroll {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 40px; }
+    }
+    
+    /* Scan line effect */
+    .scanlines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.1) 2px,
+        rgba(0, 0, 0, 0.1) 4px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+    
+    /* ============================================
+       3D LAYER STACK
+       ============================================ */
+    .layer-stack {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform-style: preserve-3d;
+      transform: translate(-50%, -50%) rotateX(5deg) rotateY(-5deg);
+      transition: transform 0.5s ease;
+    }
+    
+    .layer-stack:hover {
+      transform: translate(-50%, -50%) rotateX(2deg) rotateY(-2deg);
+    }
+    
+    /* Individual layers at different Z depths */
+    .layer {
+      position: absolute;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+    }
+    
+    .layer-back {
+      transform: translateZ(-100px);
+      opacity: 0.6;
+    }
+    
+    .layer-mid {
+      transform: translateZ(0px);
+    }
+    
+    .layer-front {
+      transform: translateZ(80px);
+    }
+    
+    .layer-hud {
+      transform: translateZ(150px);
+    }
+    
+    /* ============================================
+       PANEL STYLES
+       ============================================ */
+    .panel {
+      background: linear-gradient(135deg, rgba(10, 15, 25, 0.95) 0%, rgba(5, 10, 20, 0.9) 100%);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.8), transparent);
+    }
+    
+    .panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0, 212, 255, 0.05) 0%, transparent 30%);
+      pointer-events: none;
+    }
+    
+    .panel-glass {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(0, 100, 150, 0.05) 100%);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+    
+    .panel-header {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      color: #00d4ff;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .panel-header::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #00d4ff;
+      border-radius: 1px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    
+    /* ============================================
+       ALERT CORE (CENTER LAYER)
+       ============================================ */
+    .alert-core {
+      width: 400px;
+      padding: 24px;
+      text-align: center;
+    }
+    
+    .severity-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 2px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      animation: severityPulse 1.5s ease-in-out infinite;
+    }
+    
+    .severity-warning {
+      background: rgba(255, 170, 0, 0.2);
+      border: 1px solid rgba(255, 170, 0, 0.6);
+      color: #ffaa00;
+    }
+    
+    .severity-critical {
+      background: rgba(255, 50, 50, 0.2);
+      border: 1px solid rgba(255, 50, 50, 0.6);
+      color: #ff3232;
+    }
+    
+    @keyframes severityPulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(255, 170, 0, 0.3); }
+      50% { box-shadow: 0 0 25px rgba(255, 170, 0, 0.6); }
+    }
+    
+    .metric-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 64px;
+      font-weight: 900;
+      line-height: 1;
+      margin: 16px 0;
+      text-shadow: 
+        0 0 20px rgba(255, 100, 100, 0.5),
+        0 0 40px rgba(255, 100, 100, 0.3);
+    }
+    
+    .metric-negative { color: #ff6b6b; }
+    .metric-positive { color: #51cf66; }
+    .metric-neutral { color: #00d4ff; }
+    
+    .metric-label {
+      font-size: 14px;
+      color: #888;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    
+    .headline {
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      margin: 20px 0 8px;
+    }
+    
+    .subheadline {
+      font-size: 13px;
+      color: #666;
+    }
+    
+    /* ============================================
+       SECONDARY METRICS (ORBITING PANELS)
+       ============================================ */
+    .secondary-panel {
+      width: 160px;
+      padding: 12px;
+    }
+    
+    .secondary-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      margin: 4px 0;
+    }
+    
+    .secondary-label {
+      font-size: 10px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    /* ============================================
+       D3 CHART CONTAINERS
+       ============================================ */
+    .chart-panel {
+      padding: 16px;
+    }
+    
+    .chart-panel svg {
+      overflow: visible;
+    }
+    
+    /* Radial gauge styling */
+    .gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.1);
+    }
+    
+    .gauge-fill {
+      fill: none;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+    
+    .gauge-text {
+      font-family: 'Orbitron', sans-serif;
+      fill: #fff;
+    }
+    
+    /* Line chart styling */
+    .chart-line {
+      fill: none;
+      stroke-width: 2;
+      filter: drop-shadow(0 0 4px currentColor);
+    }
+    
+    .chart-area {
+      opacity: 0.2;
+    }
+    
+    .chart-dot {
+      filter: drop-shadow(0 0 4px currentColor);
+    }
+    
+    .axis-line {
+      stroke: rgba(255, 255, 255, 0.1);
+    }
+    
+    .axis-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      fill: #555;
+    }
+    
+    /* ============================================
+       SOURCE REFERENCE (BACK LAYER)
+       ============================================ */
+    .source-panel {
+      width: 280px;
+      padding: 16px;
+    }
+    
+    .source-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 11px;
+    }
+    
+    .source-row:last-child { border: none; }
+    
+    .source-key {
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .source-value {
+      color: #aaa;
+      font-family: 'Share Tech Mono', monospace;
+    }
+    
+    .excerpt-box {
+      margin-top: 12px;
+      padding: 10px;
+      background: rgba(255, 200, 0, 0.05);
+      border-left: 2px solid #ffaa00;
+      font-size: 11px;
+      color: #999;
+      font-style: italic;
+      line-height: 1.5;
+    }
+    
+    .confidence-row {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .confidence-bar {
+      flex: 1;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    
+    .confidence-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00d4ff, #00ff88);
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+    
+    .confidence-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      color: #00ff88;
+    }
+    
+    /* ============================================
+       HUD ELEMENTS (FRONT LAYER)
+       ============================================ */
+    .hud-corner {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      pointer-events: none;
+    }
+    
+    .hud-corner-tl { 
+      top: 50px; left: 50px;
+      border-right: none; border-bottom: none;
+    }
+    .hud-corner-tr { 
+      top: 50px; right: 50px;
+      border-left: none; border-bottom: none;
+    }
+    .hud-corner-bl { 
+      bottom: 50px; left: 50px;
+      border-right: none; border-top: none;
+    }
+    .hud-corner-br { 
+      bottom: 50px; right: 50px;
+      border-left: none; border-top: none;
+    }
+    
+    .hud-crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+    }
+    
+    .hud-crosshair::before,
+    .hud-crosshair::after {
+      content: '';
+      position: absolute;
+      background: rgba(0, 212, 255, 0.5);
+    }
+    
+    .hud-crosshair::before {
+      width: 100%;
+      height: 1px;
+      top: 50%;
+    }
+    
+    .hud-crosshair::after {
+      width: 1px;
+      height: 100%;
+      left: 50%;
+    }
+    
+    .hud-timestamp {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: #444;
+      letter-spacing: 1px;
+    }
+    
+    .hud-coords {
+      position: absolute;
+      top: 60px;
+      right: 60px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: #333;
+      text-align: right;
+    }
+    
+    /* ============================================
+       CONTROL PANEL
+       ============================================ */
+    .control-panel {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(10, 15, 25, 0.95);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 4px;
+      padding: 16px;
+      width: 240px;
+      z-index: 100;
+    }
+    
+    .control-panel h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: #00d4ff;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+    
+    .control-group {
+      margin-bottom: 12px;
+    }
+    
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    
+    .control-group label span {
+      color: #00d4ff;
+      font-family: 'Share Tech Mono', monospace;
+    }
+    
+    .control-group input[type="range"] {
+      width: 100%;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      appearance: none;
+      cursor: pointer;
+    }
+    
+    .control-group input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      background: #00d4ff;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    
+    .archetype-display {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .archetype-label {
+      font-size: 10px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+    
+    .archetype-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+    
+    .archetype-HUNTER { color: #ff6b6b; }
+    .archetype-NARRATOR { color: #51cf66; }
+    .archetype-MAPPER { color: #9775fa; }
+    .archetype-BALANCED { color: #868e96; }
+    
+    /* ============================================
+       ANIMATIONS
+       ============================================ */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .float-slow { animation: float 6s ease-in-out infinite; }
+    .float-med { animation: float 4s ease-in-out infinite; }
+    .float-fast { animation: float 3s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+  <div class="scene" id="scene">
+    <div class="bg-grid"></div>
+    <div class="scanlines"></div>
+    
+    <!-- 3D Layer Stack -->
+    <div class="layer-stack" id="layer-stack">
+      
+      <!-- BACK LAYER: Source Reference -->
+      <div class="layer layer-back" style="left: -500px; top: -100px;">
+        <div class="panel panel-glass source-panel float-slow">
+          <div class="panel-header">Source Reference</div>
+          <div class="source-row">
+            <span class="source-key">Document</span>
+            <span class="source-value">budget-q1-2026.xlsx</span>
+          </div>
+          <div class="source-row">
+            <span class="source-key">Location</span>
+            <span class="source-value">Cell D14</span>
+          </div>
+          <div class="source-row">
+            <span class="source-key">Extracted</span>
+            <span class="source-value">2026-01-10 09:15</span>
+          </div>
+          <div class="excerpt-box">
+            "Marketing actual: $252,200 vs planned: $205,000. Variance: -$47,200 (23% over)"
+          </div>
+          <div class="confidence-row">
+            <span class="source-key">Confidence</span>
+            <div class="confidence-bar">
+              <div class="confidence-fill" style="width: 98%;"></div>
+            </div>
+            <span class="confidence-value">98%</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- BACK LAYER: Trend Chart -->
+      <div class="layer layer-back" style="right: -480px; top: 50px;">
+        <div class="panel chart-panel float-slow" style="width: 260px; height: 180px;">
+          <div class="panel-header">Variance Trend</div>
+          <svg id="trend-chart" width="230" height="130"></svg>
+        </div>
+      </div>
+      
+      <!-- MID LAYER: Left Secondary -->
+      <div class="layer layer-mid" style="left: -320px; top: -50px;">
+        <div class="panel secondary-panel float-med">
+          <div class="secondary-label">Days to Quarter End</div>
+          <div class="secondary-value metric-neutral">81</div>
+          <svg id="gauge-days" width="140" height="80"></svg>
+        </div>
+      </div>
+      
+      <!-- MID LAYER: Right Secondary -->
+      <div class="layer layer-mid" style="right: -320px; top: -50px;">
+        <div class="panel secondary-panel float-med">
+          <div class="secondary-label">Daily Burn Rate</div>
+          <div class="secondary-value metric-negative">$2,840</div>
+          <svg id="gauge-burn" width="140" height="80"></svg>
+        </div>
+      </div>
+      
+      <!-- MID LAYER: Bottom Secondary -->
+      <div class="layer layer-mid" style="left: 0; top: 280px; transform: translateX(-50%) translateZ(0);">
+        <div class="panel secondary-panel float-med" style="width: 200px;">
+          <div class="secondary-label">Projected Q1 Overage</div>
+          <div class="secondary-value metric-negative">$89,400</div>
+          <div style="font-size: 10px; color: #ff6b6b; margin-top: 4px;">▲ 12% vs last week</div>
+        </div>
+      </div>
+      
+      <!-- CENTER LAYER: Alert Core -->
+      <div class="layer layer-front" style="left: 50%; top: 50%; transform: translate(-50%, -50%) translateZ(80px);">
+        <div class="panel alert-core">
+          <div class="severity-badge severity-warning">⚠ WARNING</div>
+          <div class="metric-value metric-negative" id="main-metric">-$47,200</div>
+          <div class="metric-label">Budget Variance</div>
+          <div class="headline">Marketing Budget Variance Detected</div>
+          <div class="subheadline">Q1 spend tracking 23% above planned allocation</div>
+          
+          <!-- Radial progress -->
+          <svg id="radial-gauge" width="400" height="100" style="margin-top: 20px;"></svg>
+        </div>
+      </div>
+      
+      <!-- FRONT LAYER: Action Panel -->
+      <div class="layer layer-hud" style="right: -400px; bottom: -150px;">
+        <div class="panel panel-glass float-fast" style="padding: 12px;">
+          <div class="panel-header">Actions</div>
+          <div style="display: flex; flex-direction: column; gap: 8px; padding: 8px;">
+            <button style="background: rgba(0, 212, 255, 0.2); border: 1px solid rgba(0, 212, 255, 0.4); color: #00d4ff; padding: 8px 16px; font-family: 'Rajdhani'; font-size: 12px; cursor: pointer; border-radius: 2px;">VIEW DETAILS</button>
+            <button style="background: rgba(255, 170, 0, 0.1); border: 1px solid rgba(255, 170, 0, 0.3); color: #ffaa00; padding: 8px 16px; font-family: 'Rajdhani'; font-size: 12px; cursor: pointer; border-radius: 2px;">ESCALATE</button>
+            <button style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #666; padding: 8px 16px; font-family: 'Rajdhani'; font-size: 12px; cursor: pointer; border-radius: 2px;">ACKNOWLEDGE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- HUD Overlay Elements -->
+    <div class="hud-corner hud-corner-tl"></div>
+    <div class="hud-corner hud-corner-tr"></div>
+    <div class="hud-corner hud-corner-bl"></div>
+    <div class="hud-corner hud-corner-br"></div>
+    <div class="hud-crosshair"></div>
+    <div class="hud-timestamp" id="timestamp">2026-01-10 14:32:18 UTC</div>
+    <div class="hud-coords">
+      <div>LAT 37.7749</div>
+      <div>LON -122.4194</div>
+    </div>
+  </div>
+  
+  <!-- Control Panel -->
+  <div class="control-panel">
+    <h2>NEURON PROFILE</h2>
+    
+    <div class="control-group">
+      <label>density <span id="density-val">0.50</span></label>
+      <input type="range" id="density" min="0" max="1" step="0.05" value="0.5">
+    </div>
+    
+    <div class="control-group">
+      <label>processing <span id="processing-val">0.50</span></label>
+      <input type="range" id="processing" min="0" max="1" step="0.05" value="0.5">
+    </div>
+    
+    <div class="control-group">
+      <label>priority <span id="priority-val">0.50</span></label>
+      <input type="range" id="priority" min="0" max="1" step="0.05" value="0.5">
+    </div>
+    
+    <div class="control-group">
+      <label>context_need <span id="context_need-val">0.50</span></label>
+      <input type="range" id="context_need" min="0" max="1" step="0.05" value="0.5">
+    </div>
+    
+    <div class="control-group">
+      <label>urgency_sensitivity <span id="urgency_sensitivity-val">0.50</span></label>
+      <input type="range" id="urgency_sensitivity" min="0" max="1" step="0.05" value="0.5">
+    </div>
+    
+    <div class="archetype-display">
+      <div class="archetype-label">DETECTED ARCHETYPE</div>
+      <div class="archetype-value archetype-BALANCED" id="archetype">BALANCED</div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // NEURON PROFILE STATE
+    // ============================================
+    let profile = {
+      density: 0.5,
+      processing: 0.5,
+      priority: 0.5,
+      context_need: 0.5,
+      urgency_sensitivity: 0.5
+    };
+
+    // ============================================
+    // ARCHETYPE DETECTION
+    // ============================================
+    function detectArchetype(p) {
+      if (p.priority > 0.7 && p.density < 0.5 && p.context_need < 0.4) return 'HUNTER';
+      if (p.processing < 0.4 && p.context_need > 0.6) return 'NARRATOR';
+      if (p.processing > 0.7 && p.density > 0.5) return 'MAPPER';
+      return 'BALANCED';
+    }
+
+    // ============================================
+    // D3 CHARTS
+    // ============================================
+    
+    // Trend Line Chart
+    function createTrendChart() {
+      const svg = d3.select('#trend-chart');
+      const width = 230, height = 130;
+      const margin = { top: 20, right: 20, bottom: 25, left: 40 };
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+      
+      // Sample data - variance over time
+      const data = [
+        { week: 'W1', value: -12000 },
+        { week: 'W2', value: -18000 },
+        { week: 'W3', value: -25000 },
+        { week: 'W4', value: -32000 },
+        { week: 'W5', value: -38000 },
+        { week: 'W6', value: -47200 }
+      ];
+      
+      const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+      
+      const x = d3.scalePoint()
+        .domain(data.map(d => d.week))
+        .range([0, innerWidth]);
+      
+      const y = d3.scaleLinear()
+        .domain([-50000, 0])
+        .range([innerHeight, 0]);
+      
+      // Area
+      const area = d3.area()
+        .x(d => x(d.week))
+        .y0(innerHeight)
+        .y1(d => y(d.value))
+        .curve(d3.curveMonotoneX);
+      
+      g.append('path')
+        .datum(data)
+        .attr('class', 'chart-area')
+        .attr('fill', '#ff6b6b')
+        .attr('d', area);
+      
+      // Line
+      const line = d3.line()
+        .x(d => x(d.week))
+        .y(d => y(d.value))
+        .curve(d3.curveMonotoneX);
+      
+      g.append('path')
+        .datum(data)
+        .attr('class', 'chart-line')
+        .attr('stroke', '#ff6b6b')
+        .attr('d', line);
+      
+      // Dots
+      g.selectAll('.chart-dot')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('class', 'chart-dot')
+        .attr('cx', d => x(d.week))
+        .attr('cy', d => y(d.value))
+        .attr('r', 3)
+        .attr('fill', '#ff6b6b');
+      
+      // X Axis
+      g.append('g')
+        .attr('transform', `translate(0,${innerHeight})`)
+        .selectAll('.axis-text')
+        .data(data)
+        .enter()
+        .append('text')
+        .attr('class', 'axis-text')
+        .attr('x', d => x(d.week))
+        .attr('y', 15)
+        .attr('text-anchor', 'middle')
+        .text(d => d.week);
+      
+      // Y Axis lines
+      [-40000, -20000, 0].forEach(tick => {
+        g.append('line')
+          .attr('class', 'axis-line')
+          .attr('x1', 0)
+          .attr('x2', innerWidth)
+          .attr('y1', y(tick))
+          .attr('y2', y(tick));
+        
+        g.append('text')
+          .attr('class', 'axis-text')
+          .attr('x', -5)
+          .attr('y', y(tick) + 3)
+          .attr('text-anchor', 'end')
+          .text(tick === 0 ? '0' : `${tick/1000}K`);
+      });
+    }
+    
+    // Semi-circular Gauge
+    function createGauge(selector, value, max, color) {
+      const svg = d3.select(selector);
+      const width = 140, height = 80;
+      const radius = 50;
+      const cx = width / 2, cy = height - 10;
+      
+      const scale = d3.scaleLinear()
+        .domain([0, max])
+        .range([-Math.PI / 2, Math.PI / 2]);
+      
+      const arc = d3.arc()
+        .innerRadius(radius - 8)
+        .outerRadius(radius)
+        .startAngle(-Math.PI / 2);
+      
+      // Background arc
+      svg.append('path')
+        .attr('class', 'gauge-bg')
+        .attr('transform', `translate(${cx},${cy})`)
+        .attr('d', arc({ endAngle: Math.PI / 2 }))
+        .attr('stroke', 'rgba(255,255,255,0.1)')
+        .attr('stroke-width', 8);
+      
+      // Value arc
+      svg.append('path')
+        .attr('class', 'gauge-fill')
+        .attr('transform', `translate(${cx},${cy})`)
+        .attr('d', arc({ endAngle: scale(value) }))
+        .attr('stroke', color)
+        .attr('stroke-width', 8);
+      
+      // Tick marks
+      for (let i = 0; i <= 4; i++) {
+        const angle = -Math.PI / 2 + (i / 4) * Math.PI;
+        const x1 = cx + (radius + 5) * Math.cos(angle);
+        const y1 = cy + (radius + 5) * Math.sin(angle);
+        const x2 = cx + (radius + 10) * Math.cos(angle);
+        const y2 = cy + (radius + 10) * Math.sin(angle);
+        
+        svg.append('line')
+          .attr('x1', x1).attr('y1', y1)
+          .attr('x2', x2).attr('y2', y2)
+          .attr('stroke', 'rgba(255,255,255,0.2)')
+          .attr('stroke-width', 1);
+      }
+    }
+    
+    // Radial Progress Bar
+    function createRadialProgress() {
+      const svg = d3.select('#radial-gauge');
+      const width = 400, height = 100;
+      
+      // Threshold bar
+      const barWidth = 300;
+      const barHeight = 8;
+      const x = (width - barWidth) / 2;
+      const y = 40;
+      
+      // Background
+      svg.append('rect')
+        .attr('x', x)
+        .attr('y', y)
+        .attr('width', barWidth)
+        .attr('height', barHeight)
+        .attr('rx', 2)
+        .attr('fill', 'rgba(255,255,255,0.1)');
+      
+      // Threshold marker
+      const thresholdPct = 0.8; // $40K of $50K budget
+      svg.append('line')
+        .attr('x1', x + barWidth * thresholdPct)
+        .attr('y1', y - 5)
+        .attr('x2', x + barWidth * thresholdPct)
+        .attr('y2', y + barHeight + 5)
+        .attr('stroke', '#ffaa00')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '3,2');
+      
+      svg.append('text')
+        .attr('x', x + barWidth * thresholdPct)
+        .attr('y', y - 10)
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#ffaa00')
+        .attr('font-size', 9)
+        .attr('font-family', 'Share Tech Mono')
+        .text('THRESHOLD');
+      
+      // Current value (23% over = 123% of budget)
+      const currentPct = Math.min(1.0, 1.23); // Capped at 100% for display
+      
+      // Gradient fill
+      const gradient = svg.append('defs')
+        .append('linearGradient')
+        .attr('id', 'bar-gradient')
+        .attr('x1', '0%').attr('y1', '0%')
+        .attr('x2', '100%').attr('y2', '0%');
+      
+      gradient.append('stop').attr('offset', '0%').attr('stop-color', '#00d4ff');
+      gradient.append('stop').attr('offset', '80%').attr('stop-color', '#ffaa00');
+      gradient.append('stop').attr('offset', '100%').attr('stop-color', '#ff6b6b');
+      
+      svg.append('rect')
+        .attr('x', x)
+        .attr('y', y)
+        .attr('width', barWidth * currentPct)
+        .attr('height', barHeight)
+        .attr('rx', 2)
+        .attr('fill', 'url(#bar-gradient)');
+      
+      // Labels
+      svg.append('text')
+        .attr('x', x)
+        .attr('y', y + barHeight + 18)
+        .attr('fill', '#555')
+        .attr('font-size', 10)
+        .text('$0');
+      
+      svg.append('text')
+        .attr('x', x + barWidth)
+        .attr('y', y + barHeight + 18)
+        .attr('text-anchor', 'end')
+        .attr('fill', '#555')
+        .attr('font-size', 10)
+        .text('$250K');
+      
+      svg.append('text')
+        .attr('x', x + barWidth * currentPct)
+        .attr('y', y + barHeight + 18)
+        .attr('text-anchor', 'middle')
+        .attr('fill', '#ff6b6b')
+        .attr('font-size', 10)
+        .attr('font-weight', 'bold')
+        .text('$252K ACTUAL');
+    }
+
+    // ============================================
+    // PROFILE UPDATE HANDLERS
+    // ============================================
+    function updateDisplay() {
+      const archetype = detectArchetype(profile);
+      const archetypeEl = document.getElementById('archetype');
+      archetypeEl.textContent = archetype;
+      archetypeEl.className = 'archetype-value archetype-' + archetype;
+      
+      const stack = document.getElementById('layer-stack');
+      
+      // Adjust 3D depth based on processing
+      const rotateX = 5 - profile.processing * 8; // More processing = flatter view
+      const rotateY = -5 + profile.processing * 3;
+      stack.style.transform = `translate(-50%, -50%) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      
+      // Adjust layer separation based on context_need
+      document.querySelectorAll('.layer-back').forEach(el => {
+        const depth = -100 - (1 - profile.context_need) * 50;
+        el.style.transform = el.style.transform.replace(/translateZ\([^)]+\)/, `translateZ(${depth}px)`);
+        el.style.opacity = 0.4 + profile.context_need * 0.5;
+      });
+      
+      // Urgency affects animation speed
+      document.documentElement.style.setProperty('--pulse-speed', (2 - profile.urgency_sensitivity) + 's');
+      
+      // Density affects which elements are visible
+      document.querySelectorAll('.secondary-panel').forEach((el, i) => {
+        el.style.opacity = profile.density > 0.3 ? 1 : 0.3;
+        el.style.transform = profile.density > 0.3 ? 'scale(1)' : 'scale(0.9)';
+      });
+      
+      // Priority affects main metric size
+      const metricEl = document.getElementById('main-metric');
+      const size = 48 + profile.priority * 32;
+      metricEl.style.fontSize = size + 'px';
+    }
+
+    // Control listeners
+    ['density', 'processing', 'priority', 'context_need', 'urgency_sensitivity'].forEach(key => {
+      const input = document.getElementById(key);
+      const display = document.getElementById(key + '-val');
+      
+      input.addEventListener('input', (e) => {
+        profile[key] = parseFloat(e.target.value);
+        display.textContent = profile[key].toFixed(2);
+        updateDisplay();
+      });
+    });
+
+    // ============================================
+    // MOUSE PARALLAX
+    // ============================================
+    document.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 20;
+      const y = (e.clientY / window.innerHeight - 0.5) * 10;
+      
+      const stack = document.getElementById('layer-stack');
+      const baseRotateX = 5 - profile.processing * 8;
+      const baseRotateY = -5 + profile.processing * 3;
+      
+      stack.style.transform = `translate(-50%, -50%) rotateX(${baseRotateX + y * 0.5}deg) rotateY(${baseRotateY + x * 0.5}deg)`;
+    });
+
+    // ============================================
+    // TIMESTAMP UPDATE
+    // ============================================
+    function updateTimestamp() {
+      const now = new Date();
+      document.getElementById('timestamp').textContent = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+    }
+    setInterval(updateTimestamp, 1000);
+
+    // ============================================
+    // INITIALIZE
+    // ============================================
+    createTrendChart();
+    createGauge('#gauge-days', 81, 90, '#00d4ff');
+    createGauge('#gauge-burn', 2840, 5000, '#ff6b6b');
+    createRadialProgress();
+    updateDisplay();
+  </script>
+</body>
+</html>
