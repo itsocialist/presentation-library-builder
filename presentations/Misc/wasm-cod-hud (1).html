@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WASM Intelligence Brief</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --steel: #8b9199;
+      --steel-dark: #5a5f66;
+      --silver: #c9cdd1;
+      --slate: #2d3238;
+      --slate-dark: #1a1d21;
+      --blue: #4a90c4;
+      --orange: #e8904f;
+      --yellow: #f5c563;
+      --red: #d94f4f;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--slate-dark);
+      color: var(--silver);
+      overflow-x: hidden;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    /* Background canvas */
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* Container */
+    .hud-container {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem 0;
+    }
+
+    /* Glass panel base */
+    .glass-panel {
+      background: linear-gradient(135deg, 
+        rgba(139, 145, 153, 0.08) 0%,
+        rgba(90, 95, 102, 0.12) 100%);
+      backdrop-filter: blur(20px);
+      border: 2px solid var(--steel);
+      border-radius: 4px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+    }
+
+    .glass-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.1), 
+        transparent);
+      animation: glare 12s infinite;
+    }
+
+    @keyframes glare {
+      0%, 100% { left: -100%; }
+      50% { left: 150%; }
+    }
+
+    .glass-panel:hover {
+      transform: scale(1.02);
+      border-color: var(--silver);
+      box-shadow: 0 0 30px rgba(139, 145, 153, 0.3);
+    }
+
+    .glass-panel.no-hover {
+      cursor: default;
+    }
+
+    .glass-panel.no-hover:hover {
+      transform: none;
+      border-color: var(--steel);
+      box-shadow: none;
+    }
+
+    /* Header panel */
+    .header-panel {
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+      border-color: var(--orange);
+      margin-bottom: 2rem;
+    }
+
+    .header-panel h1 {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--orange);
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    .header-panel .subtitle {
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      color: var(--steel);
+      font-weight: 300;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-panel {
+      background: linear-gradient(135deg, 
+        rgba(74, 144, 196, 0.08) 0%,
+        rgba(74, 144, 196, 0.12) 100%);
+      backdrop-filter: blur(20px);
+      border: 2px solid var(--blue);
+      border-radius: 4px;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-value {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      color: var(--blue);
+      display: block;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    .stat-label {
+      font-size: clamp(0.75rem, 2vw, 0.9rem);
+      color: var(--steel);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Section panels */
+    .section-panel {
+      clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%, 0 20px);
+      margin-bottom: 1rem;
+    }
+
+    .section-panel.active {
+      border-color: var(--blue);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 5;
+    }
+
+    .section-header h2 {
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--silver);
+    }
+
+    .section-status {
+      font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+      padding: 0.25rem 0.75rem;
+      border-radius: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-weight: 600;
+    }
+
+    .status-supported {
+      background: var(--blue);
+      color: #1a1d21;
+    }
+
+    .status-warning {
+      background: var(--orange);
+      color: #1a1d21;
+    }
+
+    .status-critical {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .section-summary {
+      color: var(--steel);
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      line-height: 1.6;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Detail panel (Level 2) */
+    .detail-panel {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 1rem;
+    }
+
+    .detail-panel.open {
+      max-height: 2000px;
+    }
+
+    .detail-content {
+      background: rgba(26, 29, 33, 0.6);
+      border-left: 3px solid var(--blue);
+      padding: 1.5rem;
+      border-radius: 4px;
+      position: relative;
+      z-index: 5;
+    }
+
+    .detail-content h3 {
+      color: var(--blue);
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .detail-content p {
+      color: var(--steel);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+    }
+
+    .detail-content ul {
+      list-style: none;
+      margin-bottom: 1rem;
+    }
+
+    .detail-content li {
+      color: var(--steel);
+      padding-left: 1.5rem;
+      position: relative;
+      margin-bottom: 0.75rem;
+      line-height: 1.6;
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+    }
+
+    .detail-content li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--blue);
+      font-weight: bold;
+    }
+
+    .detail-content code {
+      background: rgba(74, 144, 196, 0.15);
+      color: var(--blue);
+      padding: 0.2rem 0.5rem;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+
+    /* Sub-detail panel (Level 3) */
+    .sub-detail {
+      background: rgba(13, 15, 18, 0.8);
+      border-left: 2px solid var(--orange);
+      padding: 1rem;
+      margin-top: 1rem;
+      border-radius: 4px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sub-detail.open {
+      max-height: 1500px;
+    }
+
+    .expand-btn {
+      display: inline-block;
+      background: rgba(74, 144, 196, 0.2);
+      border: 1px solid var(--blue);
+      color: var(--blue);
+      padding: 0.5rem 1rem;
+      margin-top: 0.5rem;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .expand-btn:hover {
+      background: rgba(74, 144, 196, 0.3);
+      transform: translateX(5px);
+    }
+
+    /* Verdict panel */
+    .verdict-panel {
+      clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+      border-color: var(--orange);
+      margin-top: 2rem;
+    }
+
+    .verdict-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .verdict-item {
+      position: relative;
+      z-index: 5;
+    }
+
+    .verdict-item h3 {
+      color: var(--silver);
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .verdict-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .verdict-icon.good {
+      background: var(--blue);
+      color: #1a1d21;
+    }
+
+    .verdict-icon.bad {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .verdict-item ul {
+      list-style: none;
+    }
+
+    .verdict-item li {
+      color: var(--steel);
+      padding-left: 1.5rem;
+      position: relative;
+      margin-bottom: 0.5rem;
+      font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+    }
+
+    .verdict-item li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--steel-dark);
+    }
+
+    /* Hint text */
+    .hint {
+      text-align: center;
+      color: var(--steel-dark);
+      font-size: clamp(0.7rem, 1.5vw, 0.85rem);
+      margin-top: 2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      body {
+        padding: 0.5rem;
+      }
+
+      .hud-container {
+        padding: 0.5rem 0;
+      }
+
+      .glass-panel {
+        padding: 1rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+
+      .stat-panel {
+        padding: 1rem;
+      }
+
+      .detail-content {
+        padding: 1rem;
+      }
+
+      .verdict-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+
+    /* Small screen adjustments */
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Animation for scanlines */
+    @keyframes scanline {
+      0% { top: -100%; }
+      100% { top: 100%; }
+    }
+
+    .scanline {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(to bottom,
+        transparent,
+        rgba(139, 145, 153, 0.3),
+        transparent);
+      animation: scanline 8s linear infinite;
+      pointer-events: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="hud-container">
+    <!-- Header -->
+    <div class="glass-panel header-panel no-hover">
+      <div class="scanline"></div>
+      <h1>WASM Intelligence Brief</h1>
+      <p class="subtitle">WebAssembly Deployment & IP Protection Assessment</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-panel">
+        <span class="stat-value">99%</span>
+        <span class="stat-label">Browser Support</span>
+      </div>
+      <div class="stat-panel">
+        <span class="stat-value">2017</span>
+        <span class="stat-label">Release Year</span>
+      </div>
+      <div class="stat-panel">
+        <span class="stat-value">v3.0</span>
+        <span class="stat-label">Latest Version</span>
+      </div>
+    </div>
+
+    <!-- Browser Support Section -->
+    <div class="glass-panel section-panel" onclick="toggleDetail('browser')">
+      <div class="section-header">
+        <h2>01 // Browser Support</h2>
+        <span class="section-status status-supported">OPERATIONAL</span>
+      </div>
+      <p class="section-summary">Universal compatibility across all modern browsers including iOS Safari</p>
+      
+      <div class="detail-panel" id="browser-detail">
+        <div class="detail-content">
+          <h3>Compatibility Matrix</h3>
+          <p>WebAssembly 1.0 achieved 99% browser coverage in 2017. All major browsers now support WASM with full feature parity.</p>
+          
+          <ul>
+            <li><strong>Chrome v57+</strong> (March 2017) — Full support with V8 engine optimization</li>
+            <li><strong>Firefox v52+</strong> (March 2017) — SpiderMonkey integration complete</li>
+            <li><strong>Safari v11+</strong> (September 2017) — Desktop and iOS support</li>
+            <li><strong>Edge v16+</strong> (November 2017) — Chromium-based full compatibility</li>
+            <li><strong>Mobile</strong> — Android Browser v97+, Samsung Internet v7.2+</li>
+          </ul>
+
+          <button class="expand-btn" onclick="toggleSubDetail(event, 'browser-sub')">Advanced Features →</button>
+          
+          <div class="sub-detail" id="browser-sub">
+            <h3 style="color: var(--orange); font-size: 0.95rem; margin-bottom: 0.75rem;">WASM 3.0 Features (2025)</h3>
+            <ul>
+              <li>64-bit address space for larger applications</li>
+              <li>Garbage collection for high-level languages (C#, Python)</li>
+              <li>Exception handling and multiple memory spaces</li>
+              <li>Type reflection for improved interoperability</li>
+            </ul>
+            <p style="margin-top: 0.75rem; font-size: 0.85rem;"><strong>Deployment Impact:</strong> Your HTML application will run on virtually all user devices without plugins or special configuration. iOS Safari support means PWA deployment is fully viable.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deployment Section -->
+    <div class="glass-panel section-panel" onclick="toggleDetail('deploy')">
+      <div class="section-header">
+        <h2>02 // Deployment Process</h2>
+        <span class="section-status status-supported">OPERATIONAL</span>
+      </div>
+      <p class="section-summary">Compile to binary format and serve alongside HTML/JavaScript</p>
+      
+      <div class="detail-panel" id="deploy-detail">
+        <div class="detail-content">
+          <h3>Compilation Pipeline</h3>
+          <p>WebAssembly is a compilation target, not a programming language. You write in C/C++/Rust/C# and compile to <code>.wasm</code> binary format.</p>
+          
+          <ul>
+            <li><strong>Source Code</strong> — Write in your preferred language (C/C++, Rust, etc.)</li>
+            <li><strong>Compiler</strong> — Use Emscripten (C/C++) or native toolchains</li>
+            <li><strong>Binary Output</strong> — Produces compact <code>.wasm</code> file</li>
+            <li><strong>Integration</strong> — Load via JavaScript APIs in your HTML page</li>
+            <li><strong>Execution</strong> — Runs at near-native speed in browser sandbox</li>
+          </ul>
+
+          <button class="expand-btn" onclick="toggleSubDetail(event, 'deploy-sub')">Performance Details →</button>
+          
+          <div class="sub-detail" id="deploy-sub">
+            <h3 style="color: var(--orange); font-size: 0.95rem; margin-bottom: 0.75rem;">Execution Characteristics</h3>
+            <p><strong>Performance:</strong> WASM executes at 10-20% of native speed—significantly faster than JavaScript for compute-intensive tasks.</p>
+            <p><strong>Use Cases:</strong> Companies like Figma (design tools), Unity (games), and Adobe (video editing) deliver desktop-class applications in browsers without downloads.</p>
+            <p><strong>Deployment Package:</strong> Your final deployment includes HTML file, JavaScript glue code, and the <code>.wasm</code> binary—all served from standard web hosting.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IP Protection Section -->
+    <div class="glass-panel section-panel" onclick="toggleDetail('ip')">
+      <div class="section-header">
+        <h2>03 // IP Protection</h2>
+        <span class="section-status status-critical">COMPROMISED</span>
+      </div>
+      <p class="section-summary">WASM binaries can be reverse-engineered using readily available tools</p>
+      
+      <div class="detail-panel" id="ip-detail">
+        <div class="detail-content">
+          <h3>Security Assessment</h3>
+          <p><strong>Critical Finding:</strong> WebAssembly provides minimal intellectual property protection. WASM binaries are weakly protected against reverse engineering.</p>
+          
+          <ul>
+            <li><strong>Official Text Format</strong> — <code>wasm2wat</code> converts binaries to readable WAT format</li>
+            <li><strong>Decompilation Tools</strong> — Advanced tools produce C-like pseudocode</li>
+            <li><strong>No Encryption</strong> — Modules must be delivered unencrypted to browsers</li>
+            <li><strong>Download Access</strong> — Anyone can extract <code>.wasm</code> files via dev tools</li>
+            <li><strong>Standardized Format</strong> — Reverse engineering tools are widely available</li>
+          </ul>
+
+          <button class="expand-btn" onclick="toggleSubDetail(event, 'ip-sub')">Obfuscation Options →</button>
+          
+          <div class="sub-detail" id="ip-sub">
+            <h3 style="color: var(--orange); font-size: 0.95rem; margin-bottom: 0.75rem;">Mitigation Strategies</h3>
+            <p><strong>WASMixer Obfuscation:</strong> Research tools provide control flow flattening, string encryption, and function name obfuscation. However, these only make reverse engineering harder—not impossible. Performance overhead: ~20%.</p>
+            <p><strong>Comparison:</strong> Native C++ executables offer significantly stronger protection than WASM. If IP protection is mission-critical, consider server-side execution or native applications.</p>
+            <p><strong>Industry Reality:</strong> Companies using WASM (Figma, Adobe, Unity) rely on patents, server-side trade secrets, and licensing—not code obscurity.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verdict -->
+    <div class="glass-panel verdict-panel no-hover">
+      <div class="section-header" style="margin-bottom: 1.5rem;">
+        <h2>Final Assessment</h2>
+        <span class="section-status status-warning">MIXED SUITABILITY</span>
+      </div>
+      
+      <div class="verdict-grid">
+        <div class="verdict-item">
+          <h3>
+            <span class="verdict-icon good">✓</span>
+            Suitable For
+          </h3>
+          <ul>
+            <li>Performance-critical applications</li>
+            <li>Cross-platform browser delivery</li>
+            <li>Rapid deployment (no app stores)</li>
+            <li>PWA/mobile web applications</li>
+            <li>Public-facing tools/utilities</li>
+          </ul>
+        </div>
+        
+        <div class="verdict-item">
+          <h3>
+            <span class="verdict-icon bad">✗</span>
+            Not Suitable For
+          </h3>
+          <ul>
+            <li>IP protection requirements</li>
+            <li>Trade secret algorithms</li>
+            <li>Proprietary business logic</li>
+            <li>Security through obscurity</li>
+            <li>High reverse-engineering risk</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(232, 144, 79, 0.1); border-left: 3px solid var(--orange); border-radius: 4px;">
+        <h3 style="color: var(--orange); font-size: 1rem; margin-bottom: 0.75rem;">RECOMMENDED ARCHITECTURE</h3>
+        <p style="color: var(--steel); line-height: 1.8; font-size: 0.9rem;">
+          <strong>Hybrid Approach:</strong> Deploy WASM for performance-critical rendering and UI interactions. Keep sensitive algorithms and proprietary business logic server-side via secure API calls. This maximizes browser performance while protecting intellectual property.
+        </p>
+      </div>
+    </div>
+
+    <p class="hint">[ Click panels for detailed intelligence // Tap expand buttons for technical specs ]</p>
+  </div>
+
+  <script>
+    // Background canvas effects
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Particles
+    const particles = [];
+    const particleCount = 80;
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        radius: Math.random() * 1.5 + 0.5
+      });
+    }
+
+    // Background charts (floating)
+    const charts = [
+      { x: 100, y: 100, type: 'line', width: 280, height: 122 },
+      { x: window.innerWidth - 380, y: 150, type: 'bar', width: 280, height: 122 },
+      { x: window.innerWidth / 2 - 140, y: window.innerHeight - 250, type: 'pie', radius: 70 }
+    ];
+
+    function drawCharts() {
+      charts.forEach(chart => {
+        ctx.globalAlpha = 0.08;
+        
+        if (chart.type === 'line') {
+          ctx.strokeStyle = '#4a90c4';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(chart.x, chart.y + chart.height);
+          for (let i = 0; i <= 10; i++) {
+            const x = chart.x + (i / 10) * chart.width;
+            const y = chart.y + chart.height - Math.random() * chart.height * 0.8;
+            ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        } else if (chart.type === 'bar') {
+          const barCount = 8;
+          const barWidth = chart.width / barCount - 5;
+          for (let i = 0; i < barCount; i++) {
+            const height = Math.random() * chart.height;
+            ctx.fillStyle = '#4a90c4';
+            ctx.fillRect(
+              chart.x + i * (chart.width / barCount),
+              chart.y + chart.height - height,
+              barWidth,
+              height
+            );
+          }
+        } else if (chart.type === 'pie') {
+          const segments = 4;
+          let currentAngle = 0;
+          for (let i = 0; i < segments; i++) {
+            const angle = (Math.PI * 2) * (Math.random() * 0.3 + 0.15);
+            ctx.fillStyle = i === 0 ? '#4a90c4' : '#8b9199';
+            ctx.beginPath();
+            ctx.moveTo(chart.x, chart.y);
+            ctx.arc(chart.x, chart.y, chart.radius, currentAngle, currentAngle + angle);
+            ctx.closePath();
+            ctx.fill();
+            currentAngle += angle;
+          }
+        }
+      });
+      
+      ctx.globalAlpha = 1.0;
+    }
+
+    function animate() {
+      ctx.fillStyle = '#1a1d21';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      drawCharts();
+      
+      // Draw particles
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(139, 145, 153, 0.4)';
+        ctx.fill();
+      });
+      
+      // Draw connections
+      particles.forEach((p1, i) => {
+        particles.slice(i + 1).forEach(p2 => {
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(74, 144, 196, ${(1 - dist / 150) * 0.15})`;
+            ctx.stroke();
+          }
+        });
+      });
+      
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    // Progressive disclosure
+    function toggleDetail(section) {
+      const detail = document.getElementById(section + '-detail');
+      const panel = detail.parentElement;
+      const allDetails = document.querySelectorAll('.detail-panel');
+      const allPanels = document.querySelectorAll('.section-panel');
+      
+      // Close all other details
+      allDetails.forEach(d => {
+        if (d !== detail) {
+          d.classList.remove('open');
+        }
+      });
+      
+      allPanels.forEach(p => {
+        if (p !== panel) {
+          p.classList.remove('active');
+        }
+      });
+      
+      // Toggle current
+      detail.classList.toggle('open');
+      panel.classList.toggle('active');
+    }
+
+    function toggleSubDetail(event, id) {
+      event.stopPropagation();
+      const sub = document.getElementById(id);
+      sub.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

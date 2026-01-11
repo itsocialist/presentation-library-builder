@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Invisible Foundation: Kernel-Level Security Without the Performance Tax</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* RLC-AI Brand Colors */
+            --rocky-green: #10B981;
+            --rocky-green-dim: #065F46;
+            
+            /* Technical States */
+            --inference-cyan: #06B6D4;
+            --inference-cyan-dim: #0E7490;
+            --gpu-amber: #F59E0B;
+            --gpu-amber-dim: #92400E;
+            --kernel-red: #EF4444;
+            
+            /* Foundations */
+            --deep-black: #030712;
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-400: #94A3B8;
+            --slate-200: #E2E8F0;
+            --white: #F8FAFC;
+            
+            /* Fonts */
+            --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+        }
+
+        body {
+            background: var(--deep-black);
+            color: var(--white);
+            font-family: var(--font-display);
+            font-size: 16px;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Fixed background layers */
+        .particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--slate-800) 1px, transparent 1px),
+                linear-gradient(90deg, var(--slate-800) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.2;
+            z-index: 1;
+            animation: gridPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.35; }
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(3, 7, 18, 0.7) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        section {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            perspective: 1000px;
+            z-index: 2;
+        }
+
+        .content-wrapper {
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+        }
+
+        .content {
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+
+        .section-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.5em;
+            color: var(--rocky-green);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            font-weight: 200;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 2.8rem;
+            font-weight: 200;
+            letter-spacing: -0.01em;
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: var(--rocky-green);
+            margin: 2rem 0 1rem 0;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .lead-text {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            color: var(--slate-200);
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .content-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--slate-400);
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        /* Kernel ring visualization */
+        .kernel-rings {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 3rem auto;
+        }
+
+        .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid;
+            opacity: 0.6;
+        }
+
+        .ring-0 {
+            width: 80px;
+            height: 80px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-color: var(--rocky-green);
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.3), transparent);
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+            animation: corePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes corePulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+        }
+
+        .ring-3 {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-color: var(--slate-700);
+        }
+
+        .ring-label {
+            position: absolute;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--slate-400);
+        }
+
+        /* Flow visualization */
+        .flow-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            margin: 3rem 0;
+        }
+
+        .flow-path {
+            position: absolute;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--inference-cyan) 30%, 
+                var(--inference-cyan) 70%, 
+                transparent);
+            animation: flowMove 3s linear infinite;
+        }
+
+        @keyframes flowMove {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Comparison panels */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin: 3rem 0;
+        }
+
+        .comparison-panel {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--slate-700);
+            border-radius: 8px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .comparison-panel.problem {
+            border-left: 4px solid var(--kernel-red);
+        }
+
+        .comparison-panel.solution {
+            border-left: 4px solid var(--rocky-green);
+        }
+
+        .comparison-panel:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .panel-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .problem .panel-label { color: var(--kernel-red); }
+        .solution .panel-label { color: var(--rocky-green); }
+
+        /* Metrics */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .metric-box {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--slate-700);
+            border-top: 3px solid var(--rocky-green);
+            border-radius: 6px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-family: var(--font-mono);
+            font-size: 3.5rem;
+            font-weight: 200;
+            color: var(--rocky-green);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+        }
+
+        .metric-label {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            color: var(--slate-400);
+            text-transform: uppercase;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-left: 3px solid var(--inference-cyan);
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--slate-200);
+            overflow-x: auto;
+        }
+
+        .code-comment {
+            color: var(--slate-400);
+        }
+
+        /* Feature list */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-item {
+            padding: 1.5rem;
+            border-left: 3px solid var(--rocky-green);
+            background: rgba(16, 185, 129, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(16, 185, 129, 0.1);
+            border-left-width: 5px;
+            padding-left: 2rem;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-title {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--rocky-green);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .feature-desc {
+            font-size: 0.95rem;
+            color: var(--slate-400);
+            line-height: 1.6;
+        }
+
+        /* Title slide specific */
+        .title-slide {
+            background: linear-gradient(135deg, var(--deep-black) 0%, var(--slate-900) 100%);
+        }
+
+        .title-slide h1 {
+            font-size: 5rem;
+            background: linear-gradient(135deg, var(--rocky-green), var(--white));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: var(--slate-400);
+            margin-top: 1rem;
+        }
+
+        /* Visualization containers */
+        .viz-container {
+            width: 100%;
+            height: 450px;
+            margin: 3rem 0;
+            position: relative;
+        }
+
+        canvas.viz-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            h1 { font-size: 3rem; }
+            h2 { font-size: 2rem; }
+            .comparison-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Auto-scroll controls */
+        .scroll-controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .speed-control {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .speed-button {
+            background: transparent;
+            border: 1px solid var(--slate-700);
+            color: var(--slate-400);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .speed-button:hover {
+            border-color: var(--rocky-green);
+            color: var(--rocky-green);
+        }
+
+        .speed-button.active {
+            background: var(--rocky-green);
+            border-color: var(--rocky-green);
+            color: var(--deep-black);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        #playPauseBtn {
+            background: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            color: var(--slate-200);
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #playPauseBtn:hover {
+            background: var(--rocky-green);
+            border-color: var(--rocky-green);
+            color: var(--deep-black);
+        }
+
+        #fadeToggleBtn {
+            background: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            color: var(--slate-200);
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #fadeToggleBtn:hover {
+            background: var(--inference-cyan);
+            border-color: var(--inference-cyan);
+            color: var(--deep-black);
+        }
+
+        #fadeToggleBtn.active {
+            background: var(--inference-cyan);
+            border-color: var(--inference-cyan);
+            color: var(--deep-black);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .progress-indicator {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--slate-700);
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: var(--rocky-green);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+        }
+    </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
+</head>
+<body>
+    <!-- Fixed backgrounds -->
+    <canvas class="particles-canvas" id="particles"></canvas>
+    <div class="grid-background"></div>
+    <div class="vignette"></div>
+
+    <!-- Title Slide -->
+    <section class="title-slide">
+        <div class="content-wrapper">
+            <div class="content">
+                <p class="section-label">THE INVISIBLE FOUNDATION</p>
+                <h1>Kernel-Level Security<br>Without the Performance Tax</h1>
+                <p class="subtitle">How RLC-H delivers both protection and speed through infrastructure optimization</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 1: The Weight -->
+    <section>
+        <div class="content-wrapper">
+            <div class="content">
+                <p class="section-label">01 / THE WEIGHT</p>
+                <h2>The Security Performance Penalty</h2>
+                <p class="lead-text">Traditional security adds overhead. More protection means slower throughput. The industry accepts this tradeoff.</p>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-panel problem">
+                        <div class="panel-label">Standard Approach</div>
+                        <h3>Layer Security On Top</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin: 1rem 0; color: var(--slate-400);">→ User-space agents monitoring every syscall</li>
+                            <li style="margin: 1rem 0; color: var(--slate-400);">→ Scanning overhead on every file access</li>
+                            <li style="margin: 1rem 0; color: var(--slate-400);">→ Network inspection reducing throughput</li>
+                            <li style="margin: 1rem 0; color: var(--slate-400);">→ 5-15% performance penalty accepted</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="comparison-panel solution">
+                        <div class="panel-label">What If</div>
+                        <h3>Security = Speed</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin: 1rem 0; color: var(--slate-400);">→ Protection at the kernel level</li>
+                            <li style="margin: 1rem 0; color: var(--slate-400);">→ Zero user-space overhead</li>
+                            <li style="margin: 1rem 0; color: var(--slate-400);">→ Optimized for inference workloads</li>
+                            <li style="margin: 1rem 0; color: var(--slate-400);">→ <span style="color: var(--rocky-green); font-weight: 600;">~2.5% overhead, 85% risk reduction</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="viz-container" id="viz1"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: The Kernel -->
+    <section>
+        <div class="content-wrapper">
+            <div class="content">
+                <p class="section-label">02 / THE KERNEL</p>
+                <h2>Where Security Should Live</h2>
+                
+                <p class="content-text">Most security solutions monitor from user space—watching processes, scanning files, inspecting network traffic. They see the <em>effects</em> of attacks, not the attacks themselves.</p>
+                
+                <p class="content-text"><strong>LKRG operates at Ring 0</strong> - the kernel itself. At this layer, you can detect tampering before it propagates. You can validate integrity without crossing privilege boundaries. You can stop exploits at the source.</p>
+
+                <div class="kernel-rings">
+                    <div class="ring ring-0">
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: var(--font-mono); font-size: 0.7rem; color: var(--white); font-weight: 600;">RING 0</div>
+                    </div>
+                    <div class="ring ring-3"></div>
+                    <div class="ring-label" style="top: 50%; left: 50%; transform: translate(-50%, -160px); color: var(--rocky-green); font-weight: 600;">LKRG</div>
+                    <div class="ring-label" style="top: 50%; left: 50%; transform: translate(-50%, 140px);">User Space (EDR)</div>
+                </div>
+
+                <div class="code-block">
+                    <div style="color: var(--slate-400);">// LKRG kernel module initialization</div>
+                    <div style="color: var(--inference-cyan);">lkrg_register</div>()<br>
+                    <div style="color: var(--slate-400);">  → Process integrity DB created</div><br>
+                    <div style="color: var(--slate-400);">  → Kernel structure hashes computed</div><br>
+                    <div style="color: var(--slate-400);">  → Exploit detection hooks installed</div><br>
+                    <div style="color: var(--slate-400);">  → Usermodehelper restrictions applied</div><br>
+                    <div style="margin-top: 1rem; color: var(--rocky-green);">Performance impact: ~2.5% CPU overhead</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: The Detection -->
+    <section>
+        <div class="content-wrapper">
+            <div class="content">
+                <p class="section-label">03 / THE DETECTION</p>
+                <h2>Four Layers of Continuous Validation</h2>
+                
+                <p class="content-text">LKRG doesn't trust that the system remains secure. It verifies continuously, checking integrity at every critical operation.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">🔍</div>
+                        <div class="feature-title">Process Integrity</div>
+                        <div class="feature-desc">Detects when executables delete themselves after forking—BPFDoor's signature pattern.</div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">🔐</div>
+                        <div class="feature-title">Kernel Structures</div>
+                        <div class="feature-desc">Maintains cryptographic hashes of kernel memory. BPF socket operations trigger validation.</div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <div class="feature-title">Exploit Detection</div>
+                        <div class="feature-desc">Monitors for privilege escalation attempts, catching credential tampering in real-time.</div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-icon">🛡️</div>
+                        <div class="feature-title">Usermodehelper</div>
+                        <div class="feature-desc">Restricts which programs can modify firewall rules from kernel space.</div>
+                    </div>
+                </div>
+
+                <div class="viz-container" id="viz3"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: The Flow -->
+    <section>
+        <div class="content-wrapper">
+            <div class="content">
+                <p class="section-label">04 / THE FLOW</p>
+                <h2>Integration Without Disruption</h2>
+                
+                <p class="content-text">Security shouldn't be a separate stack. LKRG integrates into your existing infrastructure, complementing EDR and SIEM without replacing them.</p>
+
+                <div style="margin: 3rem 0;">
+                    <h3>Data Flow Architecture</h3>
+                    
+                    <div style="background: rgba(30, 41, 59, 0.3); border: 1px solid var(--slate-700); border-radius: 8px; padding: 2rem; margin: 2rem 0;">
+                        <div style="display: flex; align-items: center; gap: 2rem; margin-bottom: 2rem;">
+                            <div style="flex: 1; text-align: center;">
+                                <div style="background: rgba(16, 185, 129, 0.2); border: 2px solid var(--rocky-green); border-radius: 8px; padding: 1.5rem;">
+                                    <div style="font-family: var(--font-mono); font-size: 1.2rem; color: var(--rocky-green); font-weight: 600;">LKRG</div>
+                                    <div style="font-size: 0.85rem; color: var(--slate-400); margin-top: 0.5rem;">Kernel Monitor</div>
+                                </div>
+                            </div>
+                            <div style="font-size: 2rem; color: var(--inference-cyan);">→</div>
+                            <div style="flex: 1; text-align: center;">
+                                <div style="background: rgba(139, 92, 246, 0.2); border: 2px solid #8B5CF6; border-radius: 8px; padding: 1.5rem;">
+                                    <div style="font-family: var(--font-mono); font-size: 1.2rem; color: #8B5CF6; font-weight: 600;">TLS SYSLOG</div>
+                                    <div style="font-size: 0.85rem; color: var(--slate-400); margin-top: 0.5rem;">Port 6514</div>
+                                </div>
+                            </div>
+                            <div style="font-size: 2rem; color: var(--inference-cyan);">→</div>
+                            <div style="flex: 1; text-align: center;">
+                                <div style="background: rgba(245, 158, 11, 0.2); border: 2px solid var(--gpu-amber); border-radius: 8px; padding: 1.5rem;">
+                                    <div style="font-family: var(--font-mono); font-size: 1.2rem; color: var(--gpu-amber); font-weight: 600;">SIEM</div>
+                                    <div style="font-size: 0.85rem; color: var(--slate-400); margin-top: 0.5rem;">Correlation</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 2rem;">
+                            <div style="display: inline-block; background: rgba(6, 182, 212, 0.2); border: 2px solid var(--inference-cyan); border-radius: 8px; padding: 1.5rem;">
+                                <div style="font-family: var(--font-mono); font-size: 1.2rem; color: var(--inference-cyan); font-weight: 600;">EDR</div>
+                                <div style="font-size: 0.85rem; color: var(--slate-400); margin-top: 0.5rem;">User Space</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="content-text" style="margin-top: 2rem;"><strong>Encrypted transmission:</strong> All alerts sent via TLS-encrypted syslog. No plaintext security events on the wire.</p>
+                    
+                    <p class="content-text"><strong>Standard formats:</strong> CEF/LEEF compatible. Drops directly into existing SIEM pipelines.</p>
+                </div>
+
+                <div class="viz-container" id="viz4"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 5: The Math -->
+    <section>
+        <div class="content-wrapper">
+            <div class="content">
+                <p class="section-label">05 / THE MATH</p>
+                <h2>Same Hardware. Different Results.</h2>
+                
+                <p class="lead-text">Infrastructure optimization isn't about adding features. It's about removing friction.</p>
+
+                <div class="metrics-row">
+                    <div class="metric-box">
+                        <div class="metric-value">~2.5%</div>
+                        <div class="metric-label">CPU Overhead</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">Seconds</div>
+                        <div class="metric-label">Detection Time</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">~85%</div>
+                        <div class="metric-label">Risk Reduction</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">95%+</div>
+                        <div class="metric-label">Cost Savings</div>
+                    </div>
+                </div>
+
+                <div style="margin: 3rem 0; padding: 2rem; background: rgba(16, 185, 129, 0.05); border-left: 4px solid var(--rocky-green); border-radius: 4px;">
+                    <h3 style="margin-top: 0;">Cost Impact: BPFDoor Breach</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                        <div>
+                            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--kernel-red); font-weight: 600; margin-bottom: 0.5rem;">STANDARD LINUX</div>
+                            <div style="color: var(--slate-400); font-size: 0.95rem; margin-bottom: 0.5rem;">Detection: Weeks to years (if ever)</div>
+                            <div style="color: var(--slate-400); font-size: 0.95rem; margin-bottom: 0.5rem;">Forensics: $16K-$24K</div>
+                            <div style="color: var(--slate-400); font-size: 0.95rem; margin-bottom: 0.5rem;">IR Firm: $50K-$150K</div>
+                            <div style="color: var(--slate-400); font-size: 0.95rem; margin-bottom: 0.5rem;">Remediation: $9K+</div>
+                            <div style="font-size: 1.3rem; color: var(--kernel-red); font-weight: 600; margin-top: 1rem;">$75K-$200K+ per incident</div>
+                        </div>
+                        
+                        <div>
+                            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--rocky-green); font-weight: 600; margin-bottom: 0.5rem;">RLC-H + LKRG</div>
+                            <div style="color: var(--slate-400); font-size: 0.95rem; margin-bottom: 0.5rem;">Detection: Seconds (automated)</div>
+                            <div style="color: var(--slate-400); font-size: 0.95rem; margin-bottom: 0.5rem;">Investigation: $300-$600</div>
+                            <div style="color: var(--slate-400); font-size: 0.95rem; margin-bottom: 0.5rem;">Verification: $150-$300</div>
+                            <div style="color: var(--slate-400); font-size: 0.95rem; margin-bottom: 0.5rem;">Prevented breach</div>
+                            <div style="font-size: 1.3rem; color: var(--rocky-green); font-weight: 600; margin-top: 1rem;">$450-$900 per detection</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="viz-container" id="viz5"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 6: The Philosophy -->
+    <section>
+        <div class="content-wrapper">
+            <div class="content">
+                <p class="section-label">06 / THE PHILOSOPHY</p>
+                <h2>Infrastructure That Gets Out of the Way</h2>
+                
+                <p class="lead-text">The best infrastructure is invisible. You shouldn't think about security. You shouldn't choose between protection and performance.</p>
+                
+                <p class="content-text">RLC-H doesn't add security as a layer on top. It rebuilds the foundation with security designed in—at the kernel level, where it belongs.</p>
+
+                <div class="code-block">
+                    <div style="color: var(--rocky-green); font-weight: 600; margin-bottom: 1rem;">$ lsmod | grep lkrg</div>
+                    <div>lkrg    245760  0</div>
+                    <div style="margin-top: 1rem; color: var(--slate-400);"># Running. Protecting. Transparent.</div>
+                    <div style="color: var(--slate-400);"># No application changes required.</div>
+                    <div style="color: var(--slate-400);"># No configuration overhead.</div>
+                    <div style="color: var(--slate-400);"># Just protection.</div>
+                </div>
+
+                <div style="margin: 3rem 0; text-align: center;">
+                    <h3>Design Principles</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem;">
+                        <div>
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">⚡</div>
+                            <div style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--rocky-green); font-weight: 600; margin-bottom: 0.5rem;">ZERO TRUST</div>
+                            <div style="color: var(--slate-400); font-size: 0.9rem;">Verify continuously, trust nothing</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+                            <div style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--rocky-green); font-weight: 600; margin-bottom: 0.5rem;">KERNEL FIRST</div>
+                            <div style="color: var(--slate-400); font-size: 0.9rem;">Detect at the source, not the symptom</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🔄</div>
+                            <div style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--rocky-green); font-weight: 600; margin-bottom: 0.5rem;">INVISIBLE</div>
+                            <div style="color: var(--slate-400); font-size: 0.9rem;">Performance without compromise</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 7: The Call -->
+    <section>
+        <div class="content-wrapper">
+            <div class="content">
+                <p class="section-label">07 / WHERE SECURITY HAPPENS</p>
+                <h2>RLC-H: The Foundation for AI Infrastructure</h2>
+                
+                <p class="lead-text">Modern AI workloads demand both security and performance. RLC-H delivers both through kernel-level optimization.</p>
+
+                <div class="metrics-row">
+                    <div class="metric-box">
+                        <div class="metric-value">LKRG</div>
+                        <div class="metric-label">Runtime Protection</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">DISA</div>
+                        <div class="metric-label">STIG Compliance</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">CIQ</div>
+                        <div class="metric-label">Enterprise Support</div>
+                    </div>
+                </div>
+
+                <div style="margin: 3rem 0; padding: 3rem; background: rgba(16, 185, 129, 0.1); border: 2px solid var(--rocky-green); border-radius: 8px; text-align: center;">
+                    <h3 style="margin-top: 0; font-size: 2rem;">Rocky Linux Hardened</h3>
+                    <p style="font-size: 1.2rem; color: var(--slate-200); margin: 1.5rem 0;">Enterprise Linux. Kernel-level security. Zero performance tax.</p>
+                    <div style="font-family: var(--font-mono); font-size: 1rem; color: var(--rocky-green); margin-top: 2rem;">ciq.com/products/rlc-hardened</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auto-scroll controls -->
+    <div class="scroll-controls">
+        <div class="speed-control">
+            <button class="speed-button" data-speed="0.5">0.5x</button>
+            <button class="speed-button active" data-speed="1">1x</button>
+            <button class="speed-button" data-speed="1.5">1.5x</button>
+            <button class="speed-button" data-speed="2">2x</button>
+        </div>
+        <div class="progress-indicator">
+            <div class="progress-dot active"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+            <div class="progress-dot"></div>
+        </div>
+        <button id="fadeToggleBtn">🌫️ Fade</button>
+        <button id="playPauseBtn">⏸ Auto</button>
+    </div>
+
+    <script>
+        // Particle system
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        const particles = [];
+        const particleCount = 100;
+        const maxDistance = 150;
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = 2;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            
+            draw() {
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.6)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+        
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            // Draw connections
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < maxDistance) {
+                        const opacity = (1 - distance / maxDistance) * 0.3;
+                        ctx.strokeStyle = `rgba(16, 185, 129, ${opacity})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            requestAnimationFrame(animateParticles);
+        }
+        
+        animateParticles();
+        
+        // Auto-scroll system
+        const sections = document.querySelectorAll('section');
+        const progressDots = document.querySelectorAll('.progress-dot');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const fadeToggleBtn = document.getElementById('fadeToggleBtn');
+        const speedButtons = document.querySelectorAll('.speed-button');
+        
+        let currentSection = 0;
+        let speedMultiplier = 1.0;
+        let isPlaying = true;
+        let isFadeEnabled = true;
+        let scrollInterval = null;
+        let resumeTimeout = null;
+        
+        const baseDuration = 35000; // 35 seconds at 1x
+        
+        function getSectionDuration() {
+            return (baseDuration / speedMultiplier) / sections.length;
+        }
+        
+        function scrollToSection(index) {
+            currentSection = index % sections.length;
+            sections[currentSection].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            updateProgressDots();
+        }
+        
+        function startAutoScroll() {
+            if (scrollInterval) clearInterval(scrollInterval);
+            scrollInterval = setInterval(() => {
+                scrollToSection(currentSection + 1);
+            }, getSectionDuration());
+        }
+        
+        function stopAutoScroll() {
+            if (scrollInterval) {
+                clearInterval(scrollInterval);
+                scrollInterval = null;
+            }
+        }
+        
+        function updateProgressDots() {
+            progressDots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSection);
+            });
+        }
+        
+        function pauseAndResumeAfterDelay() {
+            if (!isPlaying) return;
+            
+            stopAutoScroll();
+            if (resumeTimeout) clearTimeout(resumeTimeout);
+            
+            resumeTimeout = setTimeout(() => {
+                if (isPlaying) startAutoScroll();
+            }, 8000);
+        }
+        
+        // Speed control
+        speedButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                speedButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                speedMultiplier = parseFloat(btn.dataset.speed);
+                if (isPlaying) {
+                    stopAutoScroll();
+                    startAutoScroll();
+                }
+            });
+        });
+        
+        // Play/pause
+        playPauseBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                playPauseBtn.textContent = '⏸ Auto';
+                startAutoScroll();
+            } else {
+                playPauseBtn.textContent = '▶ Auto';
+                stopAutoScroll();
+            }
+        });
+        
+        // Fade toggle
+        fadeToggleBtn.addEventListener('click', () => {
+            isFadeEnabled = !isFadeEnabled;
+            fadeToggleBtn.classList.toggle('active', isFadeEnabled);
+            
+            if (!isFadeEnabled) {
+                // Reset all content to full opacity when fade is disabled
+                sections.forEach(section => {
+                    const content = section.querySelector('.content');
+                    if (content) {
+                        content.style.opacity = 1;
+                        content.style.transform = 'translateY(0)';
+                    }
+                });
+                fadeToggleBtn.textContent = '🌫️ Fade (Off)';
+            } else {
+                fadeToggleBtn.textContent = '🌫️ Fade';
+                // Immediately apply current fade state
+                updateViewportFades();
+            }
+        });
+        
+        // Pause on user interaction
+        window.addEventListener('wheel', pauseAndResumeAfterDelay);
+        window.addEventListener('touchstart', pauseAndResumeAfterDelay);
+        
+        // Viewport-based content fading
+        function updateViewportFades() {
+            if (!isFadeEnabled) return; // Skip fading if disabled
+            
+            sections.forEach(section => {
+                const content = section.querySelector('.content');
+                if (!content) return;
+                
+                const rect = section.getBoundingClientRect();
+                const windowHeight = window.innerHeight;
+                const elementCenter = rect.top + rect.height / 2;
+                const viewportCenter = windowHeight / 2;
+                const distanceFromCenter = Math.abs(elementCenter - viewportCenter);
+                const maxDistance = windowHeight / 2;
+                
+                let opacity = 1 - (distanceFromCenter / maxDistance);
+                opacity = Math.max(0.2, Math.min(1, opacity));
+                
+                // Smoothstep easing
+                opacity = opacity * opacity * (3 - 2 * opacity);
+                
+                content.style.opacity = opacity;
+                content.style.transform = `translateY(${(1 - opacity) * 20}px)`;
+            });
+        }
+        
+        function onScroll() {
+            requestAnimationFrame(updateViewportFades);
+        }
+        
+        window.addEventListener('scroll', onScroll);
+        updateViewportFades();
+        
+        // Start auto-scroll
+        startAutoScroll();
+        
+        // Canvas visualizations would go here (simplified for brevity)
+        // In production, these would be full animated visualizations
+        // matching the technical animations from the enhanced deck
+    </script>
+</body>
+</html>

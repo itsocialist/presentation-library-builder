@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MISSION BRIEFING: Bjorn Hovland</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --steel-dark: #0d1117;
+      --steel-mid: #161b22;
+      --steel-light: #21262d;
+      --steel-border: #30363d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+      --accent-orange: #e8904f;
+      --accent-blue: #4a90c4;
+      --accent-green: #2be099;
+      --accent-yellow: #f5c563;
+      --accent-red: #f85149;
+      --glass-bg: rgba(22, 27, 34, 0.9);
+      --glass-border: rgba(48, 54, 61, 0.6);
+    }
+
+    body {
+      font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+      background: var(--steel-dark);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Page container - 16:9 */
+    .page {
+      width: 100vw;
+      height: 56.25vw;
+      max-height: 100vh;
+      max-width: 177.78vh;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(145deg, #0a0e14 0%, #111921 50%, #0d1219 100%);
+    }
+
+    /* Canvas for particles */
+    .bg-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Gradient background */
+    .gradient-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(74, 144, 196, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(232, 144, 79, 0.08) 0%, transparent 50%);
+      animation: breathe 20s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* Scanlines */
+    .scanlines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0, 0, 0, 0.02) 3px,
+        rgba(0, 0, 0, 0.02) 6px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Content layer */
+    .content {
+      position: relative;
+      z-index: 10;
+      padding: 2.5%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Glass panel */
+    .glass-panel {
+      background: linear-gradient(135deg, var(--glass-bg), rgba(13, 17, 23, 0.95));
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    }
+
+    .glass-panel::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+      animation: glare 15s ease-in-out infinite;
+    }
+
+    @keyframes glare {
+      0%, 100% { left: -100%; }
+      50% { left: 150%; }
+    }
+
+    /* Header */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5% 2.5%;
+      margin-bottom: 2%;
+      border-left: 6px solid var(--accent-orange);
+    }
+
+    .mission-type {
+      font-size: 1.2vw;
+      letter-spacing: 4px;
+      color: var(--accent-orange);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .mission-title {
+      font-size: 3vw;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      text-shadow: 0 0 30px rgba(232, 144, 79, 0.4);
+    }
+
+    .header-right {
+      text-align: right;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .timestamp {
+      font-size: 1.2vw;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.5vw 1.2vw;
+      font-size: 1vw;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: rgba(232, 144, 79, 0.2);
+      border: 2px solid rgba(232, 144, 79, 0.5);
+      color: var(--accent-orange);
+      margin-top: 0.5vw;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(232, 144, 79, 0.3); }
+      50% { box-shadow: 0 0 25px rgba(232, 144, 79, 0.6); }
+    }
+
+    /* Main content area */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2%;
+    }
+
+    /* Level 1: Main navigation cards */
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5%;
+      flex: 1;
+    }
+
+    .nav-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 2vw;
+      text-align: center;
+      border: 2px solid var(--steel-border);
+    }
+
+    .nav-card:hover {
+      transform: scale(1.03);
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 30px rgba(74, 144, 196, 0.2);
+    }
+
+    .nav-card.active {
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 30px rgba(232, 144, 79, 0.3);
+    }
+
+    .nav-icon {
+      font-size: 4vw;
+      margin-bottom: 1vw;
+    }
+
+    .nav-title {
+      font-size: 1.8vw;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-primary);
+      margin-bottom: 0.5vw;
+    }
+
+    .nav-subtitle {
+      font-size: 1vw;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-card.talking .nav-icon { color: var(--accent-orange); }
+    .nav-card.timeline .nav-icon { color: var(--accent-blue); }
+    .nav-card.protocol .nav-icon { color: var(--accent-green); }
+    .nav-card.strategy .nav-icon { color: var(--accent-yellow); }
+
+    /* Quick stats bar */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1%;
+      padding: 1.5%;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1vw;
+      padding: 1vw;
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 4px solid var(--accent-blue);
+    }
+
+    .stat-value {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 2.5vw;
+      font-weight: 700;
+    }
+
+    .stat-value.orange { color: var(--accent-orange); }
+    .stat-value.green { color: var(--accent-green); }
+    .stat-value.blue { color: var(--accent-blue); }
+    .stat-value.yellow { color: var(--accent-yellow); }
+
+    .stat-label {
+      font-size: 1vw;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Footer */
+    .hud-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1% 2%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--steel-border);
+      font-family: 'Share Tech Mono', monospace;
+      margin-top: 1%;
+    }
+
+    .footer-item {
+      display: flex;
+      align-items: center;
+      gap: 1vw;
+    }
+
+    .footer-label {
+      font-size: 0.9vw;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .footer-value {
+      font-size: 1.1vw;
+      color: var(--accent-blue);
+    }
+
+    .footer-value.pulse {
+      color: var(--accent-orange);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* ========== LEVEL 2: Detail Panels ========== */
+    .level2-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 200;
+      padding: 3%;
+    }
+
+    .level2-overlay.visible {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .level2-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .level2-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 2%;
+      border-bottom: 2px solid var(--steel-border);
+      margin-bottom: 2%;
+    }
+
+    .level2-title {
+      font-size: 3vw;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+
+    .level2-title.orange { color: var(--accent-orange); }
+    .level2-title.blue { color: var(--accent-blue); }
+    .level2-title.green { color: var(--accent-green); }
+    .level2-title.yellow { color: var(--accent-yellow); }
+
+    .close-btn {
+      font-size: 3vw;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.2s ease;
+      padding: 0 1vw;
+    }
+
+    .close-btn:hover {
+      color: var(--accent-orange);
+    }
+
+    .level2-content {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Level 2 grids */
+    .l2-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 2%;
+      height: 100%;
+    }
+
+    .l2-grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.5%;
+      height: 100%;
+    }
+
+    .l2-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2%;
+      height: 100%;
+    }
+
+    /* Level 2 cards */
+    .l2-card {
+      background: var(--glass-bg);
+      border: 2px solid var(--steel-border);
+      padding: 2vw;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .l2-card:hover {
+      transform: scale(1.02);
+      border-color: var(--accent-blue);
+    }
+
+    .l2-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5vw;
+      padding-bottom: 1vw;
+      border-bottom: 1px solid var(--steel-border);
+    }
+
+    .l2-card-type {
+      font-size: 1vw;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .l2-card-type.opener { color: var(--accent-orange); }
+    .l2-card-type.pitch { color: var(--accent-blue); }
+    .l2-card-type.ask { color: var(--accent-green); }
+    .l2-card-type.fallback { color: var(--accent-yellow); }
+
+    .l2-card-hint {
+      font-size: 0.9vw;
+      color: var(--text-muted);
+    }
+
+    .l2-card-title {
+      font-size: 1.8vw;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .l2-card-preview {
+      font-size: 1.2vw;
+      color: var(--text-secondary);
+      margin-top: auto;
+      padding-top: 1vw;
+    }
+
+    /* Timeline cards */
+    .tl-card {
+      position: relative;
+      padding-left: 3vw;
+    }
+
+    .tl-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--accent-blue);
+    }
+
+    .tl-card.complete::before { background: var(--accent-green); }
+    .tl-card.active::before { 
+      background: var(--accent-orange); 
+      box-shadow: 0 0 15px rgba(232, 144, 79, 0.5);
+    }
+
+    .tl-date {
+      font-size: 1vw;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5vw;
+    }
+
+    .tl-title {
+      font-size: 1.6vw;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5vw;
+    }
+
+    .tl-detail {
+      font-size: 1.2vw;
+      color: var(--text-secondary);
+    }
+
+    /* Protocol boxes */
+    .protocol-box {
+      padding: 2vw;
+    }
+
+    .protocol-box.red {
+      border-left: 6px solid var(--accent-red);
+      background: rgba(248, 81, 73, 0.1);
+    }
+
+    .protocol-box.green {
+      border-left: 6px solid var(--accent-green);
+      background: rgba(43, 224, 153, 0.1);
+    }
+
+    .protocol-title {
+      font-size: 1.8vw;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 2vw;
+    }
+
+    .protocol-title.red { color: var(--accent-red); }
+    .protocol-title.green { color: var(--accent-green); }
+
+    .protocol-list {
+      list-style: none;
+    }
+
+    .protocol-list li {
+      font-size: 1.5vw;
+      color: var(--text-primary);
+      padding: 1vw 0;
+      padding-left: 2vw;
+      position: relative;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .protocol-list li:last-child {
+      border-bottom: none;
+    }
+
+    .protocol-list li::before {
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+      font-size: 1.5vw;
+    }
+
+    .protocol-box.red .protocol-list li::before {
+      content: '×';
+      color: var(--accent-red);
+    }
+
+    .protocol-box.green .protocol-list li::before {
+      content: '✓';
+      color: var(--accent-green);
+    }
+
+    /* Strategy grid */
+    .strategy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr;
+      gap: 2%;
+      height: 100%;
+    }
+
+    .strategy-priorities {
+      grid-column: 1 / 2;
+      grid-row: 1 / 3;
+    }
+
+    .strategy-arch {
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
+    }
+
+    .strategy-verify {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+    }
+
+    .priority-list {
+      list-style: none;
+    }
+
+    .priority-item {
+      display: flex;
+      align-items: center;
+      gap: 1.5vw;
+      padding: 1.5vw 0;
+      border-bottom: 1px solid var(--steel-border);
+    }
+
+    .priority-num {
+      width: 3vw;
+      height: 3vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(232, 144, 79, 0.3);
+      color: var(--accent-orange);
+      font-size: 1.5vw;
+      font-weight: 700;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .priority-text {
+      font-size: 1.5vw;
+      color: var(--text-primary);
+    }
+
+    .arch-box {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1vw;
+      line-height: 1.3;
+      color: var(--accent-blue);
+      white-space: pre;
+      padding: 1.5vw;
+      background: rgba(0, 0, 0, 0.4);
+      overflow: auto;
+    }
+
+    .verify-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1vw;
+    }
+
+    .verify-item {
+      padding: 1vw;
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    .verify-q {
+      font-size: 1vw;
+      color: var(--text-muted);
+      margin-bottom: 0.3vw;
+    }
+
+    .verify-a {
+      font-size: 1.2vw;
+      color: var(--accent-green);
+      font-weight: 500;
+    }
+
+    /* ========== LEVEL 3: Full Detail ========== */
+    .level3-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 300;
+      padding: 5%;
+      overflow-y: auto;
+    }
+
+    .level3-overlay.visible {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .level3-content {
+      max-width: 70vw;
+      max-height: 80vh;
+      background: var(--glass-bg);
+      border: 2px solid var(--accent-orange);
+      padding: 3vw;
+      position: relative;
+      overflow-y: auto;
+    }
+
+    .level3-close {
+      position: absolute;
+      top: 1.5vw;
+      right: 1.5vw;
+      font-size: 2.5vw;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .level3-close:hover {
+      color: var(--accent-orange);
+    }
+
+    .level3-type {
+      font-size: 1.2vw;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 1vw;
+    }
+
+    .level3-type.opener { color: var(--accent-orange); }
+    .level3-type.pitch { color: var(--accent-blue); }
+    .level3-type.ask { color: var(--accent-green); }
+    .level3-type.fallback { color: var(--accent-yellow); }
+
+    .level3-title {
+      font-size: 2.5vw;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2vw;
+      padding-bottom: 1.5vw;
+      border-bottom: 2px solid var(--steel-border);
+    }
+
+    .level3-script {
+      font-size: 1.8vw;
+      color: var(--text-primary);
+      line-height: 1.8;
+      font-style: italic;
+      padding: 2vw;
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 4px solid var(--accent-orange);
+      margin-bottom: 2vw;
+    }
+
+    .level3-note {
+      font-size: 1.4vw;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .level3-note strong {
+      color: var(--accent-blue);
+    }
+
+    /* Navigation hint */
+    .nav-hint {
+      position: fixed;
+      bottom: 2%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1vw;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      z-index: 50;
+    }
+
+    .nav-hint span {
+      color: var(--accent-blue);
+    }
+  </style>
+</head>
+<body>
+  <!-- LEVEL 1: Main Navigation -->
+  <div class="page" id="level1">
+    <div class="gradient-bg"></div>
+    <canvas class="bg-canvas" id="canvas1"></canvas>
+    <div class="scanlines"></div>
+    
+    <div class="content">
+      <div class="header-bar glass-panel">
+        <div class="header-left">
+          <div class="mission-type">Mission Briefing</div>
+          <div class="mission-title">Bjorn Hovland Call</div>
+        </div>
+        <div class="header-right">
+          <div class="timestamp">2026-01-04 // 17:00+</div>
+          <div class="status-badge">Execute Tonight</div>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <div class="nav-grid">
+          <div class="nav-card glass-panel talking" onclick="showLevel2('talking')">
+            <div class="nav-icon">💬</div>
+            <div class="nav-title">Talking Points</div>
+            <div class="nav-subtitle">4 Scripts Ready</div>
+          </div>
+          <div class="nav-card glass-panel timeline" onclick="showLevel2('timeline')">
+            <div class="nav-icon">📅</div>
+            <div class="nav-title">Timeline</div>
+            <div class="nav-subtitle">5 Touchpoints</div>
+          </div>
+          <div class="nav-card glass-panel protocol" onclick="showLevel2('protocol')">
+            <div class="nav-icon">⚡</div>
+            <div class="nav-title">Protocol</div>
+            <div class="nav-subtitle">Do's & Don'ts</div>
+          </div>
+          <div class="nav-card glass-panel strategy" onclick="showLevel2('strategy')">
+            <div class="nav-icon">🎯</div>
+            <div class="nav-title">Strategy</div>
+            <div class="nav-subtitle">Architecture & Verify</div>
+          </div>
+        </div>
+
+        <div class="stats-bar glass-panel">
+          <div class="stat-item">
+            <div class="stat-value blue">$800</div>
+            <div class="stat-label">Current $/Node</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value orange">$3K+</div>
+            <div class="stat-label">Target $/Node</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value yellow">15+</div>
+            <div class="stat-label">Initiatives Now</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value green">5-7</div>
+            <div class="stat-label">Target Focus</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-footer glass-panel">
+        <div class="footer-item">
+          <span class="footer-label">Style:</span>
+          <span class="footer-value">"BLUF or die. Ask first."</span>
+        </div>
+        <div class="footer-item">
+          <span class="footer-label">Mission:</span>
+          <span class="footer-value pulse">Demonstrate Leadership</span>
+        </div>
+      </div>
+    </div>
+    <div class="nav-hint">Click any card to expand • <span>ESC</span> to go back</div>
+  </div>
+
+  <!-- LEVEL 2: Talking Points -->
+  <div class="level2-overlay" id="talking-overlay">
+    <div class="level2-container">
+      <div class="level2-header">
+        <div class="level2-title orange">Talking Points</div>
+        <div class="close-btn" onclick="hideLevel2()">×</div>
+      </div>
+      <div class="level2-content">
+        <div class="l2-grid-4">
+          <div class="l2-card" onclick="showLevel3('opener')">
+            <div class="l2-card-header">
+              <span class="l2-card-type opener">Opening</span>
+              <span class="l2-card-hint">30 sec max →</span>
+            </div>
+            <div class="l2-card-title">"I want to walk you through H1 execution..."</div>
+            <div class="l2-card-preview">No preamble. State intent.</div>
+          </div>
+          <div class="l2-card" onclick="showLevel3('pitch')">
+            <div class="l2-card-header">
+              <span class="l2-card-type pitch">The Plan</span>
+              <span class="l2-card-hint">2-3 min →</span>
+            </div>
+            <div class="l2-card-title">"Three priorities: RLC-H GA, RLC-AI March, Stack GTM"</div>
+            <div class="l2-card-preview">Structured. Decisive.</div>
+          </div>
+          <div class="l2-card" onclick="showLevel3('ask')">
+            <div class="l2-card-header">
+              <span class="l2-card-type ask">The Ask</span>
+              <span class="l2-card-hint">Key moment →</span>
+            </div>
+            <div class="l2-card-title">"What decisions do you want to lock in Monday?"</div>
+            <div class="l2-card-preview">You drive the agenda.</div>
+          </div>
+          <div class="l2-card" onclick="showLevel3('fallback')">
+            <div class="l2-card-header">
+              <span class="l2-card-type fallback">Fallback</span>
+              <span class="l2-card-hint">If short on time →</span>
+            </div>
+            <div class="l2-card-title">"What do you need from me before Reno?"</div>
+            <div class="l2-card-preview">Minimum viable ask.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL 2: Timeline -->
+  <div class="level2-overlay" id="timeline-overlay">
+    <div class="level2-container">
+      <div class="level2-header">
+        <div class="level2-title blue">Communication Timeline</div>
+        <div class="close-btn" onclick="hideLevel2()">×</div>
+      </div>
+      <div class="level2-content">
+        <div class="l2-grid-5">
+          <div class="l2-card tl-card complete" onclick="showLevel3('tl1')">
+            <div class="tl-date">Dec 30</div>
+            <div class="tl-title">Strategy Intro</div>
+            <div class="tl-detail">Platform thesis, 3 PDFs</div>
+          </div>
+          <div class="l2-card tl-card complete" onclick="showLevel3('tl2')">
+            <div class="tl-date">Dec 31 AM</div>
+            <div class="tl-title">Bjorn Response</div>
+            <div class="tl-detail">"Aligns with my thinking"</div>
+          </div>
+          <div class="l2-card tl-card complete" onclick="showLevel3('tl3')">
+            <div class="tl-date">Dec 31 PM</div>
+            <div class="tl-title">Assets Sent</div>
+            <div class="tl-detail">"Directionally aligned"</div>
+          </div>
+          <div class="l2-card tl-card active" onclick="showLevel3('tl4')">
+            <div class="tl-date">Today</div>
+            <div class="tl-title">Call Window</div>
+            <div class="tl-detail">H1 doc consolidating</div>
+          </div>
+          <div class="l2-card tl-card" onclick="showLevel3('tl5')">
+            <div class="tl-date">Tomorrow 8AM</div>
+            <div class="tl-title">3-Way Call</div>
+            <div class="tl-detail">Brian + Brady + Bjorn</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL 2: Protocol -->
+  <div class="level2-overlay" id="protocol-overlay">
+    <div class="level2-container">
+      <div class="level2-header">
+        <div class="level2-title green">Communication Protocol</div>
+        <div class="close-btn" onclick="hideLevel2()">×</div>
+      </div>
+      <div class="level2-content">
+        <div class="l2-grid-2">
+          <div class="l2-card protocol-box red">
+            <div class="protocol-title red">⚠ Avoid These</div>
+            <ul class="protocol-list">
+              <li>Explanation before the ask</li>
+              <li>Too long, unnecessary detail</li>
+              <li>Burying the lead</li>
+              <li>Context before the ask</li>
+            </ul>
+          </div>
+          <div class="l2-card protocol-box green">
+            <div class="protocol-title green">✓ Do These</div>
+            <ul class="protocol-list">
+              <li>Ask/decision upfront</li>
+              <li>Minimal context only</li>
+              <li>Get straight to point</li>
+              <li>1-5 minutes max</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL 2: Strategy -->
+  <div class="level2-overlay" id="strategy-overlay">
+    <div class="level2-container">
+      <div class="level2-header">
+        <div class="level2-title yellow">Strategy Reference</div>
+        <div class="close-btn" onclick="hideLevel2()">×</div>
+      </div>
+      <div class="level2-content">
+        <div class="strategy-grid">
+          <div class="l2-card strategy-priorities">
+            <div class="l2-card-header">
+              <span class="l2-card-type fallback">Bjorn's Priorities</span>
+            </div>
+            <ul class="priority-list">
+              <li class="priority-item">
+                <span class="priority-num">1</span>
+                <span class="priority-text">Product strategy & execution</span>
+              </li>
+              <li class="priority-item">
+                <span class="priority-num">2</span>
+                <span class="priority-text">Key partnerships (NVIDIA)</span>
+              </li>
+              <li class="priority-item">
+                <span class="priority-num">3</span>
+                <span class="priority-text">Portfolio & roadmaps</span>
+              </li>
+              <li class="priority-item">
+                <span class="priority-num">4</span>
+                <span class="priority-text">Product-market fit</span>
+              </li>
+              <li class="priority-item">
+                <span class="priority-num">5</span>
+                <span class="priority-text">Customer outcomes</span>
+              </li>
+            </ul>
+          </div>
+          <div class="l2-card strategy-arch">
+            <div class="l2-card-header">
+              <span class="l2-card-type pitch">Architecture</span>
+            </div>
+            <div class="arch-box">     Portal (Control)
+           │
+    ┌──────┼──────┐
+    ▼      ▼      ▼
+Fuzzball Ascender Warewulf
+    └──────┼──────┘
+           ▼
+      Rocky Linux
+    (RLC-H │ RLC-AI)</div>
+          </div>
+          <div class="l2-card strategy-verify">
+            <div class="l2-card-header">
+              <span class="l2-card-type ask">Quick Verify</span>
+            </div>
+            <div class="verify-grid">
+              <div class="verify-item">
+                <div class="verify-q">Problem?</div>
+                <div class="verify-a">$800 commodity trap</div>
+              </div>
+              <div class="verify-item">
+                <div class="verify-q">Solution?</div>
+                <div class="verify-a">$3K+ platform stack</div>
+              </div>
+              <div class="verify-item">
+                <div class="verify-q">Launch?</div>
+                <div class="verify-a">Q2 2026 marketing</div>
+              </div>
+              <div class="verify-item">
+                <div class="verify-q">Revenue?</div>
+                <div class="verify-a">Y2-Y3 strategic</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEVEL 3: Full Detail Overlay -->
+  <div class="level3-overlay" id="level3-overlay">
+    <div class="level3-content">
+      <div class="level3-close" onclick="hideLevel3()">×</div>
+      <div class="level3-type" id="l3-type"></div>
+      <div class="level3-title" id="l3-title"></div>
+      <div class="level3-script" id="l3-script"></div>
+      <div class="level3-note" id="l3-note"></div>
+    </div>
+  </div>
+
+  <script>
+    // Level 3 content database
+    const level3Data = {
+      opener: {
+        type: 'opener',
+        title: 'Opening Script (30 seconds)',
+        script: '"I want to walk you through how I\'m thinking about H1 execution on the platform strategy — what ships, what gets cut, and what I need from you to make it work."',
+        note: '<strong>Why this works:</strong> No preamble. No asking permission. State intent, then deliver. This is exactly how Bjorn wants to receive information — you\'re demonstrating you understand his time constraints and communication style. You\'re leading, not requesting.'
+      },
+      pitch: {
+        type: 'pitch',
+        title: 'The Plan (2-3 minutes)',
+        script: '"Three priorities for H1:<br><br>1. <strong>RLC-H GA</strong> — foundation of the stack, compliance story<br>2. <strong>RLC-AI March</strong> — NVIDIA partnership, market timing<br>3. <strong>Stack narrative</strong> — unified GTM, consolidate from 15+ to 5-7 initiatives<br><br>What gets cut: Common Criteria, FIPS for now, scattered compliance work.<br><br>PMF test: 90 days. Align marketing and sales on stack message, measure conversion.<br><br>The PoC proves it\'s deployable. Now it\'s about execution."',
+        note: '<strong>Why this works:</strong> Structured. Decisive. Shows you\'ve already made the hard calls. This is leadership — you\'re not asking what to prioritize, you\'re presenting what you\'ve decided and asking for alignment.'
+      },
+      ask: {
+        type: 'ask',
+        title: 'The Ask',
+        script: '"For Monday\'s call — what decisions do you want to lock in? I want to come prepared to drive toward resolution, not just discussion."',
+        note: '<strong>Why this works:</strong> Positions you as the one driving the agenda. You\'re not asking what to do — you\'re asking what decisions HE needs so YOU can execute. Subtle but critical framing. This is how leaders talk to executives.'
+      },
+      fallback: {
+        type: 'fallback',
+        title: 'Fallback (If Short on Time)',
+        script: '"What do you need from me before Reno to get the platform strategy into the H1 plan?"',
+        note: '<strong>Why this works:</strong> Minimum viable ask. If the call gets cut short or he\'s distracted, this one question gets you the path forward. It also surfaces whether the H1 plan is still open or already locked. Gets you actionable next steps no matter what.'
+      },
+      tl1: {
+        type: 'pitch',
+        title: 'Dec 30: Strategy Introduction',
+        script: 'You sent the platform thesis — bundled stack approach, platform-layer value capture, container strategy. Three PDFs attached: CIQ Cloud Platform Stack Architecture, Competitive Analysis, Deployment Models. Promised an executive brief to follow.',
+        note: '<strong>What you established:</strong> You initiated this direction. You brought the strategic thinking. The paper trail starts here — this is your work.'
+      },
+      tl2: {
+        type: 'ask',
+        title: 'Dec 31 AM: Bjorn Response',
+        script: '"This aligns with some things I\'ve been noodling on. Let\'s discuss Friday."',
+        note: '<strong>Signal:</strong> Strong alignment. He\'s been thinking about this independently — your strategy resonated with his own direction. This is buy-in at the directional level. He wanted to discuss further, which means he sees value.'
+      },
+      tl3: {
+        type: 'opener',
+        title: 'Dec 31 PM: Assets Delivered',
+        script: 'You sent CIQ Secure Stack mockups, RLC-H "Protected by Default" visual, RLC-AI "Optimized kernel" visual. His response: "Glad to hear you are directionally aligned." He asked about Fuzzball — you confirmed it\'s key to the stack story.',
+        note: '<strong>What this means:</strong> He\'s engaged with the details. He\'s asking clarifying questions. This is active interest, not passive acknowledgment. You\'ve established yourself as the source of this strategic direction.'
+      },
+      tl4: {
+        type: 'fallback',
+        title: 'Today: Pre-Call Window',
+        script: 'Bjorn is consolidating the H1 doc right now. He shared it at 11:52 AM and asked for review. He needs your metrics for Initiative 4. "Please comment rather than edit." His flights got messed up — he\'s available tonight or tomorrow.',
+        note: '<strong>Action required:</strong> Add your metrics for Initiative 4 in the doc. Tonight\'s call is your window to establish ownership before the 3-way tomorrow. This is the moment to demonstrate leadership — present your plan, not ask for direction.'
+      },
+      tl5: {
+        type: 'pitch',
+        title: 'Tomorrow 8AM: 3-Way Call',
+        script: 'Brian + Brady + Bjorn. Reno prep alignment. This is where the H1 plan gets finalized before Bjorn goes to Reno.',
+        note: '<strong>Why tonight matters:</strong> If you establish your role and ownership with Bjorn tonight, you walk into the 3-way with clear positioning. If you don\'t, the 3-way becomes a negotiation about who owns what. Set the frame before the meeting.'
+      }
+    };
+
+    // Navigation functions
+    function showLevel2(panel) {
+      document.querySelectorAll('.level2-overlay').forEach(el => el.classList.remove('visible'));
+      document.getElementById(panel + '-overlay').classList.add('visible');
+    }
+
+    function hideLevel2() {
+      document.querySelectorAll('.level2-overlay').forEach(el => el.classList.remove('visible'));
+    }
+
+    function showLevel3(key) {
+      const data = level3Data[key];
+      if (data) {
+        document.getElementById('l3-type').textContent = data.type.toUpperCase();
+        document.getElementById('l3-type').className = 'level3-type ' + data.type;
+        document.getElementById('l3-title').textContent = data.title;
+        document.getElementById('l3-script').innerHTML = data.script;
+        document.getElementById('l3-note').innerHTML = data.note;
+        document.getElementById('level3-overlay').classList.add('visible');
+      }
+    }
+
+    function hideLevel3() {
+      document.getElementById('level3-overlay').classList.remove('visible');
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (document.getElementById('level3-overlay').classList.contains('visible')) {
+          hideLevel3();
+        } else {
+          hideLevel2();
+        }
+      }
+    });
+
+    // Particle system
+    function initCanvas(canvasId) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      const particles = [];
+      const particleCount = 40;
+
+      function resize() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+      }
+
+      resize();
+      window.addEventListener('resize', resize);
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.2,
+          vy: (Math.random() - 0.5) * 0.2,
+          radius: Math.random() * 2 + 1
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach((p, i) => {
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+          if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(74, 144, 196, 0.3)';
+          ctx.fill();
+
+          for (let j = i + 1; j < particles.length; j++) {
+            const p2 = particles[j];
+            const dx = p.x - p2.x;
+            const dy = p.y - p2.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 120) {
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.strokeStyle = `rgba(74, 144, 196, ${0.1 * (1 - dist / 120)})`;
+              ctx.stroke();
+            }
+          }
+        });
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+    }
+
+    initCanvas('canvas1');
+  </script>
+</body>
+</html>
