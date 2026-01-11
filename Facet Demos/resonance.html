@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>resonance</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background: #030305;
+      min-height: 100vh;
+      overflow-x: hidden;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      color: rgba(200, 185, 170, 0.9);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: pan-y;
+    }
+    
+    canvas#universe {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    .chapter {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15vh 8vw;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1.5s ease, transform 1.5s ease;
+    }
+    
+    .chapter.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .text {
+      font-size: clamp(15px, 4vw, 22px);
+      font-weight: 300;
+      letter-spacing: 0.08em;
+      line-height: 2.2;
+      text-align: center;
+      max-width: 600px;
+    }
+    
+    .text.hero {
+      font-size: clamp(28px, 7vw, 56px);
+      letter-spacing: 0.15em;
+      line-height: 1.4;
+      text-shadow: 0 0 60px rgba(180, 160, 140, 0.2);
+    }
+    
+    .text.whisper {
+      font-size: clamp(11px, 2.5vw, 14px);
+      opacity: 0.5;
+      letter-spacing: 0.2em;
+      font-style: italic;
+    }
+    
+    .text.data {
+      font-size: clamp(12px, 2.8vw, 16px);
+      font-family: monospace;
+      opacity: 0.7;
+      letter-spacing: 0.05em;
+      line-height: 1.8;
+    }
+    
+    .interactive-zone {
+      width: 80vw;
+      max-width: 400px;
+      height: 50vh;
+      max-height: 400px;
+      position: relative;
+      margin: 30px 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(30, 25, 35, 0.5) 0%, transparent 70%);
+    }
+    
+    .oscillator {
+      position: absolute;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: box-shadow 0.3s ease;
+    }
+    
+    .fingerprint-container {
+      width: 200px;
+      height: 200px;
+      margin: 30px auto;
+      position: relative;
+    }
+    
+    #progress-line {
+      position: fixed;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2px;
+      height: 60vh;
+      background: rgba(100, 90, 85, 0.2);
+      z-index: 100;
+    }
+    
+    #progress-fill {
+      width: 100%;
+      background: rgba(200, 170, 150, 0.6);
+      transition: height 0.3s ease;
+    }
+    
+    .instruction {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      letter-spacing: 3px;
+      opacity: 0.4;
+      z-index: 100;
+      text-align: center;
+    }
+    
+    .pulse {
+      animation: pulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+    }
+    
+    .breathe {
+      animation: breathe 4s ease-in-out infinite;
+    }
+    
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .sync-indicator {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(100, 90, 85, 0.3);
+      z-index: 100;
+      transition: all 0.5s ease;
+    }
+    
+    .sync-indicator.synced {
+      background: rgba(220, 180, 140, 0.8);
+      box-shadow: 0 0 20px rgba(220, 180, 140, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="universe"></canvas>
+  <div id="progress-line"><div id="progress-fill"></div></div>
+  <div class="sync-indicator" id="sync-dot"></div>
+  
+  <!-- Chapter 0: Opening -->
+  <div class="chapter" id="c0">
+    <div class="text hero">every brain<br>has a fingerprint</div>
+  </div>
+  
+  <!-- Chapter 1: Fingerprints -->
+  <div class="chapter" id="c1">
+    <div class="text">connectivity patterns<br>so unique<br><br>they can identify you<br>among thousands<br><br>with near-perfect accuracy</div>
+    <canvas class="fingerprint-container" id="fingerprint1"></canvas>
+    <div class="text whisper">yours is forming now</div>
+  </div>
+  
+  <!-- Chapter 2: Touch to reveal -->
+  <div class="chapter" id="c2">
+    <div class="text">touch the screen<br><br>feel your pattern emerge</div>
+    <div class="interactive-zone" id="touch-zone-1">
+      <canvas id="touch-canvas-1"></canvas>
+    </div>
+    <div class="text whisper">each touch point<br>a node in your network</div>
+  </div>
+  
+  <!-- Chapter 3: Oscillators -->
+  <div class="chapter" id="c3">
+    <div class="text hero">similar frequencies<br>find each other</div>
+  </div>
+  
+  <!-- Chapter 4: Kuramoto -->
+  <div class="chapter" id="c4">
+    <div class="text">the kuramoto model<br><br>when coupling is strong enough<br>oscillators with similar frequencies<br>lock together<br><br>those too different<br>drift apart</div>
+    <div class="text data" style="margin-top: 30px;">
+      dθᵢ/dt = ωᵢ + (K/N) Σ sin(θⱼ - θᵢ)
+    </div>
+  </div>
+  
+  <!-- Chapter 5: Interactive oscillators -->
+  <div class="chapter" id="c5">
+    <div class="text">tilt your phone<br><br>watch them couple</div>
+    <div class="interactive-zone" id="oscillator-zone">
+      <canvas id="oscillator-canvas"></canvas>
+    </div>
+    <div class="text whisper">similar ones synchronize<br>different ones drift</div>
+  </div>
+  
+  <!-- Chapter 6: Friends -->
+  <div class="chapter" id="c6">
+    <div class="text hero">friends share<br>neural responses</div>
+  </div>
+  
+  <!-- Chapter 7: The data -->
+  <div class="chapter" id="c7">
+    <div class="text">emotional responding<br>directing attention<br>high-level reasoning<br><br>all more similar<br>between friends<br><br>than strangers</div>
+  </div>
+  
+  <!-- Chapter 8: Prediction -->
+  <div class="chapter" id="c8">
+    <div class="text">neural similarity<br>predicts friendship<br><br><span class="whisper">before they even meet</span><br><br>those who became close<br>had been more similar<br>all along</div>
+  </div>
+  
+  <!-- Chapter 9: Two brains interactive -->
+  <div class="chapter" id="c9">
+    <div class="text">touch with two fingers<br><br>create two brains</div>
+    <div class="interactive-zone" id="dual-zone">
+      <canvas id="dual-canvas"></canvas>
+    </div>
+    <div class="text whisper">watch them find each other<br>or drift apart</div>
+  </div>
+  
+  <!-- Chapter 10: Intelligence -->
+  <div class="chapter" id="c10">
+    <div class="text hero">efficiency<br>leaves a signature</div>
+  </div>
+  
+  <!-- Chapter 11: Neural efficiency -->
+  <div class="chapter" id="c11">
+    <div class="text">higher intelligence<br>greater cooperation<br>between brain regions<br><br>more efficient networks<br>less noise<br>clearer signal</div>
+  </div>
+  
+  <!-- Chapter 12: Trait matching -->
+  <div class="chapter" id="c12">
+    <div class="text">people with similar traits<br>synchronize more strongly<br><br>not despite their differences<br>but within their similarities<br><br>the social interaction<br>mismatch hypothesis</div>
+  </div>
+  
+  <!-- Chapter 13: The coupling requirement -->
+  <div class="chapter" id="c13">
+    <div class="text hero">but there's a catch</div>
+  </div>
+  
+  <!-- Chapter 14: Coupling -->
+  <div class="chapter" id="c14">
+    <div class="text">without coupling<br>even identical oscillators<br>don't synchronize<br><br>something must connect them<br><br>conversation<br>shared experience<br>shared attention<br><br>the coupling term<br>cannot be zero</div>
+  </div>
+  
+  <!-- Chapter 15: Tuning fork -->
+  <div class="chapter" id="c15">
+    <div class="text">similar brains<br>are like tuning forks<br>of the same frequency<br><br>they <em>can</em> resonate<br>more readily<br><br>but you still need<br>to strike one<br>for the other to vibrate</div>
+  </div>
+  
+  <!-- Chapter 16: Strike -->
+  <div class="chapter" id="c16">
+    <div class="text">tap the screen<br><br>strike the fork</div>
+    <div class="interactive-zone" id="fork-zone">
+      <canvas id="fork-canvas"></canvas>
+    </div>
+  </div>
+  
+  <!-- Chapter 17: The synthesis -->
+  <div class="chapter" id="c17">
+    <div class="text hero">what we know</div>
+  </div>
+  
+  <!-- Chapter 18: Summary points -->
+  <div class="chapter" id="c18">
+    <div class="text">
+      similar brains exist<br>
+      <span class="whisper">verified by fingerprints</span><br><br>
+      similar brains sync easier<br>
+      <span class="whisper">predicted by physics</span><br><br>
+      similar brains find each other<br>
+      <span class="whisper">friendship before meeting</span><br><br>
+      but coupling is required<br>
+      <span class="whisper">connection is the catalyst</span>
+    </div>
+  </div>
+  
+  <!-- Chapter 19: Final -->
+  <div class="chapter" id="c19">
+    <div class="text hero breathe">you are<br>a frequency<br><br>waiting<br>to resonate</div>
+  </div>
+  
+  <!-- Chapter 20: Closing -->
+  <div class="chapter" id="c20">
+    <div class="text whisper" style="opacity: 0.3;">
+      hold your phone still<br><br>
+      feel it vibrate<br><br>
+      that's your frequency<br>
+      reaching out
+    </div>
+  </div>
+  
+  <div class="instruction" id="instruction">scroll</div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Audio context
+    let audioCtx = null;
+    
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+    
+    function playTone(freq, duration, volume = 0.1, type = 'sine') {
+      const ctx = initAudio();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.value = volume;
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + duration);
+    }
+    
+    function playChord(freqs, duration, volume = 0.05) {
+      freqs.forEach(f => playTone(f, duration, volume));
+    }
+    
+    // Vibration
+    function vibrate(pattern) {
+      if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+      }
+    }
+    
+    // Three.js universe background
+    const canvas = document.getElementById('universe');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 100;
+    
+    // Neural network particles
+    const neuronCount = 1500;
+    const neuronGeometry = new THREE.BufferGeometry();
+    const neuronPositions = new Float32Array(neuronCount * 3);
+    const neuronColors = new Float32Array(neuronCount * 3);
+    const neuronPhases = [];
+    const neuronFreqs = [];
+    
+    for (let i = 0; i < neuronCount; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const r = 30 + Math.random() * 50;
+      
+      neuronPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      neuronPositions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      neuronPositions[i * 3 + 2] = r * Math.cos(phi);
+      
+      const brightness = 0.3 + Math.random() * 0.4;
+      neuronColors[i * 3] = brightness;
+      neuronColors[i * 3 + 1] = brightness * 0.85;
+      neuronColors[i * 3 + 2] = brightness * 0.7;
+      
+      neuronPhases.push(Math.random() * Math.PI * 2);
+      neuronFreqs.push(0.5 + Math.random() * 1.5);
+    }
+    
+    neuronGeometry.setAttribute('position', new THREE.BufferAttribute(neuronPositions, 3));
+    neuronGeometry.setAttribute('color', new THREE.BufferAttribute(neuronColors, 3));
+    
+    const neuronMaterial = new THREE.PointsMaterial({
+      size: 1.5,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.6,
+      blending: THREE.AdditiveBlending
+    });
+    
+    const neurons = new THREE.Points(neuronGeometry, neuronMaterial);
+    scene.add(neurons);
+    
+    // Connection lines
+    const lineCount = 200;
+    const lineMaterial = new THREE.LineBasicMaterial({ 
+      color: 0x4a4540,
+      transparent: true,
+      opacity: 0.15
+    });
+    
+    const lines = [];
+    for (let i = 0; i < lineCount; i++) {
+      const geometry = new THREE.BufferGeometry();
+      const idx1 = Math.floor(Math.random() * neuronCount);
+      const idx2 = Math.floor(Math.random() * neuronCount);
+      
+      const positions = new Float32Array([
+        neuronPositions[idx1 * 3], neuronPositions[idx1 * 3 + 1], neuronPositions[idx1 * 3 + 2],
+        neuronPositions[idx2 * 3], neuronPositions[idx2 * 3 + 1], neuronPositions[idx2 * 3 + 2]
+      ]);
+      
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const line = new THREE.Line(geometry, lineMaterial.clone());
+      lines.push({ line, idx1, idx2 });
+      scene.add(line);
+    }
+    
+    // Device motion
+    let deviceTilt = { x: 0, y: 0 };
+    let motionPermission = false;
+    
+    async function requestMotion() {
+      if (typeof DeviceOrientationEvent !== 'undefined' && 
+          typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+          const permission = await DeviceOrientationEvent.requestPermission();
+          motionPermission = permission === 'granted';
+        } catch (e) {
+          motionPermission = false;
+        }
+      } else {
+        motionPermission = true;
+      }
+      
+      if (motionPermission) {
+        window.addEventListener('deviceorientation', (e) => {
+          deviceTilt.x = (e.gamma || 0) / 45;
+          deviceTilt.y = (e.beta || 0) / 45;
+        });
+      }
+    }
+    
+    // Chapters and scroll
+    const chapters = document.querySelectorAll('.chapter');
+    const progressFill = document.getElementById('progress-fill');
+    const instruction = document.getElementById('instruction');
+    const syncDot = document.getElementById('sync-dot');
+    
+    let currentChapter = 0;
+    let scrollY = 0;
+    let targetScroll = 0;
+    let globalSync = 0;
+    
+    function updateChapters() {
+      const chapterHeight = window.innerHeight;
+      const newChapter = Math.floor(targetScroll / chapterHeight);
+      
+      chapters.forEach((ch, i) => {
+        const distance = Math.abs(i - (targetScroll / chapterHeight));
+        if (distance < 1) {
+          ch.classList.add('visible');
+        } else {
+          ch.classList.remove('visible');
+        }
+      });
+      
+      if (newChapter !== currentChapter && newChapter >= 0 && newChapter < chapters.length) {
+        currentChapter = newChapter;
+        
+        // Sound on chapter change
+        const freq = 150 + currentChapter * 30;
+        playTone(freq, 0.3, 0.05);
+        vibrate(30);
+        
+        // Update instruction
+        const instructions = {
+          2: 'touch to create',
+          5: 'tilt to couple',
+          9: 'two fingers',
+          16: 'tap to strike',
+          20: 'be still'
+        };
+        instruction.textContent = instructions[currentChapter] || '';
+      }
+      
+      // Progress
+      const progress = targetScroll / ((chapters.length - 1) * chapterHeight);
+      progressFill.style.height = (progress * 100) + '%';
+    }
+    
+    // Scroll handling
+    window.addEventListener('wheel', (e) => {
+      targetScroll = Math.max(0, Math.min(
+        targetScroll + e.deltaY,
+        (chapters.length - 1) * window.innerHeight
+      ));
+      updateChapters();
+    }, { passive: true });
+    
+    let lastTouchY = 0;
+    window.addEventListener('touchstart', (e) => {
+      lastTouchY = e.touches[0].clientY;
+      requestMotion();
+      initAudio();
+    }, { passive: true });
+    
+    window.addEventListener('touchmove', (e) => {
+      const deltaY = lastTouchY - e.touches[0].clientY;
+      lastTouchY = e.touches[0].clientY;
+      targetScroll = Math.max(0, Math.min(
+        targetScroll + deltaY * 1.5,
+        (chapters.length - 1) * window.innerHeight
+      ));
+      updateChapters();
+    }, { passive: true });
+    
+    // Interactive canvases
+    
+    // Fingerprint canvas
+    const fpCanvas = document.getElementById('fingerprint1');
+    if (fpCanvas) {
+      fpCanvas.width = 200;
+      fpCanvas.height = 200;
+      const fpCtx = fpCanvas.getContext('2d');
+      
+      let fpPhase = 0;
+      function drawFingerprint() {
+        fpCtx.fillStyle = 'rgba(3, 3, 5, 0.1)';
+        fpCtx.fillRect(0, 0, 200, 200);
+        
+        fpPhase += 0.02;
+        
+        const cx = 100, cy = 100;
+        
+        for (let ring = 0; ring < 12; ring++) {
+          fpCtx.beginPath();
+          const r = 15 + ring * 7;
+          
+          for (let a = 0; a <= Math.PI * 2; a += 0.05) {
+            const wobble = Math.sin(a * (3 + ring % 4) + fpPhase + ring) * (3 + ring * 0.5);
+            const px = cx + Math.cos(a) * (r + wobble);
+            const py = cy + Math.sin(a) * (r + wobble);
+            
+            if (a === 0) fpCtx.moveTo(px, py);
+            else fpCtx.lineTo(px, py);
+          }
+          
+          fpCtx.strokeStyle = `rgba(180, 160, 140, ${0.15 - ring * 0.01})`;
+          fpCtx.lineWidth = 1;
+          fpCtx.stroke();
+        }
+        
+        requestAnimationFrame(drawFingerprint);
+      }
+      drawFingerprint();
+    }
+    
+    // Touch zone 1 - network creation
+    const touchCanvas1 = document.getElementById('touch-canvas-1');
+    if (touchCanvas1) {
+      const zone1 = document.getElementById('touch-zone-1');
+      touchCanvas1.width = zone1.offsetWidth;
+      touchCanvas1.height = zone1.offsetHeight;
+      touchCanvas1.style.width = '100%';
+      touchCanvas1.style.height = '100%';
+      touchCanvas1.style.position = 'absolute';
+      touchCanvas1.style.top = '0';
+      touchCanvas1.style.left = '0';
+      
+      const tc1Ctx = touchCanvas1.getContext('2d');
+      const nodes1 = [];
+      
+      zone1.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const rect = zone1.getBoundingClientRect();
+        for (let touch of e.touches) {
+          const x = touch.clientX - rect.left;
+          const y = touch.clientY - rect.top;
+          nodes1.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2,
+            life: 1,
+            freq: 0.5 + Math.random()
+          });
+          playTone(200 + Math.random() * 200, 0.2, 0.05);
+          vibrate(15);
+        }
+      });
+      
+      zone1.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const rect = zone1.getBoundingClientRect();
+        for (let touch of e.touches) {
+          const x = touch.clientX - rect.left;
+          const y = touch.clientY - rect.top;
+          if (Math.random() < 0.3) {
+            nodes1.push({
+              x, y,
+              vx: (Math.random() - 0.5) * 3,
+              vy: (Math.random() - 0.5) * 3,
+              life: 1,
+              freq: 0.5 + Math.random()
+            });
+          }
+        }
+      });
+      
+      function drawTouchZone1() {
+        tc1Ctx.fillStyle = 'rgba(3, 3, 5, 0.08)';
+        tc1Ctx.fillRect(0, 0, touchCanvas1.width, touchCanvas1.height);
+        
+        // Update nodes
+        nodes1.forEach(n => {
+          n.x += n.vx;
+          n.y += n.vy;
+          n.vx *= 0.98;
+          n.vy *= 0.98;
+          n.life -= 0.003;
+        });
+        
+        // Draw connections
+        for (let i = 0; i < nodes1.length; i++) {
+          for (let j = i + 1; j < nodes1.length; j++) {
+            const dx = nodes1[i].x - nodes1[j].x;
+            const dy = nodes1[i].y - nodes1[j].y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            
+            if (d < 100) {
+              tc1Ctx.beginPath();
+              tc1Ctx.moveTo(nodes1[i].x, nodes1[i].y);
+              tc1Ctx.lineTo(nodes1[j].x, nodes1[j].y);
+              tc1Ctx.strokeStyle = `rgba(180, 160, 140, ${(1 - d / 100) * Math.min(nodes1[i].life, nodes1[j].life) * 0.3})`;
+              tc1Ctx.stroke();
+            }
+          }
+        }
+        
+        // Draw nodes
+        nodes1.forEach(n => {
+          if (n.life > 0) {
+            tc1Ctx.beginPath();
+            tc1Ctx.arc(n.x, n.y, 4 * n.life, 0, Math.PI * 2);
+            tc1Ctx.fillStyle = `rgba(200, 180, 160, ${n.life * 0.8})`;
+            tc1Ctx.fill();
+          }
+        });
+        
+        // Remove dead nodes
+        while (nodes1.length > 0 && nodes1[0].life <= 0) nodes1.shift();
+        
+        requestAnimationFrame(drawTouchZone1);
+      }
+      drawTouchZone1();
+    }
+    
+    // Oscillator zone - tilt controlled
+    const oscCanvas = document.getElementById('oscillator-canvas');
+    if (oscCanvas) {
+      const zone = document.getElementById('oscillator-zone');
+      oscCanvas.width = zone.offsetWidth;
+      oscCanvas.height = zone.offsetHeight;
+      oscCanvas.style.width = '100%';
+      oscCanvas.style.height = '100%';
+      oscCanvas.style.position = 'absolute';
+      oscCanvas.style.top = '0';
+      oscCanvas.style.left = '0';
+      
+      const oscCtx = oscCanvas.getContext('2d');
+      
+      // Create oscillators with different natural frequencies
+      const oscillators = [];
+      for (let i = 0; i < 20; i++) {
+        const freq = 0.3 + Math.random() * 1.7; // Natural frequency
+        oscillators.push({
+          x: Math.random() * oscCanvas.width,
+          y: Math.random() * oscCanvas.height,
+          phase: Math.random() * Math.PI * 2,
+          naturalFreq: freq,
+          freq: freq,
+          radius: 8 + freq * 8,
+          hue: freq * 30 // Color by frequency
+        });
+      }
+      
+      function drawOscillators() {
+        oscCtx.fillStyle = 'rgba(3, 3, 5, 0.1)';
+        oscCtx.fillRect(0, 0, oscCanvas.width, oscCanvas.height);
+        
+        // Coupling strength from tilt
+        const K = (Math.abs(deviceTilt.x) + Math.abs(deviceTilt.y)) * 2;
+        
+        // Kuramoto model update
+        oscillators.forEach((osc, i) => {
+          let coupling = 0;
+          oscillators.forEach((other, j) => {
+            if (i !== j) {
+              const freqDiff = Math.abs(osc.naturalFreq - other.naturalFreq);
+              if (freqDiff < 0.5) { // Only similar frequencies couple
+                coupling += Math.sin(other.phase - osc.phase) * K * (0.5 - freqDiff);
+              }
+            }
+          });
+          
+          osc.phase += osc.naturalFreq * 0.05 + coupling * 0.01;
+          
+          // Visual pulse
+          const pulse = Math.sin(osc.phase) * 0.3 + 0.7;
+          
+          oscCtx.beginPath();
+          oscCtx.arc(osc.x, osc.y, osc.radius * pulse, 0, Math.PI * 2);
+          
+          const brightness = 50 + pulse * 30;
+          oscCtx.fillStyle = `hsla(${30 + osc.hue}, 40%, ${brightness}%, ${0.5 + pulse * 0.3})`;
+          oscCtx.fill();
+          
+          // Glow when coupled
+          if (K > 0.5) {
+            oscCtx.beginPath();
+            oscCtx.arc(osc.x, osc.y, osc.radius * pulse * 1.5, 0, Math.PI * 2);
+            oscCtx.fillStyle = `hsla(${30 + osc.hue}, 40%, 60%, ${K * 0.1})`;
+            oscCtx.fill();
+          }
+        });
+        
+        // Draw connections between synced oscillators
+        for (let i = 0; i < oscillators.length; i++) {
+          for (let j = i + 1; j < oscillators.length; j++) {
+            const phaseDiff = Math.abs(Math.sin(oscillators[i].phase - oscillators[j].phase));
+            const freqDiff = Math.abs(oscillators[i].naturalFreq - oscillators[j].naturalFreq);
+            
+            if (phaseDiff < 0.3 && freqDiff < 0.4 && K > 0.3) {
+              oscCtx.beginPath();
+              oscCtx.moveTo(oscillators[i].x, oscillators[i].y);
+              oscCtx.lineTo(oscillators[j].x, oscillators[j].y);
+              oscCtx.strokeStyle = `rgba(200, 170, 150, ${(1 - phaseDiff) * K * 0.3})`;
+              oscCtx.lineWidth = 1;
+              oscCtx.stroke();
+            }
+          }
+        }
+        
+        // Update global sync indicator
+        let syncSum = 0;
+        oscillators.forEach(o => syncSum += Math.sin(o.phase));
+        globalSync = Math.abs(syncSum / oscillators.length);
+        
+        if (globalSync > 0.7) {
+          syncDot.classList.add('synced');
+        } else {
+          syncDot.classList.remove('synced');
+        }
+        
+        requestAnimationFrame(drawOscillators);
+      }
+      drawOscillators();
+    }
+    
+    // Dual brain zone
+    const dualCanvas = document.getElementById('dual-canvas');
+    if (dualCanvas) {
+      const zone = document.getElementById('dual-zone');
+      dualCanvas.width = zone.offsetWidth;
+      dualCanvas.height = zone.offsetHeight;
+      dualCanvas.style.width = '100%';
+      dualCanvas.style.height = '100%';
+      dualCanvas.style.position = 'absolute';
+      dualCanvas.style.top = '0';
+      dualCanvas.style.left = '0';
+      
+      const dualCtx = dualCanvas.getContext('2d');
+      
+      let brains = [];
+      
+      zone.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        brains = [];
+        const rect = zone.getBoundingClientRect();
+        
+        for (let i = 0; i < Math.min(e.touches.length, 2); i++) {
+          const touch = e.touches[i];
+          brains.push({
+            x: touch.clientX - rect.left,
+            y: touch.clientY - rect.top,
+            freq: 0.5 + (touch.clientX - rect.left) / zone.offsetWidth, // Freq based on x position
+            phase: 0,
+            nodes: []
+          });
+          
+          // Create nodes for this brain
+          for (let j = 0; j < 30; j++) {
+            const angle = Math.random() * Math.PI * 2;
+            const r = Math.random() * 50;
+            brains[i].nodes.push({
+              ox: Math.cos(angle) * r,
+              oy: Math.sin(angle) * r,
+              phase: Math.random() * Math.PI * 2
+            });
+          }
+        }
+        
+        if (brains.length === 2) {
+          playChord([200, 250], 0.5, 0.03);
+          vibrate([20, 30, 20]);
+        }
+      });
+      
+      zone.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const rect = zone.getBoundingClientRect();
+        
+        for (let i = 0; i < Math.min(e.touches.length, brains.length); i++) {
+          brains[i].x = e.touches[i].clientX - rect.left;
+          brains[i].y = e.touches[i].clientY - rect.top;
+          brains[i].freq = 0.5 + brains[i].x / zone.offsetWidth;
+        }
+      });
+      
+      zone.addEventListener('touchend', () => {
+        brains = [];
+      });
+      
+      function drawDualBrains() {
+        dualCtx.fillStyle = 'rgba(3, 3, 5, 0.1)';
+        dualCtx.fillRect(0, 0, dualCanvas.width, dualCanvas.height);
+        
+        if (brains.length === 2) {
+          // Check frequency similarity
+          const freqDiff = Math.abs(brains[0].freq - brains[1].freq);
+          const similar = freqDiff < 0.3;
+          
+          // Coupling
+          if (similar) {
+            const coupling = (0.3 - freqDiff) * 0.1;
+            brains[0].phase += coupling * Math.sin(brains[1].phase - brains[0].phase);
+            brains[1].phase += coupling * Math.sin(brains[0].phase - brains[1].phase);
+          }
+          
+          // Draw connection if synced
+          const phaseDiff = Math.abs(Math.sin(brains[0].phase - brains[1].phase));
+          if (similar && phaseDiff < 0.5) {
+            dualCtx.beginPath();
+            dualCtx.moveTo(brains[0].x, brains[0].y);
+            dualCtx.lineTo(brains[1].x, brains[1].y);
+            dualCtx.strokeStyle = `rgba(220, 180, 140, ${(1 - phaseDiff) * 0.5})`;
+            dualCtx.lineWidth = 2;
+            dualCtx.stroke();
+            
+            // Particles along connection
+            for (let i = 0; i < 5; i++) {
+              const t = (Date.now() * 0.001 + i * 0.2) % 1;
+              const px = brains[0].x + (brains[1].x - brains[0].x) * t;
+              const py = brains[0].y + (brains[1].y - brains[0].y) * t;
+              
+              dualCtx.beginPath();
+              dualCtx.arc(px, py, 3, 0, Math.PI * 2);
+              dualCtx.fillStyle = `rgba(220, 180, 140, ${0.5 - Math.abs(t - 0.5)})`;
+              dualCtx.fill();
+            }
+          }
+        }
+        
+        // Draw each brain
+        brains.forEach((brain, bi) => {
+          brain.phase += brain.freq * 0.05;
+          
+          const pulse = Math.sin(brain.phase) * 0.2 + 0.8;
+          
+          // Draw nodes
+          brain.nodes.forEach(node => {
+            node.phase += brain.freq * 0.03;
+            const np = Math.sin(node.phase) * 0.3 + 0.7;
+            
+            const nx = brain.x + node.ox * pulse;
+            const ny = brain.y + node.oy * pulse;
+            
+            dualCtx.beginPath();
+            dualCtx.arc(nx, ny, 2 * np, 0, Math.PI * 2);
+            dualCtx.fillStyle = `rgba(180, 160, 140, ${np * 0.6})`;
+            dualCtx.fill();
+          });
+          
+          // Draw center
+          dualCtx.beginPath();
+          dualCtx.arc(brain.x, brain.y, 15 * pulse, 0, Math.PI * 2);
+          
+          const gradient = dualCtx.createRadialGradient(
+            brain.x, brain.y, 0,
+            brain.x, brain.y, 15 * pulse
+          );
+          gradient.addColorStop(0, `rgba(200, 170, 150, ${pulse * 0.6})`);
+          gradient.addColorStop(1, 'rgba(100, 85, 80, 0)');
+          dualCtx.fillStyle = gradient;
+          dualCtx.fill();
+        });
+        
+        requestAnimationFrame(drawDualBrains);
+      }
+      drawDualBrains();
+    }
+    
+    // Tuning fork zone
+    const forkCanvas = document.getElementById('fork-canvas');
+    if (forkCanvas) {
+      const zone = document.getElementById('fork-zone');
+      forkCanvas.width = zone.offsetWidth;
+      forkCanvas.height = zone.offsetHeight;
+      forkCanvas.style.width = '100%';
+      forkCanvas.style.height = '100%';
+      forkCanvas.style.position = 'absolute';
+      forkCanvas.style.top = '0';
+      forkCanvas.style.left = '0';
+      
+      const forkCtx = forkCanvas.getContext('2d');
+      
+      const forks = [
+        { x: forkCanvas.width * 0.3, y: forkCanvas.height * 0.5, freq: 440, amplitude: 0, phase: 0 },
+        { x: forkCanvas.width * 0.7, y: forkCanvas.height * 0.5, freq: 440, amplitude: 0, phase: 0 }
+      ];
+      
+      zone.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const rect = zone.getBoundingClientRect();
+        const tx = e.touches[0].clientX - rect.left;
+        
+        // Strike nearest fork
+        const fork = tx < forkCanvas.width / 2 ? forks[0] : forks[1];
+        fork.amplitude = 1;
+        
+        playTone(fork.freq, 2, 0.1);
+        vibrate([50, 30, 50]);
+      });
+      
+      function drawForks() {
+        forkCtx.fillStyle = 'rgba(3, 3, 5, 0.08)';
+        forkCtx.fillRect(0, 0, forkCanvas.width, forkCanvas.height);
+        
+        // Resonance transfer
+        if (forks[0].amplitude > 0.1) {
+          forks[1].amplitude += forks[0].amplitude * 0.002;
+          forks[1].phase = forks[0].phase + 0.1; // Slight phase lag
+        }
+        if (forks[1].amplitude > 0.1) {
+          forks[0].amplitude += forks[1].amplitude * 0.002;
+        }
+        
+        forks.forEach((fork, i) => {
+          fork.phase += 0.2;
+          fork.amplitude *= 0.995;
+          
+          const vibration = Math.sin(fork.phase) * fork.amplitude * 20;
+          
+          // Draw fork shape
+          forkCtx.save();
+          forkCtx.translate(fork.x, fork.y);
+          
+          // Prongs
+          forkCtx.beginPath();
+          forkCtx.moveTo(-15 + vibration * 0.5, -60);
+          forkCtx.lineTo(-15 + vibration * 0.5, 0);
+          forkCtx.moveTo(15 - vibration * 0.5, -60);
+          forkCtx.lineTo(15 - vibration * 0.5, 0);
+          // Handle
+          forkCtx.moveTo(0, 0);
+          forkCtx.lineTo(0, 60);
+          
+          forkCtx.strokeStyle = `rgba(180, 160, 140, ${0.4 + fork.amplitude * 0.5})`;
+          forkCtx.lineWidth = 3;
+          forkCtx.lineCap = 'round';
+          forkCtx.stroke();
+          
+          // Vibration waves
+          if (fork.amplitude > 0.1) {
+            for (let r = 0; r < 3; r++) {
+              const radius = 30 + r * 25 + fork.phase * 3 % 75;
+              forkCtx.beginPath();
+              forkCtx.arc(0, -30, radius, 0, Math.PI * 2);
+              forkCtx.strokeStyle = `rgba(200, 170, 150, ${fork.amplitude * (1 - radius / 100) * 0.3})`;
+              forkCtx.lineWidth = 1;
+              forkCtx.stroke();
+            }
+          }
+          
+          forkCtx.restore();
+        });
+        
+        // Connection when both vibrating
+        if (forks[0].amplitude > 0.1 && forks[1].amplitude > 0.1) {
+          const midY = forkCanvas.height / 2 - 30;
+          
+          // Wave between them
+          forkCtx.beginPath();
+          forkCtx.moveTo(forks[0].x, midY);
+          
+          for (let x = forks[0].x; x <= forks[1].x; x += 5) {
+            const progress = (x - forks[0].x) / (forks[1].x - forks[0].x);
+            const wave = Math.sin(progress * Math.PI * 4 + forks[0].phase) * 10 * Math.min(forks[0].amplitude, forks[1].amplitude);
+            forkCtx.lineTo(x, midY + wave);
+          }
+          
+          forkCtx.strokeStyle = `rgba(220, 180, 140, ${Math.min(forks[0].amplitude, forks[1].amplitude) * 0.4})`;
+          forkCtx.lineWidth = 1;
+          forkCtx.stroke();
+        }
+        
+        requestAnimationFrame(drawForks);
+      }
+      drawForks();
+    }
+    
+    // Final chapter - vibration meditation
+    let meditationActive = false;
+    
+    function startMeditation() {
+      if (meditationActive) return;
+      meditationActive = true;
+      
+      // Slow, rhythmic vibration
+      function pulse() {
+        if (currentChapter === 20 && meditationActive) {
+          vibrate([100, 200, 100, 200, 100]);
+          playTone(60, 2, 0.03);
+          setTimeout(pulse, 4000);
+        }
+      }
+      pulse();
+    }
+    
+    // Animation loop
+    let time = 0;
+    
+    function animate() {
+      requestAnimationFrame(animate);
+      time += 0.01;
+      
+      // Smooth scroll
+      scrollY += (targetScroll - scrollY) * 0.1;
+      
+      // Update neurons
+      const positions = neuronGeometry.attributes.position.array;
+      for (let i = 0; i < neuronCount; i++) {
+        neuronPhases[i] += neuronFreqs[i] * 0.01;
+        
+        // Breathing
+        const breathe = Math.sin(neuronPhases[i]) * 2;
+        positions[i * 3 + 1] += Math.sin(time + i * 0.01) * 0.05;
+      }
+      neuronGeometry.attributes.position.needsUpdate = true;
+      
+      // Camera
+      camera.position.x = deviceTilt.x * 20 + Math.sin(time * 0.2) * 5;
+      camera.position.y = deviceTilt.y * 15 + Math.cos(time * 0.15) * 3;
+      camera.rotation.z = Math.sin(time * 0.1) * 0.02;
+      
+      neurons.rotation.y = time * 0.05 + scrollY * 0.0001;
+      
+      // Line opacity based on sync
+      lines.forEach(l => {
+        l.line.material.opacity = 0.1 + globalSync * 0.2;
+      });
+      
+      // Check for meditation chapter
+      if (currentChapter === 20) {
+        startMeditation();
+      } else {
+        meditationActive = false;
+      }
+      
+      renderer.render(scene, camera);
+    }
+    
+    // Initialize
+    chapters[0].classList.add('visible');
+    animate();
+    
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

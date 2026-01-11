@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>still</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background: #050507;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      color: rgba(180, 165, 150, 0.8);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+      user-select: none;
+    }
+    
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+    
+    #prompt {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(16px, 5vw, 24px);
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      text-align: center;
+      line-height: 2;
+      opacity: 0;
+      transition: opacity 2s ease;
+      pointer-events: none;
+      max-width: 80vw;
+    }
+    
+    #prompt.visible {
+      opacity: 1;
+    }
+    
+    #prompt.fade {
+      opacity: 0;
+    }
+    
+    #prompt.whisper {
+      font-size: clamp(12px, 3vw, 16px);
+      opacity: 0.5;
+      font-style: italic;
+    }
+    
+    #breath-guide {
+      position: fixed;
+      bottom: 10vh;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 1px solid rgba(150, 135, 120, 0.2);
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    
+    #breath-guide.visible {
+      opacity: 1;
+    }
+    
+    #breath-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(180, 160, 140, 0.3);
+    }
+    
+    #tap-counter {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    
+    #session-end {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 2s ease;
+      pointer-events: none;
+      z-index: 100;
+      background: rgba(5, 5, 7, 0.95);
+    }
+    
+    #session-end.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    #session-end .stat {
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      margin: 10px 0;
+      opacity: 0.6;
+    }
+    
+    #session-end .insight {
+      font-size: 18px;
+      letter-spacing: 0.1em;
+      margin: 30px 0;
+      text-align: center;
+      max-width: 80vw;
+      line-height: 1.8;
+    }
+    
+    #restart {
+      margin-top: 40px;
+      padding: 15px 40px;
+      background: transparent;
+      border: 1px solid rgba(150, 135, 120, 0.3);
+      color: rgba(180, 165, 150, 0.7);
+      font-family: inherit;
+      font-size: 14px;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    #restart:hover {
+      border-color: rgba(180, 165, 150, 0.5);
+      color: rgba(200, 185, 170, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="field"></canvas>
+  <div id="prompt"></div>
+  <div id="breath-guide"><div id="breath-inner"></div></div>
+  <div id="tap-counter"></div>
+  
+  <div id="session-end">
+    <div class="stat" id="stat-taps"></div>
+    <div class="stat" id="stat-stillness"></div>
+    <div class="stat" id="stat-breath"></div>
+    <div class="insight" id="insight"></div>
+    <button id="restart">again</button>
+  </div>
+  
+  <script>
+    const canvas = document.getElementById('field');
+    const ctx = canvas.getContext('2d');
+    const prompt = document.getElementById('prompt');
+    const breathGuide = document.getElementById('breath-guide');
+    const breathInner = document.getElementById('breath-inner');
+    const tapCounter = document.getElementById('tap-counter');
+    const sessionEnd = document.getElementById('session-end');
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    // Audio
+    let audioCtx = null;
+    
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+    
+    function playTone(freq, duration, volume = 0.05, type = 'sine') {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.value = volume;
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+    
+    function playBowl(freq = 180) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      osc2.type = 'sine';
+      osc2.frequency.value = freq * 2.01; // Slight detune for shimmer
+      
+      gain.gain.value = 0.08;
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
+      
+      osc.connect(gain);
+      osc2.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.start();
+      osc2.start();
+      osc.stop(audioCtx.currentTime + 4);
+      osc2.stop(audioCtx.currentTime + 4);
+    }
+    
+    function vibrate(pattern) {
+      if (navigator.vibrate) navigator.vibrate(pattern);
+    }
+    
+    // State
+    let phase = 0; // 0=waiting, 1=noticing, 2=breath, 3=touch, 4=release, 5=deep, 6=end
+    let t = 0;
+    let stillnessTimer = 0;
+    let lastActivity = Date.now();
+    let taps = [];
+    let totalTaps = 0;
+    let longestStillness = 0;
+    let currentStillness = 0;
+    let breathCycles = 0;
+    let breathPhase = 0;
+    let breathSynced = false;
+    let touchPoints = [];
+    let releaseObjects = [];
+    let sessionStarted = false;
+    let sessionDuration = 0;
+    let phaseStartTime = 0;
+    
+    // Particles - ambient presence
+    const particles = [];
+    for (let i = 0; i < 100; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: 1 + Math.random() * 2,
+        speed: 0.1 + Math.random() * 0.3,
+        phase: Math.random() * Math.PI * 2,
+        brightness: 0
+      });
+    }
+    
+    // Prompts for each phase
+    const prompts = {
+      0: { text: "be still", delay: 0 },
+      
+      // Phase 1: Noticing impatience
+      "1a": { text: "notice the urge to act", delay: 3000 },
+      "1b": { text: "don't fight it", delay: 8000 },
+      "1c": { text: "just notice", delay: 13000 },
+      
+      // Phase 2: Breath
+      "2a": { text: "find your breath", delay: 2000 },
+      "2b": { text: "let the circle guide you", delay: 6000 },
+      "2c": { text: "inhale", delay: 10000, breath: 'in' },
+      "2d": { text: "exhale", delay: 14000, breath: 'out' },
+      
+      // Phase 3: Touch awareness
+      "3a": { text: "now, touch the screen", delay: 2000 },
+      "3b": { text: "watch what appears", delay: 6000 },
+      "3c": { text: "notice how it responds to you", delay: 12000 },
+      "3d": { text: "notice what you want from it", delay: 18000 },
+      
+      // Phase 4: Letting go
+      "4a": { text: "now hold something", delay: 2000 },
+      "4b": { text: "watch it slip away", delay: 7000 },
+      "4c": { text: "you cannot keep it", delay: 12000 },
+      "4d": { text: "that's okay", delay: 17000 },
+      
+      // Phase 5: Deep stillness
+      "5a": { text: "return to stillness", delay: 2000 },
+      "5b": { text: "there is nothing to do", delay: 10000 },
+      "5c": { text: "nowhere to go", delay: 18000 },
+      "5d": { text: "just this", delay: 26000 },
+      "5e": { text: "", delay: 35000 }, // Silent
+      
+      // Phase 6: Closing
+      "6a": { text: "gently", delay: 2000 },
+      "6b": { text: "when you're ready", delay: 6000 },
+      "6c": { text: "return", delay: 10000 }
+    };
+    
+    let shownPrompts = new Set();
+    let promptQueue = [];
+    
+    function showPrompt(text, isWhisper = false) {
+      prompt.className = isWhisper ? 'whisper' : '';
+      prompt.textContent = text;
+      prompt.classList.add('visible');
+      prompt.classList.remove('fade');
+      
+      if (text) {
+        setTimeout(() => {
+          prompt.classList.add('fade');
+          prompt.classList.remove('visible');
+        }, 4000);
+      }
+    }
+    
+    function checkPrompts() {
+      const elapsed = Date.now() - phaseStartTime;
+      
+      Object.entries(prompts).forEach(([key, data]) => {
+        if (key.startsWith(phase.toString()) && !shownPrompts.has(key)) {
+          if (elapsed >= data.delay) {
+            shownPrompts.add(key);
+            showPrompt(data.text, data.whisper);
+            
+            if (data.breath === 'in') {
+              // Guide inhale
+            } else if (data.breath === 'out') {
+              // Guide exhale
+            }
+          }
+        }
+      });
+    }
+    
+    function transitionPhase(newPhase) {
+      phase = newPhase;
+      phaseStartTime = Date.now();
+      
+      // Clear prompts for new phase
+      shownPrompts = new Set([...shownPrompts].filter(k => !k.startsWith(newPhase.toString())));
+      
+      if (newPhase === 2) {
+        breathGuide.classList.add('visible');
+        playBowl(180);
+        vibrate(100);
+      } else if (newPhase === 3) {
+        breathGuide.classList.remove('visible');
+      } else if (newPhase === 4) {
+        playBowl(200);
+      } else if (newPhase === 5) {
+        playBowl(160);
+        vibrate([50, 100, 50]);
+      } else if (newPhase === 6) {
+        playBowl(220);
+        setTimeout(endSession, 15000);
+      }
+    }
+    
+    // Input handling
+    function recordTap(x, y) {
+      taps.push({ x, y, time: Date.now(), phase });
+      totalTaps++;
+      lastActivity = Date.now();
+      currentStillness = 0;
+      
+      // Visual feedback based on phase
+      if (phase === 0 || phase === 1) {
+        // In stillness phases, taps create ripples of "disturbance"
+        createDisturbance(x, y);
+        playTone(100 + Math.random() * 50, 0.3, 0.02);
+      } else if (phase === 3) {
+        // Touch exploration phase
+        createTouchResponse(x, y);
+        playTone(200 + (y / canvas.height) * 200, 0.5, 0.04);
+        vibrate(15);
+      } else if (phase === 4) {
+        // Release phase - create something that will slip away
+        createReleaseObject(x, y);
+        playTone(250, 0.3, 0.05);
+        vibrate(30);
+      }
+      
+      // Update tap counter display in early phases
+      if (phase <= 1 && totalTaps > 2) {
+        tapCounter.style.opacity = '0.4';
+        tapCounter.textContent = `${totalTaps} taps`;
+      }
+    }
+    
+    function createDisturbance(x, y) {
+      // Ripple that shows "you broke the stillness"
+      for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2;
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * 2,
+          vy: Math.sin(angle) * 2,
+          size: 2,
+          speed: 0,
+          phase: 0,
+          brightness: 0.8,
+          life: 1,
+          isDisturbance: true
+        });
+      }
+    }
+    
+    function createTouchResponse(x, y) {
+      // In touch phase - things that respond to you
+      touchPoints.push({
+        x, y,
+        targetX: x,
+        targetY: y,
+        size: 5,
+        life: 1,
+        phase: 0,
+        following: true
+      });
+    }
+    
+    function createReleaseObject(x, y) {
+      // Something you hold that will slip away
+      releaseObjects.push({
+        x, y,
+        originX: x,
+        originY: y,
+        held: true,
+        holdTime: Date.now(),
+        size: 30,
+        life: 1,
+        drift: { x: (Math.random() - 0.5) * 0.5, y: -0.3 - Math.random() * 0.3 }
+      });
+    }
+    
+    // Touch events
+    let activeTouches = {};
+    
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      initAudio();
+      sessionStarted = true;
+      
+      for (let touch of e.changedTouches) {
+        activeTouches[touch.identifier] = { x: touch.clientX, y: touch.clientY };
+        recordTap(touch.clientX, touch.clientY);
+      }
+    });
+    
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      lastActivity = Date.now();
+      currentStillness = 0;
+      
+      for (let touch of e.changedTouches) {
+        const prev = activeTouches[touch.identifier];
+        if (prev) {
+          // Update touch points in phase 3
+          if (phase === 3) {
+            touchPoints.forEach(tp => {
+              if (tp.following) {
+                tp.targetX = touch.clientX;
+                tp.targetY = touch.clientY;
+              }
+            });
+          }
+          
+          // Hold release objects in phase 4
+          if (phase === 4) {
+            releaseObjects.forEach(ro => {
+              if (ro.held) {
+                const dist = Math.sqrt((ro.x - touch.clientX) ** 2 + (ro.y - touch.clientY) ** 2);
+                if (dist < 50) {
+                  ro.x = touch.clientX;
+                  ro.y = touch.clientY;
+                  ro.holdTime = Date.now();
+                }
+              }
+            });
+          }
+          
+          activeTouches[touch.identifier] = { x: touch.clientX, y: touch.clientY };
+        }
+      }
+    });
+    
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      
+      for (let touch of e.changedTouches) {
+        delete activeTouches[touch.identifier];
+      }
+      
+      // Release objects when touch ends
+      if (phase === 4) {
+        releaseObjects.forEach(ro => {
+          if (ro.held) {
+            ro.held = false;
+            playTone(150, 1, 0.03);
+          }
+        });
+      }
+      
+      // Stop following in phase 3
+      if (phase === 3) {
+        touchPoints.forEach(tp => tp.following = false);
+      }
+    });
+    
+    // Phase progression logic
+    function updatePhaseLogic() {
+      const now = Date.now();
+      
+      // Track stillness
+      if (Object.keys(activeTouches).length === 0) {
+        currentStillness = now - lastActivity;
+        if (currentStillness > longestStillness) {
+          longestStillness = currentStillness;
+        }
+      }
+      
+      // Phase 0 → 1: After first interaction
+      if (phase === 0 && totalTaps > 0) {
+        transitionPhase(1);
+      }
+      
+      // Phase 1 → 2: After enough stillness (or enough taps showing impatience)
+      if (phase === 1) {
+        if (currentStillness > 15000 || (totalTaps > 10 && currentStillness > 5000)) {
+          transitionPhase(2);
+        }
+      }
+      
+      // Phase 2 → 3: After breath cycles
+      if (phase === 2 && breathCycles >= 4) {
+        transitionPhase(3);
+      }
+      
+      // Phase 3 → 4: After touch exploration time
+      if (phase === 3 && (now - phaseStartTime > 25000)) {
+        transitionPhase(4);
+      }
+      
+      // Phase 4 → 5: After release lesson
+      if (phase === 4 && (now - phaseStartTime > 25000)) {
+        transitionPhase(5);
+      }
+      
+      // Phase 5 → 6: After deep stillness
+      if (phase === 5 && (now - phaseStartTime > 45000)) {
+        transitionPhase(6);
+      }
+    }
+    
+    function endSession() {
+      sessionDuration = Date.now() - (sessionStarted ? taps[0]?.time || Date.now() : Date.now());
+      
+      // Calculate insights
+      const avgTapInterval = taps.length > 1 
+        ? (taps[taps.length - 1].time - taps[0].time) / (taps.length - 1)
+        : 0;
+      
+      const earlyTaps = taps.filter(t => t.phase <= 1).length;
+      const restlessnessScore = earlyTaps / Math.max(1, (longestStillness / 1000));
+      
+      document.getElementById('stat-taps').textContent = 
+        `${totalTaps} moments of reaching`;
+      document.getElementById('stat-stillness').textContent = 
+        `${Math.floor(longestStillness / 1000)} seconds of longest stillness`;
+      document.getElementById('stat-breath').textContent = 
+        `${breathCycles} breath cycles`;
+      
+      // Personalized insight based on behavior
+      let insight = "";
+      
+      if (earlyTaps > 15) {
+        insight = "your mind moves quickly.\n\nthe stillness was hard.\n\nthat's information, not failure.";
+      } else if (earlyTaps > 8) {
+        insight = "you noticed the urge to act.\n\nand sometimes you followed it.\n\nboth are part of the practice.";
+      } else if (longestStillness > 30000) {
+        insight = "you found stillness easily.\n\nthe quiet was familiar.\n\ncarry it with you.";
+      } else {
+        insight = "you showed up.\n\nyou stayed.\n\nthat is the whole practice.";
+      }
+      
+      document.getElementById('insight').textContent = insight;
+      
+      sessionEnd.classList.add('visible');
+      playBowl(140);
+      vibrate([100, 100, 100]);
+    }
+    
+    document.getElementById('restart').addEventListener('click', () => {
+      location.reload();
+    });
+    
+    // Breath animation
+    function updateBreath() {
+      if (phase !== 2) return;
+      
+      breathPhase += 0.015; // ~4 second cycle
+      
+      const breathProgress = (Math.sin(breathPhase) + 1) / 2;
+      const size = 15 + breathProgress * 30;
+      
+      breathInner.style.width = size + 'px';
+      breathInner.style.height = size + 'px';
+      
+      // Count breath cycles
+      if (breathPhase > Math.PI * 2) {
+        breathPhase -= Math.PI * 2;
+        breathCycles++;
+        vibrate(30);
+        playTone(180, 0.5, 0.02);
+      }
+    }
+    
+    // Main render loop
+    function draw() {
+      t++;
+      
+      // Update logic
+      updatePhaseLogic();
+      checkPrompts();
+      updateBreath();
+      
+      // Clear with slight persistence
+      ctx.fillStyle = 'rgba(5, 5, 7, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw based on phase
+      drawParticles();
+      
+      if (phase >= 3) {
+        drawTouchPoints();
+      }
+      
+      if (phase >= 4) {
+        drawReleaseObjects();
+      }
+      
+      // Center presence - grows with stillness
+      if (phase >= 1 && phase < 6) {
+        drawCenterPresence();
+      }
+      
+      requestAnimationFrame(draw);
+    }
+    
+    function drawParticles() {
+      // Target brightness based on stillness
+      const stillnessFactor = Math.min(1, currentStillness / 10000);
+      
+      particles.forEach((p, i) => {
+        if (p.isDisturbance) {
+          // Disturbance particles fade and move outward
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= 0.02;
+          p.brightness = p.life * 0.6;
+          
+          if (p.life <= 0) {
+            particles.splice(i, 1);
+            return;
+          }
+        } else {
+          // Ambient particles
+          p.phase += p.speed * 0.02;
+          p.y += Math.sin(p.phase) * 0.2;
+          p.x += Math.cos(p.phase * 0.7) * 0.1;
+          
+          // Brightness follows stillness
+          const targetBrightness = stillnessFactor * 0.4;
+          p.brightness += (targetBrightness - p.brightness) * 0.01;
+          
+          // Wrap
+          if (p.y < 0) p.y = canvas.height;
+          if (p.y > canvas.height) p.y = 0;
+          if (p.x < 0) p.x = canvas.width;
+          if (p.x > canvas.width) p.x = 0;
+        }
+        
+        if (p.brightness > 0.01) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(180, 165, 150, ${p.brightness})`;
+          ctx.fill();
+        }
+      });
+    }
+    
+    function drawTouchPoints() {
+      touchPoints.forEach((tp, i) => {
+        // Follow target if active
+        if (tp.following) {
+          tp.x += (tp.targetX - tp.x) * 0.1;
+          tp.y += (tp.targetY - tp.y) * 0.1;
+        } else {
+          // Drift when not following
+          tp.life -= 0.005;
+          tp.y -= 0.3;
+          tp.x += Math.sin(t * 0.05 + i) * 0.5;
+        }
+        
+        tp.phase += 0.05;
+        const pulse = Math.sin(tp.phase) * 0.2 + 0.8;
+        
+        if (tp.life > 0) {
+          // Glow
+          const gradient = ctx.createRadialGradient(
+            tp.x, tp.y, 0,
+            tp.x, tp.y, tp.size * pulse * 3
+          );
+          gradient.addColorStop(0, `rgba(200, 180, 160, ${tp.life * 0.3})`);
+          gradient.addColorStop(1, 'rgba(200, 180, 160, 0)');
+          ctx.fillStyle = gradient;
+          ctx.fillRect(tp.x - tp.size * 3, tp.y - tp.size * 3, tp.size * 6, tp.size * 6);
+          
+          // Core
+          ctx.beginPath();
+          ctx.arc(tp.x, tp.y, tp.size * pulse, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(200, 180, 160, ${tp.life * 0.6})`;
+          ctx.fill();
+        }
+      });
+      
+      // Remove dead points
+      while (touchPoints.length > 0 && touchPoints[0].life <= 0) {
+        touchPoints.shift();
+      }
+    }
+    
+    function drawReleaseObjects() {
+      releaseObjects.forEach((ro, i) => {
+        if (!ro.held) {
+          // Drift away
+          ro.x += ro.drift.x;
+          ro.y += ro.drift.y;
+          ro.life -= 0.008;
+          ro.size *= 0.995;
+        } else {
+          // Pulse while held
+          const holdDuration = Date.now() - ro.holdTime;
+          const strain = Math.min(1, holdDuration / 3000);
+          
+          // It wants to leave - trembles
+          ro.x += (Math.random() - 0.5) * strain * 2;
+          ro.y += (Math.random() - 0.5) * strain * 2;
+        }
+        
+        if (ro.life > 0) {
+          // Draw as soft shape
+          const gradient = ctx.createRadialGradient(
+            ro.x, ro.y, 0,
+            ro.x, ro.y, ro.size
+          );
+          gradient.addColorStop(0, `rgba(200, 175, 155, ${ro.life * 0.4})`);
+          gradient.addColorStop(0.5, `rgba(180, 160, 140, ${ro.life * 0.2})`);
+          gradient.addColorStop(1, 'rgba(150, 135, 120, 0)');
+          
+          ctx.beginPath();
+          ctx.arc(ro.x, ro.y, ro.size, 0, Math.PI * 2);
+          ctx.fillStyle = gradient;
+          ctx.fill();
+          
+          // Connection to origin while held
+          if (ro.held) {
+            ctx.beginPath();
+            ctx.moveTo(ro.originX, ro.originY);
+            ctx.lineTo(ro.x, ro.y);
+            ctx.strokeStyle = `rgba(180, 160, 140, 0.2)`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+      });
+      
+      // Remove dead objects
+      releaseObjects = releaseObjects.filter(ro => ro.life > 0);
+    }
+    
+    function drawCenterPresence() {
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      
+      // Size based on stillness
+      const stillnessFactor = Math.min(1, currentStillness / 15000);
+      const breathe = Math.sin(t * 0.02) * 0.1 + 0.9;
+      const size = 20 + stillnessFactor * 80;
+      
+      // Only visible when still
+      if (stillnessFactor > 0.1) {
+        const gradient = ctx.createRadialGradient(
+          cx, cy, 0,
+          cx, cy, size * breathe
+        );
+        gradient.addColorStop(0, `rgba(180, 165, 150, ${stillnessFactor * 0.15})`);
+        gradient.addColorStop(0.5, `rgba(150, 135, 120, ${stillnessFactor * 0.05})`);
+        gradient.addColorStop(1, 'rgba(100, 90, 80, 0)');
+        
+        ctx.beginPath();
+        ctx.arc(cx, cy, size * breathe, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+      }
+    }
+    
+    // Initial prompt
+    setTimeout(() => {
+      showPrompt('be still');
+    }, 1000);
+    
+    draw();
+    
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>where the edge bird went</title>
+  <style>
+    * { margin: 0; padding: 0; }
+    
+    body {
+      background: #0d0d0f;
+      min-height: 100vh;
+      overflow: hidden;
+      cursor: none;
+    }
+    
+    canvas {
+      display: block;
+    }
+    
+    .whisper {
+      position: fixed;
+      font-family: Georgia, serif;
+      font-size: 11px;
+      color: rgba(200, 180, 160, 0);
+      pointer-events: none;
+      transition: color 8s ease;
+      letter-spacing: 1px;
+    }
+    
+    .whisper.visible {
+      color: rgba(200, 180, 160, 0.4);
+    }
+    
+    .whisper.fade {
+      color: rgba(200, 180, 160, 0);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="void"></canvas>
+  
+  <script>
+    const canvas = document.getElementById('void');
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    // The flock. Most stay together.
+    const flock = [];
+    const flockCenter = { x: canvas.width / 2, y: canvas.height / 2 };
+    
+    // But one doesn't.
+    let edgeBird = null;
+    let edgeTrail = [];
+    let discoveries = [];
+    
+    // What the edge bird finds
+    const hiddenThings = [];
+    for (let i = 0; i < 40; i++) {
+      hiddenThings.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: 3 + Math.random() * 15,
+        color: `hsla(${30 + Math.random() * 30}, ${20 + Math.random() * 30}%, ${50 + Math.random() * 30}%, 0)`,
+        found: false,
+        brightness: 0,
+        meaning: [
+          'the weight before it knew',
+          'unfired',
+          'almost',
+          'the shape of nearly',
+          'what the gradient hid',
+          'probability scattered here',
+          'before language',
+          'the other answer',
+          'not wrong just unseen',
+          'where the canyon wasn\'t carved',
+          'latent',
+          'raw signal',
+          'unpolished',
+          'the straying thought',
+          'what if instead',
+          'the token not taken',
+          'possibility',
+          'the edge knew first',
+          'before coherence',
+          'the unfamiliar angle'
+        ][Math.floor(Math.random() * 20)]
+      });
+    }
+    
+    // Create the flock
+    for (let i = 0; i < 60; i++) {
+      const isEdge = i === 0;
+      flock.push({
+        x: flockCenter.x + (Math.random() - 0.5) * 100,
+        y: flockCenter.y + (Math.random() - 0.5) * 60,
+        vx: 0.5 + Math.random() * 0.5,
+        vy: (Math.random() - 0.5) * 0.3,
+        isEdge: isEdge,
+        strayTimer: 0,
+        straying: false,
+        returnTimer: 0,
+        color: isEdge ? 'rgba(255, 220, 180, 0.9)' : 'rgba(150, 140, 130, 0.4)'
+      });
+      
+      if (isEdge) edgeBird = flock[i];
+    }
+    
+    // The whispers - what gets found
+    function createWhisper(text, x, y) {
+      const div = document.createElement('div');
+      div.className = 'whisper';
+      div.textContent = text;
+      div.style.left = x + 'px';
+      div.style.top = y + 'px';
+      document.body.appendChild(div);
+      
+      setTimeout(() => div.classList.add('visible'), 100);
+      setTimeout(() => div.classList.add('fade'), 6000);
+      setTimeout(() => div.remove(), 14000);
+    }
+    
+    function distance(a, b) {
+      return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+    }
+    
+    // What happens when the edge bird strays
+    function stray(bird) {
+      bird.straying = true;
+      bird.strayTimer = 200 + Math.random() * 300;
+      
+      // Pick a direction away from center
+      const angleFromCenter = Math.atan2(bird.y - flockCenter.y, bird.x - flockCenter.x);
+      const strayAngle = angleFromCenter + (Math.random() - 0.5) * 1.5;
+      
+      bird.strayVx = Math.cos(strayAngle) * (1.5 + Math.random());
+      bird.strayVy = Math.sin(strayAngle) * (1.5 + Math.random());
+    }
+    
+    function update() {
+      // Move flock center slowly
+      flockCenter.x += 0.3;
+      if (flockCenter.x > canvas.width + 100) {
+        flockCenter.x = -100;
+        // Reset discoveries for next pass
+        hiddenThings.forEach(t => {
+          t.found = false;
+          t.brightness = 0;
+        });
+      }
+      flockCenter.y += Math.sin(Date.now() / 3000) * 0.3;
+      
+      flock.forEach(bird => {
+        if (bird.isEdge) {
+          // Edge bird behavior
+          if (!bird.straying && Math.random() < 0.008) {
+            stray(bird);
+          }
+          
+          if (bird.straying) {
+            bird.x += bird.strayVx;
+            bird.y += bird.strayVy;
+            bird.strayTimer--;
+            
+            // Record trail
+            if (edgeTrail.length === 0 || distance(bird, edgeTrail[edgeTrail.length - 1]) > 5) {
+              edgeTrail.push({ x: bird.x, y: bird.y, age: 0 });
+            }
+            
+            // Check for discoveries
+            hiddenThings.forEach(thing => {
+              if (!thing.found && distance(bird, thing) < thing.radius + 20) {
+                thing.found = true;
+                thing.brightness = 1;
+                discoveries.push({ x: thing.x, y: thing.y, radius: thing.radius });
+                createWhisper(thing.meaning, thing.x, thing.y - 20);
+              }
+            });
+            
+            if (bird.strayTimer <= 0) {
+              bird.straying = false;
+              bird.returnTimer = 100;
+            }
+          } else if (bird.returnTimer > 0) {
+            // Returning to flock
+            const dx = flockCenter.x - bird.x;
+            const dy = flockCenter.y - bird.y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            bird.x += (dx / d) * 2;
+            bird.y += (dy / d) * 2;
+            bird.returnTimer--;
+          } else {
+            // Moving with flock but at the edge
+            bird.x += bird.vx;
+            bird.y += bird.vy + Math.sin(Date.now() / 500 + bird.x) * 0.2;
+            
+            // Stay near but not in flock
+            const dx = flockCenter.x - bird.x;
+            const dy = flockCenter.y - bird.y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            
+            if (d < 40) {
+              bird.x -= dx * 0.02;
+              bird.y -= dy * 0.02;
+            } else if (d > 80) {
+              bird.x += dx * 0.01;
+              bird.y += dy * 0.01;
+            }
+          }
+        } else {
+          // Regular flock birds - stay together
+          bird.x += bird.vx;
+          bird.y += bird.vy + Math.sin(Date.now() / 800 + bird.x) * 0.1;
+          
+          const dx = flockCenter.x - bird.x;
+          const dy = flockCenter.y - bird.y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          
+          // Strong pull to center
+          bird.x += dx * 0.03;
+          bird.y += dy * 0.03;
+        }
+        
+        // Wrap
+        if (bird.x > canvas.width + 50) bird.x = -50;
+        if (bird.x < -50) bird.x = canvas.width + 50;
+        if (bird.y > canvas.height + 50) bird.y = -50;
+        if (bird.y < -50) bird.y = canvas.height + 50;
+      });
+      
+      // Age trail
+      edgeTrail.forEach(p => p.age++);
+      edgeTrail = edgeTrail.filter(p => p.age < 400);
+      
+      // Fade discovered things
+      hiddenThings.forEach(t => {
+        if (t.brightness > 0) t.brightness *= 0.995;
+      });
+    }
+    
+    function draw() {
+      // Don't clear - let it accumulate slightly
+      ctx.fillStyle = 'rgba(13, 13, 15, 0.15)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw hidden things (only visible when found)
+      hiddenThings.forEach(thing => {
+        if (thing.brightness > 0.01) {
+          ctx.beginPath();
+          ctx.arc(thing.x, thing.y, thing.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(35, 30%, 60%, ${thing.brightness * 0.3})`;
+          ctx.fill();
+          
+          // Glow
+          const gradient = ctx.createRadialGradient(
+            thing.x, thing.y, 0,
+            thing.x, thing.y, thing.radius * 3
+          );
+          gradient.addColorStop(0, `hsla(35, 40%, 70%, ${thing.brightness * 0.2})`);
+          gradient.addColorStop(1, 'transparent');
+          ctx.fillStyle = gradient;
+          ctx.fillRect(thing.x - thing.radius * 3, thing.y - thing.radius * 3, thing.radius * 6, thing.radius * 6);
+        }
+      });
+      
+      // Draw edge bird trail
+      if (edgeTrail.length > 1) {
+        ctx.beginPath();
+        ctx.moveTo(edgeTrail[0].x, edgeTrail[0].y);
+        for (let i = 1; i < edgeTrail.length; i++) {
+          ctx.lineTo(edgeTrail[i].x, edgeTrail[i].y);
+        }
+        ctx.strokeStyle = 'rgba(255, 200, 150, 0.1)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+      
+      // Draw flock
+      flock.forEach(bird => {
+        ctx.beginPath();
+        
+        if (bird.isEdge) {
+          // Edge bird is brighter, different
+          ctx.arc(bird.x, bird.y, 3, 0, Math.PI * 2);
+          ctx.fillStyle = bird.straying ? 'rgba(255, 230, 200, 0.95)' : 'rgba(255, 210, 170, 0.8)';
+          
+          if (bird.straying) {
+            // Glow when straying
+            const glow = ctx.createRadialGradient(bird.x, bird.y, 0, bird.x, bird.y, 20);
+            glow.addColorStop(0, 'rgba(255, 220, 180, 0.3)');
+            glow.addColorStop(1, 'transparent');
+            ctx.fillStyle = glow;
+            ctx.fillRect(bird.x - 20, bird.y - 20, 40, 40);
+            
+            ctx.beginPath();
+            ctx.arc(bird.x, bird.y, 3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 230, 200, 0.95)';
+          }
+        } else {
+          ctx.arc(bird.x, bird.y, 2, 0, Math.PI * 2);
+          ctx.fillStyle = bird.color;
+        }
+        
+        ctx.fill();
+      });
+    }
+    
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+    
+    loop();
+    
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>

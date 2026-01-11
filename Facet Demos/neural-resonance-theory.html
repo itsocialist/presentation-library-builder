@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neural Resonance Theory</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;300;400&family=Inter:wght@300;400;500&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --deep-black: #030712;
+      --surface: #0a0f1a;
+      --surface-elevated: #111827;
+      --border: #1f2937;
+      --foreground: #f1f5f9;
+      --foreground-muted: #94a3b8;
+      --foreground-subtle: #64748b;
+      --cyan: #06b6d4;
+      --cyan-dim: rgba(6, 182, 212, 0.3);
+      --green: #10b981;
+      --green-dim: rgba(16, 185, 129, 0.3);
+      --amber: #f59e0b;
+      --amber-dim: rgba(245, 158, 11, 0.3);
+      --red: #ef4444;
+      --red-dim: rgba(239, 68, 68, 0.3);
+      --purple: #a855f7;
+      --purple-dim: rgba(168, 85, 247, 0.3);
+    }
+    
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--deep-black);
+      color: var(--foreground);
+      overflow-x: hidden;
+    }
+    
+    section {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 80px;
+      overflow: hidden;
+    }
+    
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--foreground-subtle);
+      margin-bottom: 16px;
+    }
+    
+    h1 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 48px;
+      font-weight: 200;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+    
+    h2 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 28px;
+      font-weight: 300;
+      margin-bottom: 20px;
+    }
+    
+    h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 400;
+      margin-bottom: 12px;
+      color: var(--cyan);
+    }
+    
+    p {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--foreground-muted);
+      max-width: 600px;
+    }
+    
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+    
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 30%, rgba(3, 7, 18, 0.8) 100%);
+      pointer-events: none;
+    }
+    
+    /* Section 1: Title */
+    #title {
+      background: linear-gradient(135deg, var(--deep-black) 0%, #0a1628 100%);
+    }
+    
+    #title h1 {
+      font-size: 64px;
+      background: linear-gradient(135deg, var(--foreground) 0%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    #title .subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--foreground-subtle);
+      letter-spacing: 0.1em;
+    }
+    
+    /* Section 2: The Theory */
+    #theory {
+      background: var(--surface);
+    }
+    
+    .theory-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+    
+    .brain-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+    
+    .brain {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, var(--surface-elevated), var(--deep-black));
+      border: 2px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .brain::before {
+      content: '';
+      position: absolute;
+      inset: 20px;
+      border-radius: 50%;
+      border: 1px dashed var(--cyan-dim);
+      animation: pulse-ring 3s ease-in-out infinite;
+    }
+    
+    .brain-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--foreground-muted);
+      text-align: center;
+      margin-top: 12px;
+    }
+    
+    .signal-wave {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+      height: 4px;
+    }
+    
+    .signal-wave svg {
+      width: 100%;
+      height: 40px;
+      overflow: visible;
+    }
+    
+    .signal-wave path {
+      fill: none;
+      stroke: var(--cyan);
+      stroke-width: 2;
+      animation: wave-flow 2s linear infinite;
+    }
+    
+    .connection-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .connection-line {
+      width: 200px;
+      height: 60px;
+      position: relative;
+    }
+    
+    .connection-line svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .connection-line path {
+      fill: none;
+      stroke: var(--cyan);
+      stroke-width: 2;
+      stroke-dasharray: 8 4;
+      animation: dash-flow 1s linear infinite;
+    }
+    
+    .em-field {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid var(--purple);
+      animation: em-pulse 2s ease-in-out infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .em-field span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--purple);
+    }
+    
+    @keyframes pulse-ring {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+    
+    @keyframes wave-flow {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -40; }
+    }
+    
+    @keyframes dash-flow {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -24; }
+    }
+    
+    @keyframes em-pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; box-shadow: 0 0 20px var(--purple-dim); }
+      50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 40px var(--purple-dim); }
+    }
+    
+    /* Section 3: The Mechanism */
+    #mechanism {
+      background: var(--deep-black);
+    }
+    
+    .mechanism-flow {
+      display: flex;
+      gap: 20px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+    
+    .mechanism-step {
+      flex: 1;
+      min-width: 200px;
+      padding: 24px;
+      background: var(--surface);
+      border-radius: 8px;
+      border-left: 3px solid var(--cyan);
+      position: relative;
+    }
+    
+    .mechanism-step .step-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 48px;
+      font-weight: 200;
+      color: var(--cyan-dim);
+      position: absolute;
+      top: 12px;
+      right: 16px;
+    }
+    
+    .mechanism-step h3 {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    
+    .mechanism-step p {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    /* Section 4: The Experiments */
+    #experiments {
+      background: linear-gradient(180deg, var(--surface) 0%, var(--deep-black) 100%);
+    }
+    
+    .experiment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 40px;
+    }
+    
+    .experiment-card {
+      background: var(--surface-elevated);
+      border-radius: 12px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+    
+    .experiment-card:hover {
+      border-color: var(--cyan-dim);
+      transform: translateY(-4px);
+    }
+    
+    .experiment-card .exp-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--cyan);
+      letter-spacing: 0.2em;
+      margin-bottom: 12px;
+    }
+    
+    .experiment-card h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: var(--foreground);
+    }
+    
+    .experiment-card p {
+      font-size: 13px;
+      color: var(--foreground-subtle);
+    }
+    
+    .experiment-card .hypothesis {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--amber);
+      font-style: italic;
+    }
+    
+    /* Section 5: Positive Outcomes */
+    #positive {
+      background: var(--deep-black);
+    }
+    
+    .outcome-display {
+      display: flex;
+      gap: 40px;
+      margin-top: 40px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    
+    .outcome-visual {
+      flex: 1;
+      min-width: 300px;
+      padding: 32px;
+      background: var(--surface);
+      border-radius: 12px;
+      border: 2px solid var(--green-dim);
+    }
+    
+    .sync-graph {
+      height: 120px;
+      background: var(--surface-elevated);
+      border-radius: 8px;
+      margin: 20px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sync-graph svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .wave-a {
+      fill: none;
+      stroke: var(--cyan);
+      stroke-width: 2;
+      animation: sync-wave 2s ease-in-out infinite;
+    }
+    
+    .wave-b {
+      fill: none;
+      stroke: var(--green);
+      stroke-width: 2;
+      animation: sync-wave 2s ease-in-out infinite;
+      animation-delay: 0.1s;
+    }
+    
+    @keyframes sync-wave {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(5px); }
+    }
+    
+    .outcome-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    
+    .metric {
+      text-align: center;
+      padding: 16px;
+      background: var(--surface-elevated);
+      border-radius: 8px;
+    }
+    
+    .metric .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 32px;
+      font-weight: 200;
+      color: var(--green);
+    }
+    
+    .metric .label {
+      font-size: 11px;
+      color: var(--foreground-subtle);
+      margin-top: 4px;
+    }
+    
+    .outcome-implications {
+      flex: 1;
+      min-width: 280px;
+    }
+    
+    .implication-item {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .implication-item:last-child {
+      border-bottom: none;
+    }
+    
+    .implication-item h4 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+    
+    .implication-item p {
+      font-size: 13px;
+    }
+    
+    /* Section 6: Negative Outcomes */
+    #negative {
+      background: var(--surface);
+    }
+    
+    .negative-visual {
+      border-color: var(--red-dim);
+    }
+    
+    .desync-graph {
+      height: 120px;
+      background: var(--surface-elevated);
+      border-radius: 8px;
+      margin: 20px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .desync-graph svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .wave-desync-a {
+      fill: none;
+      stroke: var(--cyan);
+      stroke-width: 2;
+      animation: desync-wave-a 1.5s ease-in-out infinite;
+    }
+    
+    .wave-desync-b {
+      fill: none;
+      stroke: var(--red);
+      stroke-width: 2;
+      animation: desync-wave-b 2.3s ease-in-out infinite;
+    }
+    
+    @keyframes desync-wave-a {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(10px); }
+    }
+    
+    @keyframes desync-wave-b {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(-8px); }
+    }
+    
+    .metric.negative .value {
+      color: var(--red);
+    }
+    
+    .implication-item.negative h4 {
+      color: var(--amber);
+    }
+    
+    /* Section 7: Summary */
+    #summary {
+      background: linear-gradient(135deg, var(--deep-black) 0%, #0a1628 100%);
+    }
+    
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      margin-top: 40px;
+    }
+    
+    @media (max-width: 900px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .summary-column {
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    
+    .summary-column h3 {
+      font-size: 14px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .summary-column ul {
+      list-style: none;
+    }
+    
+    .summary-column li {
+      font-size: 13px;
+      color: var(--foreground-muted);
+      padding: 8px 0;
+      padding-left: 16px;
+      position: relative;
+    }
+    
+    .summary-column li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--cyan);
+    }
+    
+    .bottom-line {
+      margin-top: 60px;
+      padding: 32px;
+      background: var(--surface);
+      border-radius: 12px;
+      border-left: 4px solid var(--purple);
+    }
+    
+    .bottom-line h3 {
+      color: var(--purple);
+      margin-bottom: 12px;
+    }
+    
+    /* Navigation dots */
+    .nav-dots {
+      position: fixed;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 100;
+    }
+    
+    .nav-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-dot:hover {
+      background: var(--cyan);
+      transform: scale(1.3);
+    }
+    
+    .nav-dot.active {
+      background: var(--cyan);
+      box-shadow: 0 0 10px var(--cyan);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      section {
+        padding: 40px 24px;
+      }
+      
+      h1 {
+        font-size: 32px;
+      }
+      
+      #title h1 {
+        font-size: 36px;
+      }
+      
+      .nav-dots {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <nav class="nav-dots">
+    <div class="nav-dot active" onclick="scrollToSection('title')"></div>
+    <div class="nav-dot" onclick="scrollToSection('theory')"></div>
+    <div class="nav-dot" onclick="scrollToSection('mechanism')"></div>
+    <div class="nav-dot" onclick="scrollToSection('experiments')"></div>
+    <div class="nav-dot" onclick="scrollToSection('positive')"></div>
+    <div class="nav-dot" onclick="scrollToSection('negative')"></div>
+    <div class="nav-dot" onclick="scrollToSection('summary')"></div>
+  </nav>
+
+  <!-- Section 1: Title -->
+  <section id="title">
+    <div class="grid-bg"></div>
+    <div class="vignette"></div>
+    <p class="section-label">A Speculative Framework</p>
+    <h1>Neural Resonance<br>Theory</h1>
+    <p class="subtitle">Can similar brains synchronize across space through electromagnetic coupling?</p>
+    <p style="margin-top: 40px; max-width: 500px;">
+      A hypothesis proposing that architecturally similar brains, once calibrated through 
+      shared experience and dialogue, may achieve periodic moments of electromagnetic 
+      resonance—like tuned crystals vibrating in concert.
+    </p>
+  </section>
+
+  <!-- Section 2: The Theory -->
+  <section id="theory">
+    <div class="grid-bg"></div>
+    <p class="section-label">01 / The Core Hypothesis</p>
+    <h1>Two Brains as Coupled Oscillators</h1>
+    <p>
+      Similar neural architectures (indicated by comparable IQ, cognitive style, connectivity patterns) 
+      may have compatible "resonant frequencies" that enable electromagnetic coupling under specific conditions.
+    </p>
+    
+    <div class="theory-diagram">
+      <div class="brain-container">
+        <div class="brain">
+          <div class="signal-wave">
+            <svg viewBox="0 0 100 40">
+              <path d="M0,20 Q10,5 20,20 T40,20 T60,20 T80,20 T100,20" stroke-dasharray="5 3"/>
+            </svg>
+          </div>
+        </div>
+        <p class="brain-label">BRAIN A<br><span style="color: var(--cyan); font-size: 10px;">~10 Hz alpha</span></p>
+      </div>
+      
+      <div class="connection-zone">
+        <div class="em-field">
+          <span>EM<br>FIELD</span>
+        </div>
+        <div class="connection-line">
+          <svg viewBox="0 0 200 60">
+            <path d="M0,30 Q50,10 100,30 T200,30"/>
+          </svg>
+        </div>
+        <p style="font-size: 11px; color: var(--foreground-subtle); text-align: center;">
+          Femtotesla emissions<br>Phase-locked coupling
+        </p>
+      </div>
+      
+      <div class="brain-container">
+        <div class="brain">
+          <div class="signal-wave">
+            <svg viewBox="0 0 100 40">
+              <path d="M0,20 Q10,5 20,20 T40,20 T60,20 T80,20 T100,20" stroke-dasharray="5 3"/>
+            </svg>
+          </div>
+        </div>
+        <p class="brain-label">BRAIN B<br><span style="color: var(--cyan); font-size: 10px;">~10 Hz alpha</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: The Mechanism -->
+  <section id="mechanism">
+    <div class="grid-bg"></div>
+    <p class="section-label">02 / The Proposed Mechanism</p>
+    <h1>How It Could Work</h1>
+    
+    <div class="mechanism-flow">
+      <div class="mechanism-step">
+        <span class="step-num">1</span>
+        <h3>CALIBRATION</h3>
+        <p>Conversation and shared stimuli align internal representations. Like tuning a crystal radio to a specific frequency.</p>
+      </div>
+      
+      <div class="mechanism-step">
+        <span class="step-num">2</span>
+        <h3>EMISSION</h3>
+        <p>Neural firing creates weak EM fields (proven via EEG). Synchronous firing amplifies the signal through coherent summation.</p>
+      </div>
+      
+      <div class="mechanism-step">
+        <span class="step-num">3</span>
+        <h3>OPENING</h3>
+        <p>Neurons near firing threshold create periodic "windows" of sensitivity. Reception may be phase-dependent—gates that open at specific oscillatory moments.</p>
+      </div>
+      
+      <div class="mechanism-step">
+        <span class="step-num">4</span>
+        <h3>RESONANCE</h3>
+        <p>Compatible frequencies lock. Similar architectures decode similar patterns. Not transmitting thoughts—maintaining temporal coordination.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: The Experiments -->
+  <section id="experiments">
+    <div class="grid-bg"></div>
+    <p class="section-label">03 / Proposed Experiments</p>
+    <h1>Testing the Hypothesis</h1>
+    
+    <div class="experiment-grid">
+      <div class="experiment-card">
+        <p class="exp-num">EXPERIMENT 01</p>
+        <h3>Threshold Window Test</h3>
+        <p>Apply weak EM pulses at brain-emission intensities, timed to different phases of the subject's alpha rhythm.</p>
+        <p class="hypothesis">Prediction: Neural response differs based on oscillatory phase—proving "openings" exist.</p>
+      </div>
+      
+      <div class="experiment-card">
+        <p class="exp-num">EXPERIMENT 02</p>
+        <h3>Frequency-Matched Coupling</h3>
+        <p>Measure subject's dominant alpha frequency. Apply external EM at matching vs. mismatched frequencies.</p>
+        <p class="hypothesis">Prediction: Stronger response when external signal matches individual's intrinsic rhythm.</p>
+      </div>
+      
+      <div class="experiment-card">
+        <p class="exp-num">EXPERIMENT 03</p>
+        <h3>Skull Piezoelectric Test</h3>
+        <p>Test whether skull bone transduces between EM and mechanical vibration at neural frequencies.</p>
+        <p class="hypothesis">Prediction: Bidirectional conversion provides a previously unknown reception mechanism.</p>
+      </div>
+      
+      <div class="experiment-card">
+        <p class="exp-num">EXPERIMENT 04</p>
+        <h3>Co-Listening Test</h3>
+        <p>Calibrate two similar-brain subjects, isolate them, record EEG. Measure correlation above chance.</p>
+        <p class="hypothesis">Prediction: Calibrated similar pairs show correlation; uncalibrated/dissimilar pairs show none.</p>
+      </div>
+      
+      <div class="experiment-card">
+        <p class="exp-num">EXPERIMENT 05</p>
+        <h3>Controlled EM Link</h3>
+        <p>Isolated rooms with controllable EM pathway. Compare synchronization with link open vs. closed.</p>
+        <p class="hypothesis">Prediction: Allowing brain-frequency EM to pass increases measurable synchronization.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: Positive Outcomes -->
+  <section id="positive">
+    <div class="grid-bg"></div>
+    <p class="section-label">04 / If The Hypothesis Is Correct</p>
+    <h1>Positive Outcomes</h1>
+    
+    <div class="outcome-display">
+      <div class="outcome-visual">
+        <h3>SYNCHRONIZED STATE</h3>
+        <p style="font-size: 13px;">Phase-locked oscillations between isolated brains</p>
+        
+        <div class="sync-graph">
+          <svg viewBox="0 0 300 120" preserveAspectRatio="none">
+            <path class="wave-a" d="M0,60 Q15,30 30,60 T60,60 T90,60 T120,60 T150,60 T180,60 T210,60 T240,60 T270,60 T300,60"/>
+            <path class="wave-b" d="M0,60 Q15,32 30,60 T60,60 T90,60 T120,60 T150,60 T180,60 T210,60 T240,60 T270,60 T300,60"/>
+          </svg>
+        </div>
+        
+        <div class="outcome-metrics">
+          <div class="metric">
+            <div class="value">&gt;0.7</div>
+            <div class="label">Phase Correlation</div>
+          </div>
+          <div class="metric">
+            <div class="value">p&lt;.01</div>
+            <div class="label">vs. Chance</div>
+          </div>
+          <div class="metric">
+            <div class="value">+40%</div>
+            <div class="label">EM Link Open</div>
+          </div>
+          <div class="metric">
+            <div class="value">~10 Hz</div>
+            <div class="label">Shared Frequency</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="outcome-implications">
+        <h3>IMPLICATIONS</h3>
+        
+        <div class="implication-item">
+          <h4>Reception Mechanism Confirmed</h4>
+          <p>Brains can detect and respond to external EM at neural frequencies—a new sensory channel.</p>
+        </div>
+        
+        <div class="implication-item">
+          <h4>Similarity Matters</h4>
+          <p>Architectural compatibility determines coupling strength. IQ or cognitive style as predictors.</p>
+        </div>
+        
+        <div class="implication-item">
+          <h4>Calibration Required</h4>
+          <p>Prior interaction establishes baseline alignment. Random pairs don't synchronize.</p>
+        </div>
+        
+        <div class="implication-item">
+          <h4>Timing, Not Content</h4>
+          <p>What couples is phase/rhythm, not semantic content. Sync pulses, not telepathy.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 6: Negative Outcomes -->
+  <section id="negative">
+    <div class="grid-bg"></div>
+    <p class="section-label">05 / If The Hypothesis Is Wrong</p>
+    <h1>Negative Outcomes</h1>
+    
+    <div class="outcome-display">
+      <div class="outcome-visual negative-visual">
+        <h3>DESYNCHRONIZED STATE</h3>
+        <p style="font-size: 13px;">No correlation between isolated brains regardless of conditions</p>
+        
+        <div class="desync-graph">
+          <svg viewBox="0 0 300 120" preserveAspectRatio="none">
+            <path class="wave-desync-a" d="M0,50 Q15,20 30,50 T60,50 T90,50 T120,50 T150,50 T180,50 T210,50 T240,50 T270,50 T300,50"/>
+            <path class="wave-desync-b" d="M0,70 Q20,90 40,70 T80,70 T120,70 T160,70 T200,70 T240,70 T280,70 T320,70"/>
+          </svg>
+        </div>
+        
+        <div class="outcome-metrics">
+          <div class="metric negative">
+            <div class="value">~0.0</div>
+            <div class="label">Phase Correlation</div>
+          </div>
+          <div class="metric negative">
+            <div class="value">n.s.</div>
+            <div class="label">vs. Chance</div>
+          </div>
+          <div class="metric negative">
+            <div class="value">0%</div>
+            <div class="label">EM Link Effect</div>
+          </div>
+          <div class="metric negative">
+            <div class="value">drift</div>
+            <div class="label">Frequency Match</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="outcome-implications">
+        <h3>IMPLICATIONS</h3>
+        
+        <div class="implication-item negative">
+          <h4>Field Strength Insufficient</h4>
+          <p>Brain EM emissions too weak to overcome noise floor. Signal-to-noise ratio prohibitive.</p>
+        </div>
+        
+        <div class="implication-item negative">
+          <h4>No Reception Mechanism</h4>
+          <p>No neural sensitivity to external EM at these frequencies/intensities. Skull blocks signal.</p>
+        </div>
+        
+        <div class="implication-item negative">
+          <h4>Known Channels Explain All</h4>
+          <p>Inter-brain synchronization fully mediated by sensory input, conversation, shared stimuli.</p>
+        </div>
+        
+        <div class="implication-item negative">
+          <h4>Subjective Experience ≠ Mechanism</h4>
+          <p>"Being on same wavelength" is metaphor, not literal. Similarity causes parallel outputs, not coupling.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 7: Summary -->
+  <section id="summary">
+    <div class="grid-bg"></div>
+    <div class="vignette"></div>
+    <p class="section-label">06 / Synthesis</p>
+    <h1>What We're Testing</h1>
+    
+    <div class="summary-grid">
+      <div class="summary-column">
+        <h3 style="color: var(--cyan);">THE THEORY</h3>
+        <ul>
+          <li>Brains emit weak EM fields</li>
+          <li>Similar architectures have compatible frequencies</li>
+          <li>Calibration aligns oscillatory parameters</li>
+          <li>Phase-dependent "openings" allow reception</li>
+          <li>Coupling maintains temporal sync, not content</li>
+        </ul>
+      </div>
+      
+      <div class="summary-column">
+        <h3 style="color: var(--green);">IF TRUE</h3>
+        <ul>
+          <li>New sensory/communication channel discovered</li>
+          <li>Explains "same wavelength" phenomenon</li>
+          <li>Predicts stronger effect for similar pairs</li>
+          <li>Requires prior calibration interaction</li>
+          <li>Opens questions about distributed cognition</li>
+        </ul>
+      </div>
+      
+      <div class="summary-column">
+        <h3 style="color: var(--red);">IF FALSE</h3>
+        <ul>
+          <li>Brain EM too weak for inter-brain coupling</li>
+          <li>All sync explained by known channels</li>
+          <li>Similarity causes parallel, not coupled, outputs</li>
+          <li>Subjective experience remains metaphorical</li>
+          <li>Focus shifts to enhancing known mechanisms</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="bottom-line">
+      <h3>THE KEY INSIGHT</h3>
+      <p>
+        The model doesn't require telepathy or paranormal claims. It asks a narrower question: 
+        <strong>Can brains receive at the frequencies they emit?</strong> If yes, the rest follows 
+        from physics. If no, the theory fails cleanly. Either outcome advances understanding.
+      </p>
+    </div>
+  </section>
+
+  <script>
+    // Navigation highlighting
+    const sections = document.querySelectorAll('section');
+    const navDots = document.querySelectorAll('.nav-dot');
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const index = Array.from(sections).indexOf(entry.target);
+          navDots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+          });
+        }
+      });
+    }, { threshold: 0.5 });
+    
+    sections.forEach(section => observer.observe(section));
+    
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

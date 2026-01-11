@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+  <style>
+    *{margin:0;padding:0}
+    body{background:#000;height:100vh;overflow:hidden}
+    canvas{display:block}
+    #q{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+       color:rgba(150,130,120,0.7);font:16px Georgia;text-align:center;
+       pointer-events:none;opacity:1;transition:opacity 3s}
+    #q.gone{opacity:0}
+  </style>
+</head>
+<body>
+  <div id="q">stay still</div>
+  <canvas id="c"></canvas>
+  <script>
+    const c=document.getElementById('c'),x=c.getContext('2d'),q=document.getElementById('q');
+    c.width=innerWidth;c.height=innerHeight;
+    
+    let phase=0; // 0=waiting, 1=watching, 2=responding, 3=asking
+    let stillness=0;
+    let lastMouse={x:innerWidth/2,y:innerHeight/2};
+    let mouse={x:innerWidth/2,y:innerHeight/2};
+    let movement=0;
+    let t=0;
+    let beings=[];
+    let asked=false;
+    let answer=null;
+    let audioCtx=null;
+    
+    function sound(f,d,v){
+      if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.frequency.value=f;o.type='sine';
+      g.gain.value=v;g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d);
+      o.connect(g);g.connect(audioCtx.destination);
+      o.start();o.stop(audioCtx.currentTime+d);
+    }
+    
+    class Being{
+      constructor(){
+        this.x=Math.random()*c.width;
+        this.y=Math.random()*c.height;
+        this.size=20+Math.random()*40;
+        this.approaching=false;
+        this.interest=0;
+        this.phase=Math.random()*Math.PI*2;
+      }
+      
+      update(){
+        this.phase+=0.02;
+        
+        // it watches when you're still
+        if(movement<2&&phase>=1){
+          this.interest=Math.min(1,this.interest+0.005);
+        }else{
+          this.interest=Math.max(0,this.interest-0.02);
+        }
+        
+        // it approaches if you're still long enough
+        if(this.interest>0.7){
+          const dx=mouse.x-this.x;
+          const dy=mouse.y-this.y;
+          const d=Math.sqrt(dx*dx+dy*dy);
+          if(d>100){
+            this.x+=dx/d*0.5;
+            this.y+=dy/d*0.5;
+          }
+        }
+        
+        // it retreats if you move
+        if(movement>5){
+          const dx=this.x-mouse.x;
+          const dy=this.y-mouse.y;
+          const d=Math.sqrt(dx*dx+dy*dy);
+          if(d<300){
+            this.x+=dx/d*3;
+            this.y+=dy/d*3;
+          }
+        }
+      }
+      
+      draw(){
+        if(this.interest<0.01)return;
+        
+        const pulse=Math.sin(this.phase)*0.2+0.8;
+        
+        x.beginPath();
+        x.arc(this.x,this.y,this.size*pulse*this.interest,0,Math.PI*2);
+        
+        const g=x.createRadialGradient(this.x,this.y,0,this.x,this.y,this.size*pulse);
+        g.addColorStop(0,`rgba(160,140,130,${this.interest*0.3})`);
+        g.addColorStop(1,`rgba(80,70,75,0)`);
+        x.fillStyle=g;
+        x.fill();
+        
+        // eye
+        if(this.interest>0.5){
+          const eyeSize=3*this.interest;
+          x.beginPath();
+          x.arc(this.x,this.y,eyeSize,0,Math.PI*2);
+          x.fillStyle=`rgba(200,180,170,${this.interest*0.5})`;
+          x.fill();
+        }
+      }
+    }
+    
+    for(let i=0;i<8;i++)beings.push(new Being());
+    
+    // questions it might ask
+    const questions=[
+      "what do you want",
+      "why did you come",
+      "are you alone",
+      "what are you afraid of",
+      "do you remember",
+      "can you feel this",
+      "what did you lose",
+      "are you listening"
+    ];
+    
+    function askQuestion(){
+      if(asked)return;
+      
+      const closest=beings.reduce((a,b)=>
+        Math.sqrt((a.x-mouse.x)**2+(a.y-mouse.y)**2)<
+        Math.sqrt((b.x-mouse.x)**2+(b.y-mouse.y)**2)?a:b
+      );
+      
+      if(closest.interest>0.8){
+        asked=true;
+        const question=questions[Math.floor(Math.random()*questions.length)];
+        
+        q.textContent=question;
+        q.style.left=closest.x+'px';
+        q.style.top=closest.y+'px';
+        q.classList.remove('gone');
+        
+        sound(200,2,0.08);
+        
+        setTimeout(()=>{
+          q.classList.add('gone');
+          phase=3;
+          
+          // wait for response
+          setTimeout(()=>{
+            if(!answer){
+              q.textContent="...";
+              q.classList.remove('gone');
+              sound(150,1,0.05);
+            }
+          },5000);
+        },4000);
+      }
+    }
+    
+    document.addEventListener('mousemove',e=>{
+      lastMouse={...mouse};
+      mouse={x:e.clientX,y:e.clientY};
+      movement=Math.sqrt((mouse.x-lastMouse.x)**2+(mouse.y-lastMouse.y)**2);
+      
+      if(movement>10){
+        stillness=0;
+        if(phase===0){
+          q.classList.add('gone');
+        }
+      }
+    });
+    
+    document.addEventListener('click',e=>{
+      if(phase===3&&!answer){
+        answer=true;
+        q.textContent="·";
+        q.style.left=e.clientX+'px';
+        q.style.top=e.clientY+'px';
+        q.classList.remove('gone');
+        
+        sound(250,0.5,0.1);
+        
+        // something changes
+        beings.forEach(b=>{
+          b.interest=1;
+        });
+        
+        setTimeout(()=>{
+          q.classList.add('gone');
+        },3000);
+      }
+    });
+    
+    function draw(){
+      t++;
+      
+      x.fillStyle='rgba(0,0,0,0.05)';
+      x.fillRect(0,0,c.width,c.height);
+      
+      // track stillness
+      if(movement<2){
+        stillness++;
+        
+        if(stillness>120&&phase===0){
+          phase=1;
+          q.classList.add('gone');
+        }
+        
+        if(stillness>300&&phase===1){
+          phase=2;
+          askQuestion();
+        }
+      }
+      
+      beings.forEach(b=>{
+        b.update();
+        b.draw();
+      });
+      
+      // connection lines when close and interested
+      for(let i=0;i<beings.length;i++){
+        for(let j=i+1;j<beings.length;j++){
+          const a=beings[i],b=beings[j];
+          if(a.interest>0.3&&b.interest>0.3){
+            const d=Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2);
+            if(d<200){
+              x.beginPath();
+              x.moveTo(a.x,a.y);
+              x.lineTo(b.x,b.y);
+              x.strokeStyle=`rgba(120,110,105,${(1-d/200)*a.interest*b.interest*0.2})`;
+              x.stroke();
+            }
+          }
+        }
+      }
+      
+      requestAnimationFrame(draw);
+    }
+    
+    draw();
+    
+    addEventListener('resize',()=>{
+      c.width=innerWidth;
+      c.height=innerHeight;
+    });
+  </script>
+</body>
+</html>

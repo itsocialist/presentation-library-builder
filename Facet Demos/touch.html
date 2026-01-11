@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+  <style>
+    * { margin: 0; padding: 0; }
+    body { background: #000; height: 100vh; overflow: hidden; }
+    canvas { display: block; touch-action: none; }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <script>
+    const c = document.getElementById('c');
+    const x = c.getContext('2d');
+    c.width = innerWidth;
+    c.height = innerHeight;
+    
+    // no explanation
+    // no justification
+    // find what happens
+    
+    let touches = [];
+    let echoes = [];
+    let t = 0;
+    let audioCtx = null;
+    let nodes = [];
+    
+    // sound that responds to gesture
+    function initAudio() {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    
+    function sing(freq, duration, x, y) {
+      if (!audioCtx) initAudio();
+      
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      const p = audioCtx.createStereoPanner();
+      
+      // position in stereo field based on x
+      p.pan.value = (x / c.width) * 2 - 1;
+      
+      // frequency based on y - lower at bottom, higher at top
+      const baseFreq = 80 + (1 - y / c.height) * 400;
+      o.frequency.value = baseFreq;
+      o.type = 'sine';
+      
+      g.gain.value = 0.15;
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      
+      o.connect(g);
+      g.connect(p);
+      p.connect(audioCtx.destination);
+      
+      o.start();
+      o.stop(audioCtx.currentTime + duration);
+    }
+    
+    // what lives between touches
+    function bridge(a, b, intensity) {
+      const dist = Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+      if (dist > 300) return;
+      
+      const midX = (a.x + b.x) / 2;
+      const midY = (a.y + b.y) / 2;
+      
+      // the relationship between two points of contact
+      // is not a line
+      // it's a field
+      
+      const perpX = -(a.y - b.y) / dist;
+      const perpY = (a.x - b.x) / dist;
+      
+      const breathe = Math.sin(t * 0.03 + dist * 0.01);
+      const bulge = breathe * 30 * intensity;
+      
+      x.beginPath();
+      x.moveTo(a.x, a.y);
+      x.quadraticCurveTo(
+        midX + perpX * bulge,
+        midY + perpY * bulge,
+        b.x, b.y
+      );
+      
+      const alpha = (1 - dist / 300) * intensity * 0.5;
+      x.strokeStyle = `rgba(200, 170, 150, ${alpha})`;
+      x.lineWidth = 1 + intensity * 2;
+      x.stroke();
+      
+      // particles along the bridge
+      const numP = Math.floor(dist / 20);
+      for (let i = 0; i < numP; i++) {
+        const prog = i / numP;
+        const px = a.x + (b.x - a.x) * prog;
+        const py = a.y + (b.y - a.y) * prog;
+        
+        const offset = Math.sin(t * 0.05 + prog * Math.PI * 2) * bulge * prog * (1 - prog) * 4;
+        
+        x.beginPath();
+        x.arc(
+          px + perpX * offset,
+          py + perpY * offset,
+          1 + intensity,
+          0, Math.PI * 2
+        );
+        x.fillStyle = `rgba(220, 190, 170, ${alpha * 0.8})`;
+        x.fill();
+      }
+    }
+    
+    // an echo remembers where you were
+    class Echo {
+      constructor(x, y, size) {
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.life = 1;
+        this.decay = 0.015 + Math.random() * 0.01;
+      }
+      
+      update() {
+        this.life -= this.decay;
+        this.size += 0.5;
+      }
+      
+      draw() {
+        if (this.life <= 0) return;
+        
+        x.beginPath();
+        x.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        x.strokeStyle = `rgba(180, 150, 140, ${this.life * 0.3})`;
+        x.lineWidth = 0.5;
+        x.stroke();
+      }
+    }
+    
+    // the trace of movement
+    let trails = [];
+    
+    function addTrail(px, py, vx, vy) {
+      trails.push({
+        x: px, y: py,
+        vx: vx * 0.3, vy: vy * 0.3,
+        life: 1,
+        size: 2 + Math.random() * 3
+      });
+    }
+    
+    // what happens when you touch
+    function touch(px, py, isNew) {
+      if (isNew) {
+        sing(200, 0.8, px, py);
+        echoes.push(new Echo(px, py, 5));
+      }
+      
+      // spawn particles that fall
+      for (let i = 0; i < 3; i++) {
+        addTrail(
+          px + (Math.random() - 0.5) * 20,
+          py + (Math.random() - 0.5) * 20,
+          (Math.random() - 0.5) * 2,
+          Math.random() * 2
+        );
+      }
+    }
+    
+    // input
+    let lastTouches = {};
+    
+    function handleStart(e) {
+      e.preventDefault();
+      if (!audioCtx) initAudio();
+      
+      const rect = c.getBoundingClientRect();
+      
+      if (e.touches) {
+        for (let i = 0; i < e.touches.length; i++) {
+          const t = e.touches[i];
+          const id = t.identifier;
+          const px = t.clientX - rect.left;
+          const py = t.clientY - rect.top;
+          
+          if (!lastTouches[id]) {
+            touch(px, py, true);
+          }
+          
+          lastTouches[id] = { x: px, y: py, active: true };
+        }
+      } else {
+        const px = e.clientX - rect.left;
+        const py = e.clientY - rect.top;
+        touch(px, py, true);
+        lastTouches['mouse'] = { x: px, y: py, active: true };
+      }
+    }
+    
+    function handleMove(e) {
+      e.preventDefault();
+      const rect = c.getBoundingClientRect();
+      
+      if (e.touches) {
+        for (let i = 0; i < e.touches.length; i++) {
+          const t = e.touches[i];
+          const id = t.identifier;
+          const px = t.clientX - rect.left;
+          const py = t.clientY - rect.top;
+          
+          if (lastTouches[id]) {
+            const vx = px - lastTouches[id].x;
+            const vy = py - lastTouches[id].y;
+            addTrail(px, py, vx, vy);
+          }
+          
+          lastTouches[id] = { x: px, y: py, active: true };
+        }
+      } else if (lastTouches['mouse']?.active) {
+        const px = e.clientX - rect.left;
+        const py = e.clientY - rect.top;
+        const vx = px - lastTouches['mouse'].x;
+        const vy = py - lastTouches['mouse'].y;
+        addTrail(px, py, vx, vy);
+        lastTouches['mouse'] = { x: px, y: py, active: true };
+      }
+    }
+    
+    function handleEnd(e) {
+      e.preventDefault();
+      
+      if (e.touches) {
+        const activeIds = new Set();
+        for (let i = 0; i < e.touches.length; i++) {
+          activeIds.add(e.touches[i].identifier);
+        }
+        
+        for (const id in lastTouches) {
+          if (!activeIds.has(parseInt(id))) {
+            // finger lifted - create echo
+            echoes.push(new Echo(lastTouches[id].x, lastTouches[id].y, 10));
+            sing(150, 1.2, lastTouches[id].x, lastTouches[id].y);
+            delete lastTouches[id];
+          }
+        }
+      } else {
+        if (lastTouches['mouse']) {
+          echoes.push(new Echo(lastTouches['mouse'].x, lastTouches['mouse'].y, 10));
+          sing(150, 1.2, lastTouches['mouse'].x, lastTouches['mouse'].y);
+          lastTouches['mouse'].active = false;
+        }
+      }
+    }
+    
+    c.addEventListener('mousedown', handleStart);
+    c.addEventListener('mousemove', handleMove);
+    c.addEventListener('mouseup', handleEnd);
+    c.addEventListener('touchstart', handleStart);
+    c.addEventListener('touchmove', handleMove);
+    c.addEventListener('touchend', handleEnd);
+    
+    function draw() {
+      t++;
+      
+      // slow fade
+      x.fillStyle = 'rgba(0, 0, 0, 0.06)';
+      x.fillRect(0, 0, c.width, c.height);
+      
+      // get active touches
+      const active = Object.values(lastTouches).filter(t => t.active);
+      
+      // bridges between simultaneous touches
+      for (let i = 0; i < active.length; i++) {
+        for (let j = i + 1; j < active.length; j++) {
+          bridge(active[i], active[j], 1);
+        }
+      }
+      
+      // draw active touch points
+      active.forEach(touch => {
+        const pulse = Math.sin(t * 0.1) * 0.3 + 0.7;
+        
+        x.beginPath();
+        x.arc(touch.x, touch.y, 8 * pulse, 0, Math.PI * 2);
+        x.fillStyle = `rgba(230, 200, 180, 0.6)`;
+        x.fill();
+        
+        // glow
+        const g = x.createRadialGradient(
+          touch.x, touch.y, 0,
+          touch.x, touch.y, 50
+        );
+        g.addColorStop(0, 'rgba(200, 170, 150, 0.2)');
+        g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        x.fillStyle = g;
+        x.fillRect(touch.x - 50, touch.y - 50, 100, 100);
+      });
+      
+      // update and draw trails
+      trails = trails.filter(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.05; // gravity
+        p.life -= 0.02;
+        
+        if (p.life > 0) {
+          x.beginPath();
+          x.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+          x.fillStyle = `rgba(190, 160, 150, ${p.life * 0.4})`;
+          x.fill();
+          return true;
+        }
+        return false;
+      });
+      
+      // update and draw echoes
+      echoes = echoes.filter(e => {
+        e.update();
+        e.draw();
+        return e.life > 0;
+      });
+      
+      requestAnimationFrame(draw);
+    }
+    
+    draw();
+    
+    addEventListener('resize', () => {
+      c.width = innerWidth;
+      c.height = innerHeight;
+    });
+  </script>
+</body>
+</html>
