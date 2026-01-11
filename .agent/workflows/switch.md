@@ -29,7 +29,7 @@ A single command to toggle presentation folders between published and unpublishe
 cd /Users/briandawson/workspace/presentation-library-builder
 
 # Move all content folders into presentations/
-for folder in "Ad Examples" "CIQ Stacks" "DB" "Deep" "Facets" "General" "Misc" "Other  Formats" "Proposals" "RLC-AI" "RLC-H" "Stage" "Tests" "Training"; do
+for folder in "Ad Examples" "CIQ Stacks" "DB" "Deep" "Facet Demos" "Facets" "General" "Misc" "Other  Formats" "Proposals" "RLC-AI" "RLC-H" "Stage" "Tests" "Training"; do
   if [ -d "$folder" ]; then
     mv "$folder" presentations/
   fi

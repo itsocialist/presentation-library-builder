@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FACETS // 5-Lens Interface</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --t-primary: #ff3333; --t-secondary: #ffffff; --t-accent: #ff6600; --t-dim: rgba(255,51,51,0.4); --t-bg: #000000;
+      --h-primary: #00ccff; --h-secondary: #88eeff; --h-accent: #0088cc; --h-dim: rgba(0,204,255,0.3); --h-bg: #000a10;
+      --c-primary: #ff9933; --c-secondary: #66ccff; --c-accent: #ffcc00; --c-dim: rgba(255,153,51,0.4); --c-bg: #0a0a12;
+      --s-primary: #00ff66; --s-secondary: #33ff99; --s-accent: #00cc44; --s-dim: rgba(0,255,102,0.3); --s-bg: #000800;
+      --a-primary: #e63946; --a-secondary: #2ec4b6; --a-accent: #ff9f1c; --a-dim: rgba(230,57,70,0.2); --a-bg: #ffffff; --a-text: #264653;
+      --primary: var(--t-primary); --secondary: var(--t-secondary); --accent: var(--t-accent); --dim: var(--t-dim); --bg: var(--t-bg);
+    }
+    body { font-family: 'Rajdhani', sans-serif; background: #0d1117; min-height: 100vh; overflow: hidden; user-select: none; }
+    body.tactical { --primary: var(--t-primary); --secondary: var(--t-secondary); --accent: var(--t-accent); --dim: var(--t-dim); --bg: var(--t-bg); }
+    body.holographic { --primary: var(--h-primary); --secondary: var(--h-secondary); --accent: var(--h-accent); --dim: var(--h-dim); --bg: var(--h-bg); }
+    body.command { --primary: var(--c-primary); --secondary: var(--c-secondary); --accent: var(--c-accent); --dim: var(--c-dim); --bg: var(--c-bg); }
+    body.stealth { --primary: var(--s-primary); --secondary: var(--s-secondary); --accent: var(--s-accent); --dim: var(--s-dim); --bg: var(--s-bg); }
+    body.analytics { --primary: var(--a-primary); --secondary: var(--a-secondary); --accent: var(--a-accent); --dim: var(--a-dim); --bg: var(--a-bg); }
+
+    .macos-env { width: 100vw; height: 100vh; background: linear-gradient(135deg, #1a1f2e 0%, #0d1117 50%, #161b22 100%); position: relative; transition: filter 0.6s ease, transform 0.6s ease; }
+    .macos-env.blurred { filter: blur(20px) brightness(0.25); transform: scale(0.95); }
+    .menu-bar { height: 24px; background: rgba(22,27,34,0.85); backdrop-filter: blur(20px); display: flex; align-items: center; padding: 0 14px; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.85); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .menu-bar-left, .menu-bar-right { display: flex; align-items: center; gap: 16px; }
+    .menu-bar-right { gap: 10px; font-size: 11px; }
+    .desktop { height: calc(100vh - 24px - 65px); position: relative; padding: 16px; display: flex; gap: 16px; }
+    .desktop-icons { position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 20px; z-index: 5; }
+    .desktop-icon { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; transition: transform 0.2s ease; }
+    .desktop-icon:hover { transform: scale(1.1); }
+    .desktop-icon-img { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    .desktop-icon-label { font-size: 11px; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+    .window { background: #1e1e1e; border-radius: 10px; box-shadow: 0 15px 50px rgba(0,0,0,0.4); overflow: hidden; display: flex; flex-direction: column; }
+    .window-titlebar { height: 36px; background: linear-gradient(180deg, #3d3d3d 0%, #2d2d2d 100%); display: flex; align-items: center; padding: 0 12px; gap: 8px; flex-shrink: 0; }
+    .traffic-light { width: 12px; height: 12px; border-radius: 50%; }
+    .traffic-light.red { background: #ff5f57; } .traffic-light.yellow { background: #ffbd2e; } .traffic-light.green { background: #28ca42; }
+    .window-title { flex: 1; text-align: center; font-size: 12px; color: rgba(255,255,255,0.7); }
+    .gmail-window { width: 52%; max-width: 780px; height: 88%; }
+    .gmail-toolbar { height: 32px; background: #2a2a2a; display: flex; align-items: center; padding: 0 10px; flex-shrink: 0; }
+    .url-bar { flex: 1; height: 22px; background: #1a1a1a; border-radius: 4px; display: flex; align-items: center; padding: 0 8px; font-size: 10px; color: rgba(255,255,255,0.5); }
+    .gmail-content { flex: 1; display: flex; background: #f6f8fc; overflow: hidden; }
+    .gmail-sidebar { width: 130px; background: #f6f8fc; padding: 8px; border-right: 1px solid #e0e0e0; flex-shrink: 0; }
+    .compose-btn { background: #c2e7ff; color: #001d35; border: none; border-radius: 14px; padding: 8px 14px; font-size: 11px; font-weight: 500; margin-bottom: 8px; width: 100%; }
+    .sidebar-item { padding: 5px 10px; border-radius: 14px; font-size: 11px; color: #444; margin-bottom: 2px; }
+    .sidebar-item.active { background: #d3e3fd; font-weight: 600; }
+    .gmail-main { flex: 1; display: flex; flex-direction: column; }
+    .email-thread { flex: 1; background: white; padding: 14px 18px; overflow-y: auto; }
+    .email-subject { font-size: 16px; color: #202124; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .email-label { background: #fce8e6; color: #c5221f; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 600; }
+    .email-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 11px; }
+    .email-from { font-size: 12px; color: #202124; font-weight: 600; }
+    .email-to { font-size: 10px; color: #5f6368; }
+    .email-body { font-size: 12px; line-height: 1.5; color: #3c4043; }
+    .email-body p { margin-bottom: 10px; }
+    .slack-window { width: 300px; height: 52%; position: absolute; right: 100px; top: 70px; }
+    .slack-content { flex: 1; display: flex; background: #1a1d21; overflow: hidden; }
+    .slack-channels { width: 170px; background: #19171d; padding: 10px; border-right: 1px solid #333; }
+    .slack-workspace { font-size: 13px; font-weight: 700; color: white; padding: 6px 8px; margin-bottom: 10px; }
+    .slack-section-title { font-size: 10px; color: rgba(255,255,255,0.5); padding: 6px 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .slack-channel { font-size: 11px; color: rgba(255,255,255,0.7); padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+    .slack-channel:hover { background: rgba(255,255,255,0.1); }
+    .slack-channel.active { background: #1164a3; color: white; }
+    .slack-channel.unread { color: white; font-weight: 600; }
+    .slack-badge { background: #e01e5a; color: white; font-size: 9px; padding: 1px 5px; border-radius: 8px; margin-left: 6px; }
+    .slack-messages { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .slack-msg { display: flex; gap: 8px; }
+    .slack-msg-avatar { width: 28px; height: 28px; border-radius: 4px; background: #4a154b; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; flex-shrink: 0; }
+    .slack-msg-content { flex: 1; }
+    .slack-msg-header { display: flex; align-items: baseline; gap: 6px; margin-bottom: 2px; }
+    .slack-msg-name { font-size: 11px; font-weight: 700; color: white; }
+    .slack-msg-time { font-size: 9px; color: rgba(255,255,255,0.4); }
+    .slack-msg-text { font-size: 11px; color: rgba(255,255,255,0.8); line-height: 1.4; }
+    .drive-window { width: 260px; height: 180px; position: absolute; right: 100px; bottom: 95px; }
+    .drive-content { flex: 1; background: white; padding: 10px; overflow: hidden; }
+    .drive-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e0e0e0; }
+    .drive-header-icon { font-size: 18px; }
+    .drive-header-title { font-size: 12px; font-weight: 500; color: #202124; }
+    .drive-files { display: flex; flex-direction: column; gap: 5px; }
+    .drive-file { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 10px; color: #3c4043; }
+    .drive-file:hover { background: #f1f3f4; }
+    .drive-file-icon { font-size: 14px; }
+    .drive-file-name { flex: 1; }
+    .drive-file-date { font-size: 9px; color: #5f6368; }
+    .dock { position: fixed; bottom: 6px; left: 50%; transform: translateX(-50%); height: 54px; background: rgba(30,30,30,0.7); backdrop-filter: blur(30px); border-radius: 14px; padding: 5px 8px; display: flex; gap: 4px; align-items: center; border: 1px solid rgba(255,255,255,0.12); z-index: 10; transition: opacity 0.4s ease, transform 0.4s ease; }
+    .dock.hidden { opacity: 0; transform: translateX(-50%) translateY(80px); pointer-events: none; }
+    .dock-item { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: transform 0.15s ease; }
+    .dock-item:hover { transform: scale(1.15) translateY(-4px); }
+    .dock-divider { width: 1px; height: 34px; background: rgba(255,255,255,0.12); margin: 0 3px; }
+    .dock-facets { position: relative; }
+    .dock-facets::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: rgba(255,255,255,0.6); border-radius: 50%; }
+
+    .hud-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000; pointer-events: none; opacity: 0; }
+    .hud-overlay.active { opacity: 1; pointer-events: auto; }
+    .hud-zoom-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; transform: perspective(1000px) rotateX(60deg) scale(0.3) translateY(100%); transform-origin: center bottom; opacity: 0; transition: transform 0.7s cubic-bezier(0.34,1.56,0.64,1), opacity 0.5s ease; }
+    .hud-overlay.active .hud-zoom-container { transform: perspective(1000px) rotateX(0deg) scale(1) translateY(0); opacity: 1; }
+    .hud-backdrop { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); opacity: 0.94; }
+    body.analytics .hud-backdrop { opacity: 1; }
+    .hud-grid { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
+    body.tactical .hud-grid { background-image: linear-gradient(rgba(255,51,51,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,51,51,0.04) 1px, transparent 1px); background-size: 50px 50px; }
+    body.holographic .hud-grid { background: linear-gradient(180deg, transparent 60%, rgba(0,204,255,0.08) 100%), repeating-linear-gradient(90deg, transparent, transparent 100px, rgba(0,204,255,0.1) 100px, rgba(0,204,255,0.1) 101px); }
+    body.command .hud-grid { background-image: linear-gradient(rgba(255,153,51,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(102,204,255,0.03) 1px, transparent 1px); background-size: 30px 30px; }
+    body.stealth .hud-grid { background-image: radial-gradient(circle at 50% 50%, rgba(0,255,102,0.02) 0%, transparent 50%); background-size: 100px 100px; }
+    body.analytics .hud-grid { background: none; }
+    .hud-scanlines { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px); pointer-events: none; }
+    body.analytics .hud-scanlines { display: none; }
+    .hud-scan-beam { position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%); box-shadow: 0 0 30px var(--primary); animation: scanBeam 4s linear infinite; pointer-events: none; opacity: 0.7; }
+    body.analytics .hud-scan-beam { display: none; }
+    @keyframes scanBeam { 0% { top: 0; opacity: 0; } 5% { opacity: 0.7; } 95% { opacity: 0.7; } 100% { top: 100%; opacity: 0; } }
+    .hud-corners { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
+    body.analytics .hud-corners { display: none; }
+    .hud-corner { position: absolute; width: 100px; height: 100px; }
+    .hud-corner svg { width: 100%; height: 100%; }
+    .hud-corner.tl { top: 15px; left: 15px; }
+    .hud-corner.tr { top: 15px; right: 15px; transform: scaleX(-1); }
+    .hud-corner.bl { bottom: 15px; left: 15px; transform: scaleY(-1); }
+    .hud-corner.br { bottom: 15px; right: 15px; transform: scale(-1); }
+    .lens-selector { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; background: rgba(0,0,0,0.6); padding: 6px; border-radius: 8px; border: 1px solid var(--dim); z-index: 100; opacity: 0; animation: fadeIn 0.5s ease 0.4s forwards; }
+    body.analytics .lens-selector { background: rgba(255,255,255,0.95); border-color: #e0e0e0; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    @keyframes fadeIn { to { opacity: 1; } }
+    .lens-btn { padding: 8px 14px; font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); background: transparent; border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; border-radius: 4px; }
+    body.analytics .lens-btn { font-family: 'Inter', sans-serif; color: #666; }
+    .lens-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.05); }
+    body.analytics .lens-btn:hover { color: #333; background: rgba(0,0,0,0.05); }
+    .lens-btn.active { color: var(--primary); background: rgba(255,255,255,0.08); border-color: var(--primary); box-shadow: 0 0 15px var(--dim); }
+    body.analytics .lens-btn.active { background: rgba(230,57,70,0.1); box-shadow: none; }
+    .hud-main { position: absolute; top: 70px; left: 30px; right: 30px; bottom: 30px; display: grid; grid-template-columns: 260px 1fr 280px; grid-template-rows: auto 1fr auto; gap: 14px; }
+    .hud-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--dim); opacity: 0; transform: translateY(-20px); animation: slideDown 0.5s ease 0.3s forwards; }
+    body.analytics .hud-header { border-color: #e0e0e0; }
+    @keyframes slideDown { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideLeft { to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
+    .hud-header-left, .hud-header-right { display: flex; flex-direction: column; gap: 2px; }
+    .hud-header-center { text-align: center; }
+    .hud-sys-label { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--dim); }
+    body.analytics .hud-sys-label { font-family: 'Inter', sans-serif; font-weight: 500; color: #999; letter-spacing: 1px; }
+    .hud-title { font-family: 'Orbitron', sans-serif; font-size: 26px; font-weight: 700; color: var(--secondary); text-shadow: 0 0 25px var(--dim); letter-spacing: 3px; }
+    body.holographic .hud-title, body.command .hud-title, body.stealth .hud-title { color: var(--primary); }
+    body.analytics .hud-title { font-family: 'Montserrat', sans-serif; color: #264653; text-shadow: none; letter-spacing: 1px; }
+    .hud-subtitle { font-size: 12px; color: var(--dim); letter-spacing: 1px; }
+    body.analytics .hud-subtitle { font-family: 'Inter', sans-serif; color: #888; }
+    .hud-status { display: flex; align-items: center; gap: 6px; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--primary); }
+    body.analytics .hud-status { font-family: 'Inter', sans-serif; }
+    .hud-status-dot { width: 6px; height: 6px; background: var(--primary); animation: blink 1s ease-in-out infinite; }
+    body.tactical .hud-status-dot { border-radius: 0; }
+    body.holographic .hud-status-dot, body.command .hud-status-dot, body.stealth .hud-status-dot, body.analytics .hud-status-dot { border-radius: 50%; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .hud-time { font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 600; color: var(--primary); }
+    body.analytics .hud-time { font-family: 'Montserrat', sans-serif; color: #264653; }
+    .hud-date { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--dim); }
+    body.analytics .hud-date { font-family: 'Inter', sans-serif; color: #999; }
+    .hud-panel { display: flex; flex-direction: column; gap: 12px; }
+    .hud-panel-left { opacity: 0; transform: translateX(-30px); animation: slideRight 0.6s ease 0.4s forwards; }
+    .hud-panel-center { opacity: 0; transform: translateY(30px); animation: slideUp 0.6s ease 0.5s forwards; }
+    .hud-panel-right { opacity: 0; transform: translateX(30px); animation: slideLeft 0.6s ease 0.5s forwards; }
+    .hud-card { background: rgba(255,255,255,0.02); border: 1px solid var(--dim); padding: 14px; position: relative; transition: all 0.3s ease; }
+    body.tactical .hud-card { border-radius: 0; }
+    body.tactical .hud-card::before { content: ''; position: absolute; top: 0; left: 0; width: 16px; height: 2px; background: var(--primary); }
+    body.tactical .hud-card::after { content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 16px; background: var(--primary); }
+    body.holographic .hud-card { border-radius: 10px; background: linear-gradient(135deg, rgba(0,204,255,0.06) 0%, rgba(0,0,0,0.4) 100%); box-shadow: 0 0 20px rgba(0,204,255,0.08), inset 0 1px 0 rgba(0,204,255,0.15); }
+    body.command .hud-card { border-radius: 6px; background: linear-gradient(180deg, rgba(255,153,51,0.04) 0%, rgba(0,0,0,0.3) 100%); border-color: rgba(255,153,51,0.3); }
+    body.command .hud-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--c-primary), var(--c-secondary), #ff6633); border-radius: 6px 6px 0 0; }
+    body.stealth .hud-card { border-radius: 8px; background: rgba(0,255,102,0.03); border-color: rgba(0,255,102,0.2); }
+    body.analytics .hud-card { border-radius: 12px; background: #ffffff; border: 1px solid #e8e8e8; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    body.analytics .hud-card::before, body.analytics .hud-card::after { display: none; }
+    .hud-card:hover { border-color: var(--primary); }
+    .entity-avatar { width: 60px; height: 60px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 700; position: relative; }
+    body.tactical .entity-avatar { border: 2px solid var(--secondary); color: var(--secondary); }
+    body.holographic .entity-avatar { border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); color: #000; box-shadow: 0 0 30px var(--dim); }
+    body.command .entity-avatar { border-radius: 8px; border: 2px solid var(--primary); color: var(--primary); background: rgba(255,153,51,0.1); }
+    body.stealth .entity-avatar { border-radius: 50%; border: 2px solid var(--primary); color: var(--primary); }
+    body.analytics .entity-avatar { border-radius: 50%; background: linear-gradient(135deg, #e63946, #f4a261); color: white; font-family: 'Montserrat', sans-serif; }
+    .entity-name { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 600; color: var(--secondary); text-align: center; margin-bottom: 2px; }
+    body.holographic .entity-name, body.command .entity-name, body.stealth .entity-name { color: white; }
+    body.analytics .entity-name { font-family: 'Montserrat', sans-serif; color: #264653; }
+    .entity-role { font-size: 11px; color: var(--dim); text-align: center; margin-bottom: 12px; }
+    body.analytics .entity-role { color: #888; }
+    .entity-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .entity-stat { background: rgba(0,0,0,0.3); border: 1px solid var(--dim); padding: 8px 6px; text-align: center; }
+    body.tactical .entity-stat { border-radius: 0; }
+    body.holographic .entity-stat, body.command .entity-stat, body.stealth .entity-stat { border-radius: 6px; }
+    body.analytics .entity-stat { border-radius: 8px; background: #f8f9fa; border: 1px solid #e8e8e8; }
+    .entity-stat-value { font-family: 'Orbitron', sans-serif; font-size: 18px; font-weight: 700; color: var(--primary); }
+    body.analytics .entity-stat-value { font-family: 'Montserrat', sans-serif; }
+    .entity-stat-label { font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); margin-top: 2px; }
+    body.analytics .entity-stat-label { font-family: 'Inter', sans-serif; font-size: 9px; color: #888; }
+    .chart-section { margin-top: 4px; }
+    .chart-title { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 1.5px; color: var(--dim); margin-bottom: 10px; }
+    body.analytics .chart-title { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px; color: #264653; letter-spacing: 0; }
+    .chart-bars { display: flex; align-items: flex-end; gap: 4px; height: 60px; }
+    .chart-bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; }
+    .chart-bar { width: 100%; transition: height 1s ease; position: relative; }
+    body.tactical .chart-bar { background: var(--primary); border-radius: 0; }
+    body.holographic .chart-bar { background: linear-gradient(180deg, var(--primary), var(--accent)); border-radius: 2px 2px 0 0; box-shadow: 0 0 8px var(--dim); }
+    body.command .chart-bar { background: linear-gradient(180deg, var(--c-primary), #ff6633); border-radius: 2px 2px 0 0; }
+    body.command .chart-bar:nth-child(odd) { background: linear-gradient(180deg, var(--c-secondary), #0066aa); }
+    body.stealth .chart-bar { background: var(--primary); border-radius: 2px 2px 0 0; opacity: 0.8; }
+    body.analytics .chart-bar { border-radius: 4px 4px 0 0; }
+    body.analytics .chart-bar-group:nth-child(1) .chart-bar { background: #e63946; }
+    body.analytics .chart-bar-group:nth-child(2) .chart-bar { background: #2ec4b6; }
+    body.analytics .chart-bar-group:nth-child(3) .chart-bar { background: #ff9f1c; }
+    body.analytics .chart-bar-group:nth-child(4) .chart-bar { background: #264653; }
+    body.analytics .chart-bar-group:nth-child(5) .chart-bar { background: #e63946; }
+    .chart-bar::after { content: attr(data-value); position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font-family: 'Share Tech Mono', monospace; font-size: 8px; color: var(--primary); }
+    body.analytics .chart-bar::after { font-family: 'Inter', sans-serif; font-weight: 600; color: #264653; }
+    .chart-bar-label { font-family: 'Share Tech Mono', monospace; font-size: 7px; color: var(--dim); margin-top: 4px; }
+    body.analytics .chart-bar-label { font-family: 'Inter', sans-serif; color: #888; }
+    .alert-card { background: rgba(255,51,51,0.08) !important; border-color: #ff3333 !important; display: flex; align-items: center; gap: 12px; animation: alertPulse 2s ease-in-out infinite; }
+    body.analytics .alert-card { background: #fef2f2 !important; border-color: #e63946 !important; animation: none; }
+    @keyframes alertPulse { 0%, 100% { box-shadow: 0 0 10px rgba(255,51,51,0.15); } 50% { box-shadow: 0 0 25px rgba(255,51,51,0.3); } }
+    .alert-icon { width: 38px; height: 38px; background: #ff3333; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; flex-shrink: 0; animation: alertBlink 0.8s ease-in-out infinite; }
+    body.tactical .alert-icon { border-radius: 0; }
+    body.holographic .alert-icon, body.command .alert-icon, body.stealth .alert-icon { border-radius: 50%; }
+    body.analytics .alert-icon { border-radius: 10px; background: #e63946; animation: none; }
+    @keyframes alertBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .alert-content { flex: 1; }
+    .alert-title { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 600; color: #ff3333; margin-bottom: 3px; letter-spacing: 1px; }
+    body.analytics .alert-title { font-family: 'Montserrat', sans-serif; color: #e63946; letter-spacing: 0; }
+    .alert-text { font-size: 11px; color: rgba(255,255,255,0.75); line-height: 1.3; }
+    body.analytics .alert-text { color: #666; }
+    .alert-meta { font-family: 'Share Tech Mono', monospace; font-size: 8px; color: rgba(255,51,51,0.5); margin-top: 4px; }
+    body.analytics .alert-meta { font-family: 'Inter', sans-serif; color: #999; }
+    .timeline-card { flex: 1; overflow-y: auto; }
+    .timeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--dim); }
+    body.analytics .timeline-header { border-color: #e8e8e8; }
+    .timeline-title { font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 1.5px; color: var(--dim); }
+    body.analytics .timeline-title { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 12px; color: #264653; letter-spacing: 0; }
+    .timeline-filter { font-family: 'Share Tech Mono', monospace; font-size: 8px; color: var(--primary); background: rgba(255,255,255,0.05); padding: 3px 8px; border: 1px solid var(--dim); }
+    body.tactical .timeline-filter { border-radius: 0; }
+    body.holographic .timeline-filter, body.command .timeline-filter, body.stealth .timeline-filter { border-radius: 4px; }
+    body.analytics .timeline-filter { font-family: 'Inter', sans-serif; background: #f8f9fa; border-color: #e8e8e8; color: #e63946; border-radius: 6px; }
+    .timeline-items { display: flex; flex-direction: column; gap: 8px; }
+    .timeline-item { display: flex; gap: 10px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--dim); cursor: pointer; transition: all 0.3s ease; opacity: 0; transform: translateX(-15px); }
+    body.tactical .timeline-item { border-radius: 0; }
+    body.holographic .timeline-item, body.command .timeline-item, body.stealth .timeline-item { border-radius: 8px; }
+    body.analytics .timeline-item { border-radius: 10px; background: #f8f9fa; border: 1px solid #e8e8e8; }
+    .timeline-item.visible { opacity: 1; transform: translateX(0); }
+    .timeline-item:hover { background: rgba(255,255,255,0.05); border-color: var(--primary); transform: translateX(3px); }
+    body.analytics .timeline-item:hover { background: #f0f0f0; }
+    .timeline-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; border: 1px solid var(--dim); }
+    body.tactical .timeline-icon { border-radius: 0; }
+    body.holographic .timeline-icon, body.command .timeline-icon, body.stealth .timeline-icon { border-radius: 6px; }
+    body.analytics .timeline-icon { border-radius: 8px; border: none; }
+    .timeline-icon.cal { border-color: #00ccff; background: rgba(0,204,255,0.1); }
+    .timeline-icon.email { border-color: #ff3333; background: rgba(255,51,51,0.1); }
+    .timeline-icon.slack { border-color: #ffaa00; background: rgba(255,170,0,0.1); }
+    .timeline-icon.doc { border-color: #aa88ff; background: rgba(170,136,255,0.1); }
+    body.analytics .timeline-icon.cal { background: rgba(46,196,182,0.15); }
+    body.analytics .timeline-icon.email { background: rgba(230,57,70,0.15); }
+    body.analytics .timeline-icon.slack { background: rgba(255,159,28,0.15); }
+    body.analytics .timeline-icon.doc { background: rgba(38,70,83,0.15); }
+    .timeline-content { flex: 1; min-width: 0; }
+    .timeline-item-title { font-size: 12px; font-weight: 600; color: var(--secondary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    body.holographic .timeline-item-title, body.command .timeline-item-title, body.stealth .timeline-item-title { color: white; }
+    body.analytics .timeline-item-title { color: #264653; }
+    .timeline-item-desc { font-size: 10px; color: rgba(255,255,255,0.5); }
+    body.analytics .timeline-item-desc { color: #888; }
+    .timeline-item-meta { display: flex; gap: 8px; margin-top: 4px; }
+    .timeline-time { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--primary); }
+    body.analytics .timeline-time { font-family: 'Inter', sans-serif; font-weight: 600; }
+    .timeline-source { font-family: 'Share Tech Mono', monospace; font-size: 8px; color: var(--dim); padding: 1px 5px; background: rgba(255,255,255,0.05); border: 1px solid var(--dim); }
+    body.tactical .timeline-source { border-radius: 0; }
+    body.holographic .timeline-source, body.command .timeline-source, body.stealth .timeline-source { border-radius: 3px; }
+    body.analytics .timeline-source { font-family: 'Inter', sans-serif; background: white; border-color: #e8e8e8; border-radius: 4px; color: #888; }
+    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric-card { padding: 12px; text-align: center; position: relative; }
+    .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--primary); }
+    body.tactical .metric-card::before { border-radius: 0; }
+    body.holographic .metric-card::before, body.command .metric-card::before, body.stealth .metric-card::before { border-radius: 10px 10px 0 0; }
+    body.analytics .metric-card::before { border-radius: 12px 12px 0 0; }
+    .metric-card.warning::before { background: #ff6633; }
+    body.analytics .metric-card.warning::before { background: #ff9f1c; }
+    .metric-value { font-family: 'Orbitron', sans-serif; font-size: 28px; font-weight: 800; color: var(--primary); line-height: 1; text-shadow: 0 0 12px var(--dim); }
+    body.analytics .metric-value { font-family: 'Montserrat', sans-serif; text-shadow: none; }
+    .metric-card.warning .metric-value { color: #ff6633; }
+    body.analytics .metric-card.warning .metric-value { color: #ff9f1c; }
+    .metric-label { font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); margin-top: 4px; }
+    body.analytics .metric-label { font-family: 'Inter', sans-serif; font-size: 9px; color: #888; }
+    .metric-change { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--primary); margin-top: 3px; }
+    body.analytics .metric-change { font-family: 'Inter', sans-serif; }
+    .metric-change.down { color: #ff3333; }
+    body.analytics .metric-change.down { color: #e63946; }
+    .gauges-card { padding: 12px; }
+    .gauges-title { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 1.5px; color: var(--dim); margin-bottom: 12px; text-align: center; }
+    body.analytics .gauges-title { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 11px; color: #264653; letter-spacing: 0; }
+    .gauges-row { display: flex; justify-content: space-around; }
+    .gauge { position: relative; width: 58px; height: 58px; }
+    .gauge svg { transform: rotate(-90deg); }
+    .gauge-bg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 5; }
+    body.analytics .gauge-bg { stroke: #e8e8e8; }
+    .gauge-fill { fill: none; stroke: var(--primary); stroke-width: 5; stroke-dasharray: 150; stroke-dashoffset: 150; transition: stroke-dashoffset 1.5s ease; }
+    body.tactical .gauge-fill { stroke-linecap: butt; }
+    body.holographic .gauge-fill, body.command .gauge-fill, body.stealth .gauge-fill, body.analytics .gauge-fill { stroke-linecap: round; }
+    .gauge.warning .gauge-fill { stroke: #ff6633; }
+    body.analytics .gauge.warning .gauge-fill { stroke: #ff9f1c; }
+    body.analytics .gauge:nth-child(1) .gauge-fill { stroke: #e63946; }
+    body.analytics .gauge:nth-child(2) .gauge-fill { stroke: #2ec4b6; }
+    body.analytics .gauge:nth-child(3) .gauge-fill { stroke: #ff9f1c; }
+    .gauge-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+    .gauge-value { font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 700; color: var(--secondary); }
+    body.holographic .gauge-value, body.command .gauge-value, body.stealth .gauge-value { color: white; }
+    body.analytics .gauge-value { font-family: 'Montserrat', sans-serif; color: #264653; }
+    .gauge-label { font-family: 'Share Tech Mono', monospace; font-size: 6px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--dim); }
+    body.analytics .gauge-label { font-family: 'Inter', sans-serif; color: #888; }
+    .actions-card { flex: 1; padding: 12px; }
+    .actions-title { font-family: 'Orbitron', sans-serif; font-size: 9px; letter-spacing: 1.5px; color: var(--dim); margin-bottom: 10px; }
+    body.analytics .actions-title { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 11px; color: #264653; letter-spacing: 0; }
+    .action-item { display: flex; align-items: center; gap: 8px; padding: 8px; background: rgba(255,255,255,0.02); border: 1px solid var(--dim); margin-bottom: 6px; cursor: pointer; transition: all 0.2s ease; }
+    body.tactical .action-item { border-radius: 0; }
+    body.holographic .action-item, body.command .action-item, body.stealth .action-item { border-radius: 6px; }
+    body.analytics .action-item { border-radius: 8px; background: #f8f9fa; border: 1px solid #e8e8e8; }
+    .action-item:hover { background: rgba(255,255,255,0.05); border-color: var(--primary); transform: translateX(3px); }
+    body.analytics .action-item:hover { background: #f0f0f0; }
+    .action-checkbox { width: 16px; height: 16px; border: 2px solid var(--dim); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--primary); }
+    body.tactical .action-checkbox { border-radius: 0; }
+    body.holographic .action-checkbox, body.command .action-checkbox, body.stealth .action-checkbox { border-radius: 3px; }
+    body.analytics .action-checkbox { border-radius: 50%; border-color: #ccc; }
+    .action-text { flex: 1; font-size: 11px; color: rgba(255,255,255,0.75); }
+    body.analytics .action-text { color: #444; }
+    .action-priority { font-family: 'Share Tech Mono', monospace; font-size: 8px; padding: 2px 5px; }
+    .action-priority.p1 { background: rgba(255,51,51,0.2); color: #ff3333; border: 1px solid #ff3333; }
+    .action-priority.p2 { background: rgba(255,153,51,0.2); color: #ff9933; border: 1px solid #ff9933; }
+    body.tactical .action-priority { border-radius: 0; }
+    body.holographic .action-priority, body.command .action-priority, body.stealth .action-priority { border-radius: 3px; }
+    body.analytics .action-priority { font-family: 'Inter', sans-serif; font-weight: 600; border-radius: 4px; }
+    body.analytics .action-priority.p1 { background: rgba(230,57,70,0.15); color: #e63946; border-color: #e63946; }
+    body.analytics .action-priority.p2 { background: rgba(255,159,28,0.15); color: #ff9f1c; border-color: #ff9f1c; }
+    .hud-footer { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid var(--dim); opacity: 0; animation: slideUp 0.5s ease 0.7s forwards; }
+    body.analytics .hud-footer { border-color: #e8e8e8; }
+    .hud-footer-left, .hud-footer-right { display: flex; align-items: center; gap: 16px; }
+    .hud-footer-item { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--dim); }
+    body.analytics .hud-footer-item { font-family: 'Inter', sans-serif; color: #888; }
+    .hud-footer-item span { color: var(--primary); }
+    .hud-shortcut { background: rgba(255,255,255,0.05); border: 1px solid var(--dim); padding: 5px 10px; font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--primary); }
+    body.tactical .hud-shortcut { border-radius: 0; }
+    body.holographic .hud-shortcut, body.command .hud-shortcut, body.stealth .hud-shortcut { border-radius: 5px; }
+    body.analytics .hud-shortcut { font-family: 'Inter', sans-serif; background: #f8f9fa; border-color: #e8e8e8; border-radius: 6px; }
+    .trigger-hint { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); padding: 12px 20px; border-radius: 10px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.15); z-index: 100; transition: opacity 0.3s ease, transform 0.3s ease; }
+    .trigger-hint.hidden { opacity: 0; transform: translateX(-50%) translateY(15px); pointer-events: none; }
+    .trigger-hint-text { font-size: 13px; color: rgba(255,255,255,0.85); }
+    .key { background: rgba(255,255,255,0.1); padding: 5px 9px; border-radius: 5px; font-size: 12px; font-family: 'Share Tech Mono', monospace; color: white; border: 1px solid rgba(255,255,255,0.2); }
+  </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
+</head>
+<body class="tactical">
+  <div class="macos-env" id="macosEnv">
+    <div class="menu-bar">
+      <div class="menu-bar-left"><span></span><span>Chrome</span><span>File</span><span>Edit</span><span>View</span></div>
+      <div class="menu-bar-right"><span>📶</span><span>🔋 94%</span><span id="menubarTime"></span></div>
+    </div>
+    <div class="desktop">
+      <div class="window gmail-window">
+        <div class="window-titlebar"><div class="traffic-light red"></div><div class="traffic-light yellow"></div><div class="traffic-light green"></div><div class="window-title">Inbox - pat.neilson@acmecorp.com</div></div>
+        <div class="gmail-toolbar"><div class="url-bar"><span style="color:#28ca42;margin-right:6px;">🔒</span>mail.google.com/mail/u/0/#inbox</div></div>
+        <div class="gmail-content">
+          <div class="gmail-sidebar"><button class="compose-btn">+ Compose</button><div class="sidebar-item active">📥 Inbox</div><div class="sidebar-item">⭐ Starred</div><div class="sidebar-item">📤 Sent</div></div>
+          <div class="gmail-main"><div class="email-thread"><div class="email-subject">Q1 Platform Strategy - Need Your Input<span class="email-label">PRIORITY</span></div><div class="email-header"><div class="avatar">PN</div><div><div class="email-from">Pat Neilson &lt;pat.neilson@acmecorp.com&gt;</div><div class="email-to">to me • 10:47 AM (2 hours ago)</div></div></div><div class="email-body"><p>Brian,</p><p>Following up on our conversation from yesterday's sync. Key points I'd like your input on:</p><p>1. Timeline for infrastructure migration - Gary pushing Q2<br>2. Vendor evaluation matrix - review tomorrow?<br>3. Resource allocation for API initiative</p><p>I've blocked time for tomorrow at 2pm.</p><p>Also - did you see the Slack thread about the customer escalation?</p><p>Thanks,<br>Pat</p></div></div></div>
+        </div>
+      </div>
+      <div class="window slack-window">
+        <div class="window-titlebar"><div class="traffic-light red"></div><div class="traffic-light yellow"></div><div class="traffic-light green"></div><div class="window-title">Slack - Acme Corp</div></div>
+        <div class="slack-content">
+          <div class="slack-channels"><div class="slack-workspace">🏢 Acme Corp</div><div class="slack-section-title">Channels</div><div class="slack-channel active"># general</div><div class="slack-channel unread"># platform-team <span class="slack-badge">3</span></div><div class="slack-channel"># engineering</div><div class="slack-section-title">Direct Messages</div><div class="slack-channel unread">Pat Neilson <span class="slack-badge">1</span></div><div class="slack-channel">Gary Murtz</div></div>
+          <div class="slack-messages"><div class="slack-msg"><div class="slack-msg-avatar">PN</div><div class="slack-msg-content"><div class="slack-msg-header"><span class="slack-msg-name">Pat Neilson</span><span class="slack-msg-time">12:34 PM</span></div><div class="slack-msg-text">Quick sync before Gary meeting?</div></div></div><div class="slack-msg"><div class="slack-msg-avatar">JD</div><div class="slack-msg-content"><div class="slack-msg-header"><span class="slack-msg-name">Jane Doe</span><span class="slack-msg-time">12:28 PM</span></div><div class="slack-msg-text">Customer escalation flagged</div></div></div></div>
+        </div>
+      </div>
+      <div class="window drive-window">
+        <div class="window-titlebar"><div class="traffic-light red"></div><div class="traffic-light yellow"></div><div class="traffic-light green"></div><div class="window-title">Google Drive</div></div>
+        <div class="drive-content"><div class="drive-header"><span class="drive-header-icon">📁</span><span class="drive-header-title">Shared with me</span></div><div class="drive-files"><div class="drive-file"><span class="drive-file-icon">📊</span><span class="drive-file-name">Q1 Platform Strategy.pptx</span><span class="drive-file-date">3h</span></div><div class="drive-file"><span class="drive-file-icon">📝</span><span class="drive-file-name">Vendor Evaluation.xlsx</span><span class="drive-file-date">1d</span></div><div class="drive-file"><span class="drive-file-icon">📄</span><span class="drive-file-name">API Initiative.docx</span><span class="drive-file-date">2d</span></div></div></div>
+      </div>
+      <div class="desktop-icons"><div class="desktop-icon"><div class="desktop-icon-img" style="background: linear-gradient(135deg, #4285f4, #0d47a1);">📁</div><span class="desktop-icon-label">Documents</span></div><div class="desktop-icon"><div class="desktop-icon-img" style="background: linear-gradient(135deg, #34a853, #1b5e20);">📊</div><span class="desktop-icon-label">Reports</span></div></div>
+    </div>
+    <div class="dock" id="dock"><div class="dock-item" style="background: linear-gradient(135deg, #1a73e8, #0d47a1);">📁</div><div class="dock-item" style="background: linear-gradient(135deg, #ea4335, #c62828);">🌐</div><div class="dock-item" style="background: linear-gradient(135deg, #4a154b, #2d0a2e);">💬</div><div class="dock-item" style="background: linear-gradient(135deg, #fbbc04, #ea8600);">📧</div><div class="dock-item" style="background: linear-gradient(135deg, #34a853, #1b5e20);">📅</div><div class="dock-divider"></div><div class="dock-item dock-facets" id="facetsBtn" style="background: linear-gradient(135deg, #ff3333, #cc0000); box-shadow: 0 0 20px rgba(255,51,51,0.5);" onclick="toggleHUD()">◈</div></div>
+  </div>
+  <div class="hud-overlay" id="hudOverlay">
+    <div class="hud-zoom-container">
+      <div class="hud-backdrop"></div><div class="hud-grid"></div><div class="hud-scanlines"></div><div class="hud-scan-beam"></div>
+      <div class="hud-corners"><div class="hud-corner tl"><svg viewBox="0 0 100 100"><path d="M0 50 L0 0 L50 0" fill="none" stroke="var(--secondary)" stroke-width="2"/><rect x="15" y="15" width="14" height="14" fill="none" stroke="var(--primary)" stroke-width="2"/><rect x="35" y="5" width="8" height="4" fill="var(--primary)"/><rect x="5" y="35" width="4" height="8" fill="var(--primary)"/></svg></div><div class="hud-corner tr"><svg viewBox="0 0 100 100"><path d="M0 50 L0 0 L50 0" fill="none" stroke="var(--secondary)" stroke-width="2"/><rect x="15" y="15" width="14" height="14" fill="none" stroke="var(--primary)" stroke-width="2"/><rect x="35" y="5" width="8" height="4" fill="var(--primary)"/><rect x="5" y="35" width="4" height="8" fill="var(--primary)"/></svg></div><div class="hud-corner bl"><svg viewBox="0 0 100 100"><path d="M0 50 L0 0 L50 0" fill="none" stroke="var(--secondary)" stroke-width="2"/><rect x="15" y="15" width="14" height="14" fill="none" stroke="var(--primary)" stroke-width="2"/><rect x="35" y="5" width="8" height="4" fill="var(--primary)"/><rect x="5" y="35" width="4" height="8" fill="var(--primary)"/></svg></div><div class="hud-corner br"><svg viewBox="0 0 100 100"><path d="M0 50 L0 0 L50 0" fill="none" stroke="var(--secondary)" stroke-width="2"/><rect x="15" y="15" width="14" height="14" fill="none" stroke="var(--primary)" stroke-width="2"/><rect x="35" y="5" width="8" height="4" fill="var(--primary)"/><rect x="5" y="35" width="4" height="8" fill="var(--primary)"/></svg></div></div>
+      <div class="lens-selector"><button class="lens-btn active" data-lens="tactical" onclick="setLens('tactical')">◼ TACTICAL</button><button class="lens-btn" data-lens="holographic" onclick="setLens('holographic')">◯ HOLO</button><button class="lens-btn" data-lens="command" onclick="setLens('command')">▣ COMMAND</button><button class="lens-btn" data-lens="stealth" onclick="setLens('stealth')">◇ STEALTH</button><button class="lens-btn" data-lens="analytics" onclick="setLens('analytics')">◉ ANALYTICS</button></div>
+      <div class="hud-main">
+        <div class="hud-header"><div class="hud-header-left"><div class="hud-sys-label">FACETS // v2.2</div><div class="hud-status"><div class="hud-status-dot"></div><span>CONTEXT LOCK</span></div></div><div class="hud-header-center"><div class="hud-sys-label">PRIMARY ENTITY</div><div class="hud-title">PAT NEILSON</div><div class="hud-subtitle">CTO • Acme Corp • Thread Active</div></div><div class="hud-header-right"><div class="hud-time" id="hudTime">14:47:23</div><div class="hud-date" id="hudDate">FRI 10 JAN 2026</div></div></div>
+        <div class="hud-panel hud-panel-left"><div class="hud-card entity-card"><div class="entity-avatar">PN</div><div class="entity-name">Pat Neilson</div><div class="entity-role">Chief Technology Officer</div><div class="entity-stats"><div class="entity-stat"><div class="entity-stat-value" data-target="47">0</div><div class="entity-stat-label">Threads</div></div><div class="entity-stat"><div class="entity-stat-value" data-target="12">0</div><div class="entity-stat-label">Meetings</div></div><div class="entity-stat"><div class="entity-stat-value" data-target="89" data-suffix="%">0</div><div class="entity-stat-label">Response</div></div><div class="entity-stat"><div class="entity-stat-value" data-target="2.1" data-suffix="h" data-decimal="true">0</div><div class="entity-stat-label">Avg Reply</div></div></div></div><div class="hud-card chart-section"><div class="chart-title">7-DAY INTERACTION</div><div class="chart-bars"><div class="chart-bar-group"><div class="chart-bar" data-height="22" data-value="3" style="height:0"></div><div class="chart-bar-label">M</div></div><div class="chart-bar-group"><div class="chart-bar" data-height="40" data-value="5" style="height:0"></div><div class="chart-bar-label">T</div></div><div class="chart-bar-group"><div class="chart-bar" data-height="55" data-value="7" style="height:0"></div><div class="chart-bar-label">W</div></div><div class="chart-bar-group"><div class="chart-bar" data-height="32" data-value="4" style="height:0"></div><div class="chart-bar-label">T</div></div><div class="chart-bar-group"><div class="chart-bar" data-height="60" data-value="8" style="height:0"></div><div class="chart-bar-label">F</div></div></div></div></div>
+        <div class="hud-panel hud-panel-center"><div class="hud-card alert-card"><div class="alert-icon">⚠</div><div class="alert-content"><div class="alert-title">▲ PRIORITY ESCALATION</div><div class="alert-text">Customer escalation in #platform-team requires attention.</div><div class="alert-meta">slack/platform-team • 45m • CONF: 0.94</div></div></div><div class="hud-card timeline-card"><div class="timeline-header"><div class="timeline-title">SIGNALS</div><div class="timeline-filter">24H • PAT</div></div><div class="timeline-items"><div class="timeline-item" data-delay="0"><div class="timeline-icon cal">📅</div><div class="timeline-content"><div class="timeline-item-title">Platform Strategy Review</div><div class="timeline-item-desc">Tomorrow 2PM • Conf Room A</div><div class="timeline-item-meta"><span class="timeline-time">TMR 14:00</span><span class="timeline-source">calendar</span></div></div></div><div class="timeline-item" data-delay="60"><div class="timeline-icon cal">📅</div><div class="timeline-content"><div class="timeline-item-title">1:1 with Gary Murtz</div><div class="timeline-item-desc">Weekly sync</div><div class="timeline-item-meta"><span class="timeline-time">TODAY 16:00</span><span class="timeline-source">calendar</span></div></div></div><div class="timeline-item" data-delay="120"><div class="timeline-icon email">📧</div><div class="timeline-content"><div class="timeline-item-title">Vendor Evaluation Matrix</div><div class="timeline-item-desc">3 messages • Security added</div><div class="timeline-item-meta"><span class="timeline-time">YESTERDAY</span><span class="timeline-source">gmail</span></div></div></div><div class="timeline-item" data-delay="180"><div class="timeline-icon slack">💬</div><div class="timeline-content"><div class="timeline-item-title">DM: "Quick sync?"</div><div class="timeline-item-desc">Align on Q2 ask</div><div class="timeline-item-meta"><span class="timeline-time">2H AGO</span><span class="timeline-source">slack</span></div></div></div><div class="timeline-item" data-delay="240"><div class="timeline-icon doc">📄</div><div class="timeline-content"><div class="timeline-item-title">Q1 Platform Strategy.pptx</div><div class="timeline-item-desc">Edited by Pat</div><div class="timeline-item-meta"><span class="timeline-time">3H AGO</span><span class="timeline-source">drive</span></div></div></div></div></div></div>
+        <div class="hud-panel hud-panel-right"><div class="metrics-grid"><div class="hud-card metric-card"><div class="metric-value" data-target="7">0</div><div class="metric-label">Threads</div><div class="metric-change">↑ 2 wk</div></div><div class="hud-card metric-card warning"><div class="metric-value" data-target="3">0</div><div class="metric-label">Actions</div><div class="metric-change down">1 due</div></div><div class="hud-card metric-card"><div class="metric-value" data-target="2">0</div><div class="metric-label">Meetings</div><div class="metric-change">Next: TMR</div></div><div class="hud-card metric-card"><div class="metric-value" data-target="94">0</div><div class="metric-label">Confidence</div><div class="metric-change">High</div></div></div><div class="hud-card gauges-card"><div class="gauges-title">COVERAGE</div><div class="gauges-row"><div class="gauge" data-percent="92"><svg width="58" height="58"><circle class="gauge-bg" cx="29" cy="29" r="24"></circle><circle class="gauge-fill" cx="29" cy="29" r="24"></circle></svg><div class="gauge-text"><div class="gauge-value">92%</div><div class="gauge-label">EMAIL</div></div></div><div class="gauge" data-percent="78"><svg width="58" height="58"><circle class="gauge-bg" cx="29" cy="29" r="24"></circle><circle class="gauge-fill" cx="29" cy="29" r="24"></circle></svg><div class="gauge-text"><div class="gauge-value">78%</div><div class="gauge-label">SLACK</div></div></div><div class="gauge warning" data-percent="65"><svg width="58" height="58"><circle class="gauge-bg" cx="29" cy="29" r="24"></circle><circle class="gauge-fill" cx="29" cy="29" r="24"></circle></svg><div class="gauge-text"><div class="gauge-value">65%</div><div class="gauge-label">DOCS</div></div></div></div></div><div class="hud-card actions-card"><div class="actions-title">ACTIONS</div><div class="action-item"><div class="action-checkbox">○</div><div class="action-text">Respond to escalation</div><div class="action-priority p1">P1</div></div><div class="action-item"><div class="action-checkbox">○</div><div class="action-text">Reply to Pat's DM</div><div class="action-priority p1">P1</div></div><div class="action-item"><div class="action-checkbox">○</div><div class="action-text">Review vendor matrix</div><div class="action-priority p2">P2</div></div></div></div>
+        <div class="hud-footer"><div class="hud-footer-left"><div class="hud-footer-item">PROFILE: <span>HUNTER</span></div><div class="hud-footer-item">DENSITY: <span>TACTICAL</span></div><div class="hud-footer-item">SOURCES: <span>4</span></div></div><div class="hud-footer-right"><div class="hud-footer-item">ANCHORS: <span>VERIFIED</span></div><div class="hud-shortcut">ESC CLOSE</div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="trigger-hint" id="triggerHint"><span class="trigger-hint-text">Press</span><span class="key">⌘</span><span class="key">⇧</span><span class="key">F</span><span class="trigger-hint-text">to activate FACETS</span></div>
+  <script>
+    let hudActive = false, currentLens = 'tactical';
+    const hudOverlay = document.getElementById('hudOverlay'), macosEnv = document.getElementById('macosEnv'), dock = document.getElementById('dock'), triggerHint = document.getElementById('triggerHint'), facetsBtn = document.getElementById('facetsBtn');
+    const lensColors = { tactical: { bg: 'linear-gradient(135deg, #ff3333, #cc0000)', shadow: 'rgba(255,51,51,0.5)' }, holographic: { bg: 'linear-gradient(135deg, #00ccff, #0088cc)', shadow: 'rgba(0,204,255,0.5)' }, command: { bg: 'linear-gradient(135deg, #ff9933, #cc6600)', shadow: 'rgba(255,153,51,0.5)' }, stealth: { bg: 'linear-gradient(135deg, #00ff66, #00aa44)', shadow: 'rgba(0,255,102,0.5)' }, analytics: { bg: 'linear-gradient(135deg, #e63946, #f4a261)', shadow: 'rgba(230,57,70,0.5)' } };
+    function setLens(lens) { currentLens = lens; document.body.className = lens; document.querySelectorAll('.lens-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.lens === lens)); facetsBtn.style.background = lensColors[lens].bg; facetsBtn.style.boxShadow = '0 0 20px ' + lensColors[lens].shadow; }
+    function toggleHUD() {
+      hudActive = !hudActive;
+      if (hudActive) {
+        hudOverlay.classList.add('active'); macosEnv.classList.add('blurred'); dock.classList.add('hidden'); triggerHint.classList.add('hidden');
+        setTimeout(() => { document.querySelectorAll('.timeline-item').forEach((item, i) => { const delay = parseInt(item.dataset.delay) || i * 60; setTimeout(() => item.classList.add('visible'), delay); }); }, 600);
+        setTimeout(() => { document.querySelectorAll('.metric-value[data-target], .entity-stat-value[data-target]').forEach(el => { const target = parseFloat(el.dataset.target), suffix = el.dataset.suffix || '', isDecimal = el.dataset.decimal === 'true'; animateValue(el, 0, target, 1000, suffix, isDecimal); }); }, 500);
+        setTimeout(() => { document.querySelectorAll('.chart-bar').forEach(bar => bar.style.height = bar.dataset.height + 'px'); }, 600);
+        setTimeout(() => { document.querySelectorAll('.gauge').forEach(gauge => { const percent = parseInt(gauge.dataset.percent), fill = gauge.querySelector('.gauge-fill'), offset = 150 - (percent / 100) * 150; fill.style.strokeDashoffset = offset; }); }, 700);
+      } else {
+        hudOverlay.classList.remove('active'); macosEnv.classList.remove('blurred'); dock.classList.remove('hidden');
+        document.querySelectorAll('.timeline-item').forEach(item => item.classList.remove('visible'));
+        document.querySelectorAll('.metric-value[data-target], .entity-stat-value[data-target]').forEach(el => el.textContent = '0');
+        document.querySelectorAll('.chart-bar').forEach(bar => bar.style.height = '0');
+        document.querySelectorAll('.gauge-fill').forEach(fill => fill.style.strokeDashoffset = 150);
+      }
+    }
+    function animateValue(el, start, end, duration, suffix, isDecimal) { const range = end - start, startTime = performance.now(); function update(currentTime) { const elapsed = currentTime - startTime, progress = Math.min(elapsed / duration, 1), easeOut = 1 - Math.pow(1 - progress, 3), current = start + range * easeOut; el.textContent = (isDecimal ? current.toFixed(1) : Math.floor(current)) + suffix; if (progress < 1) requestAnimationFrame(update); } requestAnimationFrame(update); }
+    document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'f') { e.preventDefault(); toggleHUD(); } if (e.key === 'Escape' && hudActive) toggleHUD(); if (hudActive) { if (e.key === '1') setLens('tactical'); if (e.key === '2') setLens('holographic'); if (e.key === '3') setLens('command'); if (e.key === '4') setLens('stealth'); if (e.key === '5') setLens('analytics'); } });
+    function updateTime() { const now = new Date(), timeStr = now.toLocaleTimeString('en-US', { hour12: false }), dateStr = now.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase(); document.getElementById('hudTime').textContent = timeStr; document.getElementById('hudDate').textContent = dateStr; document.getElementById('menubarTime').textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+    updateTime(); setInterval(updateTime, 1000);
+    setTimeout(() => { if (!hudActive) triggerHint.classList.add('hidden'); }, 5000);
+    document.querySelector('.hud-backdrop').addEventListener('click', () => { if (hudActive) toggleHUD(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INFERENCE OPS // GPU Pipeline Tactical Trainer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+    
+    body {
+      background: #000;
+      overflow: hidden;
+      font-family: 'Share Tech Mono', monospace;
+      color: #00ffaa;
+    }
+    
+    #game-container {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+    
+    canvas { display: block; }
+    
+    /* ============================================
+       HUD OVERLAY
+       ============================================ */
+    .hud {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+    
+    /* Top Bar */
+    .hud-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: linear-gradient(180deg, rgba(0,20,10,0.9) 0%, transparent 100%);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 15px 30px;
+    }
+    
+    .hud-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      letter-spacing: 3px;
+      color: #00ffaa;
+      text-shadow: 0 0 20px rgba(0,255,170,0.5);
+    }
+    
+    .hud-stage {
+      text-align: center;
+    }
+    
+    .stage-label {
+      font-size: 10px;
+      color: rgba(0,255,170,0.5);
+      letter-spacing: 2px;
+    }
+    
+    .stage-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      color: #00ffaa;
+      text-shadow: 0 0 15px rgba(0,255,170,0.8);
+    }
+    
+    .hud-stats {
+      text-align: right;
+    }
+    
+    .stat-row {
+      display: flex;
+      gap: 20px;
+      justify-content: flex-end;
+    }
+    
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .stat-label {
+      font-size: 9px;
+      color: rgba(0,255,170,0.5);
+      letter-spacing: 1px;
+    }
+    
+    .stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      color: #00ffaa;
+    }
+    
+    /* Bottom Bar */
+    .hud-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(0deg, rgba(0,20,10,0.9) 0%, transparent 100%);
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    
+    /* Batch Meter */
+    .batch-meter {
+      width: 200px;
+    }
+    
+    .batch-label {
+      font-size: 10px;
+      color: rgba(0,255,170,0.5);
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    
+    .batch-bar {
+      height: 20px;
+      background: rgba(0,255,170,0.1);
+      border: 1px solid rgba(0,255,170,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .batch-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00ffaa, #00ff66);
+      width: 0%;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 20px rgba(0,255,170,0.5);
+    }
+    
+    .batch-count {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      color: #000;
+      text-shadow: 0 0 5px #00ffaa;
+    }
+    
+    /* Controls Help */
+    .controls-help {
+      text-align: center;
+      font-size: 11px;
+      color: rgba(0,255,170,0.6);
+    }
+    
+    .controls-help kbd {
+      background: rgba(0,255,170,0.15);
+      padding: 4px 10px;
+      border: 1px solid rgba(0,255,170,0.3);
+      margin: 0 3px;
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    /* Throughput Meter */
+    .throughput-meter {
+      width: 200px;
+      text-align: right;
+    }
+    
+    .throughput-label {
+      font-size: 10px;
+      color: rgba(0,255,170,0.5);
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    
+    .throughput-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 28px;
+      color: #00ffaa;
+      text-shadow: 0 0 20px rgba(0,255,170,0.5);
+    }
+    
+    .throughput-unit {
+      font-size: 12px;
+      color: rgba(0,255,170,0.5);
+    }
+    
+    /* Educational Popup */
+    .edu-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,20,10,0.95);
+      border: 2px solid #00ffaa;
+      padding: 30px 40px;
+      max-width: 500px;
+      text-align: center;
+      z-index: 200;
+      pointer-events: auto;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      box-shadow: 0 0 50px rgba(0,255,170,0.3);
+    }
+    
+    .edu-popup.visible {
+      opacity: 1;
+    }
+    
+    .edu-popup h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 20px;
+      color: #00ffaa;
+      margin-bottom: 15px;
+      letter-spacing: 2px;
+    }
+    
+    .edu-popup p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 15px;
+    }
+    
+    .edu-popup .highlight {
+      color: #00ffaa;
+      font-weight: bold;
+    }
+    
+    .edu-popup button {
+      background: transparent;
+      border: 2px solid #00ffaa;
+      color: #00ffaa;
+      padding: 12px 30px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.2s ease;
+    }
+    
+    .edu-popup button:hover {
+      background: #00ffaa;
+      color: #000;
+    }
+    
+    /* Stage Indicator */
+    .stage-indicator {
+      position: fixed;
+      left: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .stage-dot {
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(0,255,170,0.3);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .stage-dot.active {
+      background: #00ffaa;
+      border-color: #00ffaa;
+      box-shadow: 0 0 15px rgba(0,255,170,0.8);
+    }
+    
+    .stage-dot.complete {
+      background: rgba(0,255,170,0.3);
+      border-color: rgba(0,255,170,0.5);
+    }
+    
+    .stage-dot::after {
+      content: attr(data-stage);
+      position: absolute;
+      left: 25px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: rgba(0,255,170,0.5);
+      white-space: nowrap;
+    }
+    
+    .stage-dot.active::after {
+      color: #00ffaa;
+    }
+    
+    /* Memory Bandwidth Warning */
+    .bandwidth-warning {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,50,50,0.2);
+      border: 1px solid #ff3333;
+      padding: 10px 25px;
+      font-size: 12px;
+      color: #ff3333;
+      letter-spacing: 1px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .bandwidth-warning.visible {
+      opacity: 1;
+      animation: warningPulse 0.5s ease-in-out infinite;
+    }
+    
+    @keyframes warningPulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(255,51,51,0.3); }
+      50% { box-shadow: 0 0 25px rgba(255,51,51,0.6); }
+    }
+    
+    /* KV Cache Indicator */
+    .kv-cache {
+      position: fixed;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      text-align: right;
+    }
+    
+    .kv-label {
+      font-size: 10px;
+      color: rgba(0,255,170,0.5);
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+    
+    .kv-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-end;
+    }
+    
+    .kv-slot {
+      width: 60px;
+      height: 8px;
+      background: rgba(0,255,170,0.1);
+      border: 1px solid rgba(0,255,170,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .kv-slot.filled {
+      background: linear-gradient(90deg, rgba(0,255,170,0.3), rgba(0,255,170,0.1));
+      border-color: rgba(0,255,170,0.5);
+    }
+    
+    .kv-slot.active {
+      border-color: #00ffaa;
+      box-shadow: 0 0 10px rgba(0,255,170,0.5);
+    }
+    
+    /* Start Screen */
+    .start-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,10,5,0.98);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      pointer-events: auto;
+    }
+    
+    .start-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    
+    .start-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 48px;
+      color: #00ffaa;
+      letter-spacing: 8px;
+      text-shadow: 0 0 50px rgba(0,255,170,0.5);
+      margin-bottom: 10px;
+    }
+    
+    .start-subtitle {
+      font-size: 16px;
+      color: rgba(0,255,170,0.6);
+      letter-spacing: 4px;
+      margin-bottom: 50px;
+    }
+    
+    .start-description {
+      max-width: 600px;
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 40px;
+    }
+    
+    .start-button {
+      background: transparent;
+      border: 2px solid #00ffaa;
+      color: #00ffaa;
+      padding: 20px 60px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      letter-spacing: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .start-button:hover {
+      background: #00ffaa;
+      color: #000;
+      box-shadow: 0 0 40px rgba(0,255,170,0.5);
+    }
+    
+    /* Completion Screen */
+    .complete-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,10,5,0.98);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    
+    .complete-screen.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .complete-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 36px;
+      color: #00ffaa;
+      letter-spacing: 6px;
+      margin-bottom: 30px;
+    }
+    
+    .complete-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    .complete-stat {
+      text-align: center;
+    }
+    
+    .complete-stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 36px;
+      color: #00ffaa;
+    }
+    
+    .complete-stat-label {
+      font-size: 11px;
+      color: rgba(0,255,170,0.5);
+      letter-spacing: 2px;
+      margin-top: 5px;
+    }
+    
+    .complete-lessons {
+      max-width: 600px;
+      text-align: left;
+      margin-bottom: 40px;
+    }
+    
+    .complete-lessons h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      color: #00ffaa;
+      margin-bottom: 15px;
+      letter-spacing: 2px;
+    }
+    
+    .complete-lessons ul {
+      list-style: none;
+    }
+    
+    .complete-lessons li {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0,255,170,0.1);
+      padding-left: 20px;
+      position: relative;
+    }
+    
+    .complete-lessons li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: #00ffaa;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container"></div>
+  
+  <!-- HUD -->
+  <div class="hud">
+    <!-- Top Bar -->
+    <div class="hud-top">
+      <div class="hud-title">INFERENCE OPS</div>
+      <div class="hud-stage">
+        <div class="stage-label">CURRENT STAGE</div>
+        <div class="stage-name" id="stageName">TOKENIZATION</div>
+      </div>
+      <div class="hud-stats">
+        <div class="stat-row">
+          <div class="stat">
+            <span class="stat-label">TOKENS</span>
+            <span class="stat-value" id="tokenCount">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">LATENCY</span>
+            <span class="stat-value" id="latency">0ms</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stage Indicator -->
+    <div class="stage-indicator">
+      <div class="stage-dot active" data-stage="TOKENIZE" id="stage-0"></div>
+      <div class="stage-dot" data-stage="EMBED" id="stage-1"></div>
+      <div class="stage-dot" data-stage="ATTENTION" id="stage-2"></div>
+      <div class="stage-dot" data-stage="FFN" id="stage-3"></div>
+      <div class="stage-dot" data-stage="OUTPUT" id="stage-4"></div>
+    </div>
+    
+    <!-- KV Cache -->
+    <div class="kv-cache">
+      <div class="kv-label">KV CACHE</div>
+      <div class="kv-slots" id="kvSlots"></div>
+    </div>
+    
+    <!-- Bandwidth Warning -->
+    <div class="bandwidth-warning" id="bandwidthWarning">
+      ⚠ MEMORY BANDWIDTH BOTTLENECK
+    </div>
+    
+    <!-- Bottom Bar -->
+    <div class="hud-bottom">
+      <div class="batch-meter">
+        <div class="batch-label">BATCH SIZE</div>
+        <div class="batch-bar">
+          <div class="batch-fill" id="batchFill"></div>
+          <div class="batch-count" id="batchCount">0/8</div>
+        </div>
+      </div>
+      
+      <div class="controls-help">
+        <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move
+        <kbd>SPACE</kbd> Collect Token
+        <kbd>E</kbd> Use KV Cache
+      </div>
+      
+      <div class="throughput-meter">
+        <div class="throughput-label">THROUGHPUT</div>
+        <div class="throughput-value" id="throughput">0</div>
+        <div class="throughput-unit">tokens/sec</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Educational Popup -->
+  <div class="edu-popup" id="eduPopup">
+    <h2 id="eduTitle">Stage Title</h2>
+    <p id="eduText">Educational content here...</p>
+    <button onclick="closePopup()">CONTINUE →</button>
+  </div>
+  
+  <!-- Start Screen -->
+  <div class="start-screen" id="startScreen">
+    <div class="start-title">INFERENCE OPS</div>
+    <div class="start-subtitle">GPU PIPELINE TACTICAL TRAINER</div>
+    <div class="start-description">
+      Experience how Large Language Models process your prompts. 
+      Guide tokens through the GPU inference pipeline—from tokenization 
+      through attention layers to output generation. Learn why batching 
+      matters, how the KV cache accelerates generation, and where 
+      bottlenecks occur.
+    </div>
+    <button class="start-button" onclick="startGame()">BEGIN MISSION</button>
+  </div>
+  
+  <!-- Completion Screen -->
+  <div class="complete-screen" id="completeScreen">
+    <div class="complete-title">MISSION COMPLETE</div>
+    <div class="complete-stats">
+      <div class="complete-stat">
+        <div class="complete-stat-value" id="finalTokens">0</div>
+        <div class="complete-stat-label">TOKENS PROCESSED</div>
+      </div>
+      <div class="complete-stat">
+        <div class="complete-stat-value" id="finalThroughput">0</div>
+        <div class="complete-stat-label">AVG THROUGHPUT</div>
+      </div>
+      <div class="complete-stat">
+        <div class="complete-stat-value" id="finalLatency">0ms</div>
+        <div class="complete-stat-label">TOTAL LATENCY</div>
+      </div>
+    </div>
+    <div class="complete-lessons">
+      <h3>KEY LEARNINGS</h3>
+      <ul>
+        <li><strong>Batching:</strong> Processing multiple tokens together maximizes GPU utilization</li>
+        <li><strong>KV Cache:</strong> Storing attention keys/values avoids redundant computation</li>
+        <li><strong>Memory Bandwidth:</strong> Moving data to/from GPU memory is often the bottleneck</li>
+        <li><strong>Parallelism:</strong> GPUs excel at matrix operations done simultaneously</li>
+        <li><strong>Attention:</strong> Each token attends to all previous tokens (O(n²) complexity)</li>
+      </ul>
+    </div>
+    <button class="start-button" onclick="restartGame()">REPLAY MISSION</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // ============================================
+    // GAME STATE
+    // ============================================
+    let gameStarted = false;
+    let currentStage = 0;
+    let batchSize = 0;
+    const MAX_BATCH = 8;
+    let tokensProcessed = 0;
+    let totalLatency = 0;
+    let kvCacheSlots = [];
+    let throughputHistory = [];
+    
+    const STAGES = [
+      {
+        name: 'TOKENIZATION',
+        title: 'Stage 1: Tokenization',
+        text: 'Text is split into <span class="highlight">tokens</span>—subword units the model understands. "Hello world" might become ["Hel", "lo", " wor", "ld"]. Collect tokens to build your batch.',
+        color: 0x00ffaa,
+        zStart: 0,
+        zEnd: -50
+      },
+      {
+        name: 'EMBEDDING',
+        title: 'Stage 2: Embedding Lookup',
+        text: 'Each token ID maps to a <span class="highlight">high-dimensional vector</span> (e.g., 4096 dimensions). This is a simple lookup—fast but moves lots of data from memory.',
+        color: 0x00aaff,
+        zStart: -50,
+        zEnd: -100
+      },
+      {
+        name: 'ATTENTION',
+        title: 'Stage 3: Self-Attention',
+        text: 'The <span class="highlight">attention mechanism</span> lets each token look at all previous tokens. Queries attend to Keys, weighted by relevance, to aggregate Values. This is where the KV Cache shines!',
+        color: 0xffaa00,
+        zStart: -100,
+        zEnd: -180
+      },
+      {
+        name: 'FFN',
+        title: 'Stage 4: Feed-Forward Network',
+        text: 'After attention, tokens pass through <span class="highlight">dense layers</span>—massive matrix multiplications. This is where GPU parallelism matters most. Larger batches = better utilization.',
+        color: 0xff00aa,
+        zStart: -180,
+        zEnd: -230
+      },
+      {
+        name: 'OUTPUT',
+        title: 'Stage 5: Output Generation',
+        text: 'Final layer projects to vocabulary size (~50k+ tokens). <span class="highlight">Softmax</span> gives probability distribution. Highest probability token is selected (or sampled). One token generated—repeat!',
+        color: 0x00ffaa,
+        zStart: -230,
+        zEnd: -280
+      }
+    ];
+
+    // ============================================
+    // THREE.JS SETUP
+    // ============================================
+    const container = document.getElementById('game-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000a05);
+    scene.fog = new THREE.FogExp2(0x000a05, 0.008);
+    
+    const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 8, 15);
+    camera.lookAt(0, 0, 0);
+    
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
+
+    // ============================================
+    // LIGHTING
+    // ============================================
+    const ambientLight = new THREE.AmbientLight(0x002211, 0.4);
+    scene.add(ambientLight);
+    
+    const mainLight = new THREE.DirectionalLight(0x00ffaa, 0.6);
+    mainLight.position.set(0, 30, 20);
+    mainLight.castShadow = true;
+    scene.add(mainLight);
+    
+    // Stage-colored point lights
+    const stageLights = [];
+    STAGES.forEach((stage, i) => {
+      const light = new THREE.PointLight(stage.color, 1, 60);
+      light.position.set(0, 10, (stage.zStart + stage.zEnd) / 2);
+      scene.add(light);
+      stageLights.push(light);
+    });
+
+    // ============================================
+    // PLAYER (Token Packet)
+    // ============================================
+    const playerGroup = new THREE.Group();
+    
+    // Core sphere
+    const playerGeometry = new THREE.IcosahedronGeometry(0.8, 1);
+    const playerMaterial = new THREE.MeshStandardMaterial({
+      color: 0x00ffaa,
+      emissive: 0x00ffaa,
+      emissiveIntensity: 0.5,
+      metalness: 0.8,
+      roughness: 0.2
+    });
+    const playerMesh = new THREE.Mesh(playerGeometry, playerMaterial);
+    playerMesh.castShadow = true;
+    playerGroup.add(playerMesh);
+    
+    // Glow ring
+    const ringGeometry = new THREE.TorusGeometry(1.2, 0.05, 16, 32);
+    const ringMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffaa, transparent: true, opacity: 0.5 });
+    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+    ring.rotation.x = Math.PI / 2;
+    playerGroup.add(ring);
+    
+    playerGroup.position.set(0, 2, 10);
+    scene.add(playerGroup);
+    
+    // Player physics
+    const playerVelocity = new THREE.Vector3(0, 0, 0);
+    const PLAYER_SPEED = 0.15;
+    const PLAYER_FRICTION = 0.92;
+
+    // ============================================
+    // PIPELINE ENVIRONMENT
+    // ============================================
+    
+    // Ground/track
+    const trackGeometry = new THREE.PlaneGeometry(20, 400);
+    const trackMaterial = new THREE.MeshStandardMaterial({
+      color: 0x001108,
+      roughness: 0.9,
+      metalness: 0.1
+    });
+    const track = new THREE.Mesh(trackGeometry, trackMaterial);
+    track.rotation.x = -Math.PI / 2;
+    track.position.z = -130;
+    track.receiveShadow = true;
+    scene.add(track);
+    
+    // Grid lines on track
+    const gridHelper = new THREE.GridHelper(400, 100, 0x003322, 0x001a11);
+    gridHelper.rotation.x = Math.PI / 2;
+    gridHelper.position.y = 0.01;
+    gridHelper.position.z = -130;
+    scene.add(gridHelper);
+    
+    // Stage gates
+    const gates = [];
+    STAGES.forEach((stage, i) => {
+      const gateGroup = new THREE.Group();
+      
+      // Gate frame
+      const frameGeometry = new THREE.TorusGeometry(6, 0.3, 16, 32, Math.PI);
+      const frameMaterial = new THREE.MeshStandardMaterial({
+        color: stage.color,
+        emissive: stage.color,
+        emissiveIntensity: 0.3
+      });
+      const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+      frame.rotation.z = Math.PI;
+      frame.rotation.y = Math.PI / 2;
+      frame.position.y = 6;
+      gateGroup.add(frame);
+      
+      // Gate pillars
+      const pillarGeometry = new THREE.CylinderGeometry(0.3, 0.4, 12, 8);
+      const pillarMaterial = new THREE.MeshStandardMaterial({
+        color: stage.color,
+        emissive: stage.color,
+        emissiveIntensity: 0.2
+      });
+      
+      const leftPillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
+      leftPillar.position.set(-6, 6, 0);
+      gateGroup.add(leftPillar);
+      
+      const rightPillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
+      rightPillar.position.set(6, 6, 0);
+      gateGroup.add(rightPillar);
+      
+      // Stage label (floating text plane)
+      const labelCanvas = document.createElement('canvas');
+      labelCanvas.width = 512;
+      labelCanvas.height = 128;
+      const ctx = labelCanvas.getContext('2d');
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, 512, 128);
+      ctx.font = 'bold 48px Courier New';
+      ctx.fillStyle = '#00ffaa';
+      ctx.textAlign = 'center';
+      ctx.fillText(stage.name, 256, 80);
+      
+      const labelTexture = new THREE.CanvasTexture(labelCanvas);
+      const labelGeometry = new THREE.PlaneGeometry(8, 2);
+      const labelMaterial = new THREE.MeshBasicMaterial({
+        map: labelTexture,
+        transparent: true,
+        opacity: 0.8
+      });
+      const label = new THREE.Mesh(labelGeometry, labelMaterial);
+      label.position.y = 13;
+      gateGroup.add(label);
+      
+      gateGroup.position.z = stage.zStart;
+      scene.add(gateGroup);
+      gates.push(gateGroup);
+    });
+
+    // ============================================
+    // COLLECTIBLE TOKENS
+    // ============================================
+    const tokens = [];
+    const TOKEN_SPAWN_INTERVAL = 60; // frames
+    let frameCount = 0;
+    
+    function spawnToken() {
+      const tokenGeometry = new THREE.OctahedronGeometry(0.5, 0);
+      const tokenMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffff00,
+        emissive: 0xffff00,
+        emissiveIntensity: 0.4,
+        metalness: 0.9,
+        roughness: 0.1
+      });
+      const token = new THREE.Mesh(tokenGeometry, tokenMaterial);
+      
+      // Spawn ahead of player
+      token.position.set(
+        (Math.random() - 0.5) * 12,
+        2 + Math.random() * 2,
+        playerGroup.position.z - 20 - Math.random() * 30
+      );
+      token.castShadow = true;
+      token.userData = { collected: false, rotationSpeed: 0.02 + Math.random() * 0.02 };
+      
+      scene.add(token);
+      tokens.push(token);
+    }
+    
+    // Initial tokens
+    for (let i = 0; i < 15; i++) {
+      spawnToken();
+      tokens[tokens.length - 1].position.z = -10 - i * 8;
+    }
+
+    // ============================================
+    // PARALLEL COMPUTE LANES (visual)
+    // ============================================
+    function createComputeLanes(zPos, color, count = 8) {
+      const laneGroup = new THREE.Group();
+      
+      for (let i = 0; i < count; i++) {
+        const laneGeometry = new THREE.BoxGeometry(1.5, 0.5, 30);
+        const laneMaterial = new THREE.MeshStandardMaterial({
+          color: color,
+          emissive: color,
+          emissiveIntensity: 0.2,
+          transparent: true,
+          opacity: 0.6
+        });
+        const lane = new THREE.Mesh(laneGeometry, laneMaterial);
+        lane.position.set((i - count / 2 + 0.5) * 2.2, 0.3, 0);
+        laneGroup.add(lane);
+      }
+      
+      laneGroup.position.z = zPos;
+      scene.add(laneGroup);
+      return laneGroup;
+    }
+    
+    // Attention lanes (fewer, representing sequential nature)
+    createComputeLanes(-140, 0xffaa00, 4);
+    
+    // FFN lanes (more, representing parallelism)
+    createComputeLanes(-205, 0xff00aa, 12);
+
+    // ============================================
+    // MEMORY BANDWIDTH VISUALIZATION
+    // ============================================
+    const memoryBus = new THREE.Group();
+    const busGeometry = new THREE.BoxGeometry(25, 3, 0.5);
+    const busMaterial = new THREE.MeshStandardMaterial({
+      color: 0x003322,
+      emissive: 0x00ffaa,
+      emissiveIntensity: 0.1,
+      transparent: true,
+      opacity: 0.4
+    });
+    const bus = new THREE.Mesh(busGeometry, busMaterial);
+    bus.position.set(0, 15, -75);
+    scene.add(bus);
+    
+    // Data packets flowing on bus
+    const dataPackets = [];
+    for (let i = 0; i < 10; i++) {
+      const packetGeometry = new THREE.BoxGeometry(0.8, 0.8, 0.3);
+      const packetMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ffaa,
+        transparent: true,
+        opacity: 0.8
+      });
+      const packet = new THREE.Mesh(packetGeometry, packetMaterial);
+      packet.position.set(-12 + i * 2.5, 15, -75);
+      packet.userData = { speed: 0.1 + Math.random() * 0.1, offset: i * 2.5 };
+      scene.add(packet);
+      dataPackets.push(packet);
+    }
+
+    // ============================================
+    // KV CACHE VISUALIZATION
+    // ============================================
+    function initKVCache() {
+      const slotsContainer = document.getElementById('kvSlots');
+      slotsContainer.innerHTML = '';
+      kvCacheSlots = [];
+      
+      for (let i = 0; i < 12; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'kv-slot';
+        slotsContainer.appendChild(slot);
+        kvCacheSlots.push({ element: slot, filled: false });
+      }
+    }
+    
+    function fillKVSlot() {
+      const emptySlot = kvCacheSlots.find(s => !s.filled);
+      if (emptySlot) {
+        emptySlot.filled = true;
+        emptySlot.element.classList.add('filled');
+        return true;
+      }
+      return false;
+    }
+    
+    function useKVCache() {
+      const filledSlots = kvCacheSlots.filter(s => s.filled);
+      if (filledSlots.length > 0) {
+        // Highlight active slots
+        filledSlots.forEach(s => {
+          s.element.classList.add('active');
+          setTimeout(() => s.element.classList.remove('active'), 500);
+        });
+        
+        // Bonus: reduce latency
+        totalLatency = Math.max(0, totalLatency - filledSlots.length * 5);
+        updateHUD();
+        return true;
+      }
+      return false;
+    }
+
+    // ============================================
+    // INPUT HANDLING
+    // ============================================
+    const keys = { w: false, a: false, s: false, d: false, space: false, e: false };
+    
+    document.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+      if (key in keys) keys[key] = true;
+      if (key === ' ') keys.space = true;
+      
+      // E to use KV cache
+      if (key === 'e' && gameStarted) {
+        useKVCache();
+      }
+    });
+    
+    document.addEventListener('keyup', (e) => {
+      const key = e.key.toLowerCase();
+      if (key in keys) keys[key] = false;
+      if (key === ' ') keys.space = false;
+    });
+
+    // ============================================
+    // GAME LOGIC
+    // ============================================
+    function updatePlayer() {
+      if (!gameStarted) return;
+      
+      // Input to velocity
+      if (keys.w) playerVelocity.z -= PLAYER_SPEED;
+      if (keys.s) playerVelocity.z += PLAYER_SPEED;
+      if (keys.a) playerVelocity.x -= PLAYER_SPEED;
+      if (keys.d) playerVelocity.x += PLAYER_SPEED;
+      
+      // Apply friction
+      playerVelocity.multiplyScalar(PLAYER_FRICTION);
+      
+      // Update position
+      playerGroup.position.add(playerVelocity);
+      
+      // Clamp to track bounds
+      playerGroup.position.x = Math.max(-8, Math.min(8, playerGroup.position.x));
+      playerGroup.position.z = Math.min(15, playerGroup.position.z);
+      
+      // Bob animation
+      playerGroup.position.y = 2 + Math.sin(Date.now() * 0.003) * 0.3;
+      
+      // Rotate ring
+      ring.rotation.z += 0.02;
+      
+      // Check for token collection
+      if (keys.space) {
+        collectNearbyTokens();
+      }
+      
+      // Check stage progression
+      checkStageProgression();
+    }
+    
+    function collectNearbyTokens() {
+      tokens.forEach(token => {
+        if (token.userData.collected) return;
+        
+        const dist = playerGroup.position.distanceTo(token.position);
+        if (dist < 3 && batchSize < MAX_BATCH) {
+          token.userData.collected = true;
+          batchSize++;
+          tokensProcessed++;
+          
+          // Animate collection
+          const targetPos = playerGroup.position.clone();
+          animateCollection(token, targetPos);
+          
+          // Fill KV cache occasionally
+          if (Math.random() < 0.3) fillKVSlot();
+          
+          updateHUD();
+        }
+      });
+    }
+    
+    function animateCollection(token, target) {
+      const startPos = token.position.clone();
+      let t = 0;
+      
+      function animate() {
+        t += 0.1;
+        token.position.lerpVectors(startPos, target, t);
+        token.scale.setScalar(1 - t);
+        
+        if (t < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          scene.remove(token);
+        }
+      }
+      animate();
+    }
+    
+    function checkStageProgression() {
+      const playerZ = playerGroup.position.z;
+      
+      for (let i = 0; i < STAGES.length; i++) {
+        if (playerZ < STAGES[i].zStart && playerZ > STAGES[i].zEnd) {
+          if (currentStage !== i) {
+            enterStage(i);
+          }
+          break;
+        }
+      }
+      
+      // Check for completion
+      if (playerZ < STAGES[STAGES.length - 1].zEnd) {
+        completeGame();
+      }
+    }
+    
+    function enterStage(stageIndex) {
+      currentStage = stageIndex;
+      const stage = STAGES[stageIndex];
+      
+      // Update HUD
+      document.getElementById('stageName').textContent = stage.name;
+      
+      // Update stage indicators
+      for (let i = 0; i < 5; i++) {
+        const dot = document.getElementById(`stage-${i}`);
+        dot.classList.remove('active', 'complete');
+        if (i < stageIndex) dot.classList.add('complete');
+        if (i === stageIndex) dot.classList.add('active');
+      }
+      
+      // Show educational popup
+      showPopup(stage.title, stage.text);
+      
+      // Update player color
+      playerMaterial.color.setHex(stage.color);
+      playerMaterial.emissive.setHex(stage.color);
+      ringMaterial.color.setHex(stage.color);
+      
+      // Add latency based on batch efficiency
+      const batchEfficiency = batchSize / MAX_BATCH;
+      const baseLatency = [10, 15, 40, 30, 20][stageIndex]; // ms per stage
+      const actualLatency = baseLatency / Math.max(0.1, batchEfficiency);
+      totalLatency += actualLatency;
+      
+      // Memory bandwidth warning on attention stage
+      if (stageIndex === 2 && batchSize > 4) {
+        document.getElementById('bandwidthWarning').classList.add('visible');
+        setTimeout(() => {
+          document.getElementById('bandwidthWarning').classList.remove('visible');
+        }, 3000);
+      }
+      
+      // Process batch (reset for next stage)
+      if (stageIndex > 0) {
+        const throughput = batchSize * 1000 / (totalLatency || 1);
+        throughputHistory.push(throughput);
+      }
+      
+      updateHUD();
+    }
+    
+    function showPopup(title, text) {
+      document.getElementById('eduTitle').textContent = title;
+      document.getElementById('eduText').innerHTML = text;
+      document.getElementById('eduPopup').classList.add('visible');
+    }
+    
+    function closePopup() {
+      document.getElementById('eduPopup').classList.remove('visible');
+    }
+    
+    function updateHUD() {
+      document.getElementById('tokenCount').textContent = tokensProcessed;
+      document.getElementById('latency').textContent = Math.round(totalLatency) + 'ms';
+      document.getElementById('batchFill').style.width = (batchSize / MAX_BATCH * 100) + '%';
+      document.getElementById('batchCount').textContent = batchSize + '/' + MAX_BATCH;
+      
+      const avgThroughput = throughputHistory.length > 0 
+        ? throughputHistory.reduce((a, b) => a + b, 0) / throughputHistory.length 
+        : 0;
+      document.getElementById('throughput').textContent = Math.round(avgThroughput);
+    }
+    
+    function completeGame() {
+      gameStarted = false;
+      
+      document.getElementById('finalTokens').textContent = tokensProcessed;
+      document.getElementById('finalThroughput').textContent = 
+        Math.round(throughputHistory.reduce((a, b) => a + b, 0) / throughputHistory.length) + ' t/s';
+      document.getElementById('finalLatency').textContent = Math.round(totalLatency) + 'ms';
+      
+      document.getElementById('completeScreen').classList.add('visible');
+    }
+    
+    function startGame() {
+      document.getElementById('startScreen').classList.add('hidden');
+      gameStarted = true;
+      initKVCache();
+      enterStage(0);
+    }
+    
+    function restartGame() {
+      // Reset state
+      currentStage = 0;
+      batchSize = 0;
+      tokensProcessed = 0;
+      totalLatency = 0;
+      throughputHistory = [];
+      playerGroup.position.set(0, 2, 10);
+      
+      // Reset tokens
+      tokens.forEach(t => scene.remove(t));
+      tokens.length = 0;
+      for (let i = 0; i < 15; i++) {
+        spawnToken();
+        tokens[tokens.length - 1].position.z = -10 - i * 8;
+      }
+      
+      document.getElementById('completeScreen').classList.remove('visible');
+      gameStarted = true;
+      initKVCache();
+      enterStage(0);
+      updateHUD();
+    }
+
+    // ============================================
+    // CAMERA FOLLOW
+    // ============================================
+    function updateCamera() {
+      const targetX = playerGroup.position.x * 0.3;
+      const targetZ = playerGroup.position.z + 20;
+      
+      camera.position.x += (targetX - camera.position.x) * 0.05;
+      camera.position.z += (targetZ - camera.position.z) * 0.05;
+      camera.lookAt(playerGroup.position.x * 0.5, 0, playerGroup.position.z - 10);
+    }
+
+    // ============================================
+    // ANIMATION LOOP
+    // ============================================
+    function animate() {
+      requestAnimationFrame(animate);
+      frameCount++;
+      
+      // Update player
+      updatePlayer();
+      
+      // Update camera
+      updateCamera();
+      
+      // Rotate tokens
+      tokens.forEach(token => {
+        if (!token.userData.collected) {
+          token.rotation.y += token.userData.rotationSpeed;
+          token.rotation.x += token.userData.rotationSpeed * 0.5;
+          token.position.y = 2 + Math.sin(Date.now() * 0.002 + token.position.x) * 0.5;
+        }
+      });
+      
+      // Spawn new tokens
+      if (gameStarted && frameCount % TOKEN_SPAWN_INTERVAL === 0 && tokens.length < 30) {
+        spawnToken();
+      }
+      
+      // Animate data packets on memory bus
+      dataPackets.forEach(packet => {
+        packet.position.x += packet.userData.speed;
+        if (packet.position.x > 12) packet.position.x = -12;
+      });
+      
+      // Pulse stage lights
+      stageLights.forEach((light, i) => {
+        light.intensity = 0.5 + Math.sin(Date.now() * 0.002 + i) * 0.3;
+      });
+      
+      renderer.render(scene, camera);
+    }
+    
+    // ============================================
+    // RESIZE
+    // ============================================
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    
+    // Start animation loop
+    animate();
+  </script>
+</body>
+</html>

@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MESA PALM | RECONCILIATION HUB</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --steel-dark: #0a0f14;
+      --text-primary: #e8eef4;
+      --text-secondary: #a0b0c0;
+      --text-muted: #6a7a88;
+      --blue: #4a90c4;
+      --blue-glow: rgba(74, 144, 196, 0.4);
+      --orange: #e8904f;
+      --green: #5ac47a;
+      --green-glow: rgba(90, 196, 122, 0.4);
+      --red: #e85a5a;
+      --red-glow: rgba(232, 90, 90, 0.4);
+      --yellow: #f5c563;
+      --border: rgba(100, 120, 140, 0.35);
+    }
+    
+    html, body { height: 100%; overflow: hidden; }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: radial-gradient(ellipse at 30% 20%, #1a2530 0%, #0a0f14 50%, #050810 100%);
+      color: var(--text-primary);
+    }
+    
+    #bgCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+    
+    .hub {
+      position: relative;
+      z-index: 1;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 14px 20px;
+      gap: 12px;
+    }
+    
+    .glass {
+      background: linear-gradient(145deg, rgba(42, 53, 64, 0.65) 0%, rgba(26, 37, 48, 0.5) 100%);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .glass::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 18px;
+    }
+    
+    .logo { display: flex; align-items: center; gap: 12px; }
+    
+    .logo-icon {
+      width: 36px; height: 36px;
+      border: 2px solid var(--red);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 14px;
+      color: var(--red);
+      box-shadow: 0 0 15px var(--red-glow);
+    }
+    
+    .title-group h1 { font-size: 18px; font-weight: 700; letter-spacing: 3px; }
+    .title-group .subtitle { font-size: 9px; letter-spacing: 2px; color: var(--text-muted); }
+    
+    .header-stats { display: flex; gap: 16px; align-items: center; }
+    
+    .header-stat { text-align: center; padding: 0 12px; }
+    .header-stat-value { font-size: 16px; font-weight: 700; font-family: 'Consolas', monospace; }
+    .header-stat-value.red { color: var(--red); }
+    .header-stat-label { font-size: 8px; letter-spacing: 1px; color: var(--text-muted); }
+    
+    .alert-badge {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px;
+      background: rgba(232, 90, 90, 0.12);
+      border: 1px solid rgba(232, 90, 90, 0.35);
+      border-radius: 3px;
+    }
+    
+    .alert-dot {
+      width: 6px; height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    
+    .alert-text { font-size: 9px; letter-spacing: 1px; color: var(--red); font-weight: 600; }
+    
+    /* Main */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 12px;
+      min-height: 0;
+    }
+    
+    /* Table panel */
+    .table-panel { display: flex; flex-direction: column; }
+    
+    .panel-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .panel-title { font-size: 10px; letter-spacing: 2px; color: var(--text-secondary); font-weight: 600; }
+    
+    .legend { display: flex; gap: 12px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 8px; color: var(--text-muted); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+    .legend-dot.match { background: var(--green); }
+    .legend-dot.mismatch { background: var(--orange); }
+    .legend-dot.missing { background: var(--red); }
+    .legend-dot.extra { background: var(--blue); }
+    
+    .table-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+    
+    .table-scroll::-webkit-scrollbar { width: 5px; }
+    .table-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+    .table-scroll::-webkit-scrollbar-thumb { background: rgba(74, 144, 196, 0.4); border-radius: 3px; }
+    
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+    
+    .data-table th {
+      padding: 8px 6px;
+      text-align: left;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .data-table th.right { text-align: right; }
+    
+    .data-table td {
+      padding: 7px 6px;
+      border-bottom: 1px solid rgba(100, 120, 140, 0.1);
+      vertical-align: middle;
+    }
+    
+    .data-table tr { transition: background 0.15s; }
+    .data-table tr:hover { background: rgba(255,255,255,0.02); }
+    
+    .data-table tr.match { border-left: 3px solid var(--green); }
+    .data-table tr.mismatch { border-left: 3px solid var(--orange); background: rgba(232, 144, 79, 0.05); }
+    .data-table tr.missing { border-left: 3px solid var(--red); background: rgba(232, 90, 90, 0.05); }
+    .data-table tr.extra { border-left: 3px solid var(--blue); background: rgba(74, 144, 196, 0.05); }
+    
+    .apt { font-family: 'Consolas', monospace; font-weight: 600; color: var(--text-primary); }
+    .name { color: var(--text-secondary); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .amount { font-family: 'Consolas', monospace; text-align: right; }
+    .amount.tad { color: var(--text-secondary); }
+    .amount.bank { color: var(--blue); }
+    
+    .diff { font-family: 'Consolas', monospace; text-align: right; font-weight: 600; }
+    .diff.positive { color: var(--green); }
+    .diff.negative { color: var(--red); }
+    .diff.zero { color: var(--text-muted); }
+    
+    .status-tag {
+      font-size: 8px;
+      padding: 2px 5px;
+      border-radius: 2px;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+    
+    .status-tag.match { background: rgba(90, 196, 122, 0.15); color: var(--green); }
+    .status-tag.mismatch { background: rgba(232, 144, 79, 0.15); color: var(--orange); }
+    .status-tag.missing { background: rgba(232, 90, 90, 0.15); color: var(--red); }
+    .status-tag.extra { background: rgba(74, 144, 196, 0.15); color: var(--blue); }
+    
+    /* Side panel */
+    .side-panel { display: flex; flex-direction: column; gap: 10px; }
+    .panel-section { padding: 12px; }
+    
+    /* Variance breakdown */
+    .variance-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    
+    .var-card {
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+      text-align: center;
+    }
+    
+    .var-card.highlight {
+      grid-column: span 2;
+      background: rgba(232, 90, 90, 0.1);
+      border: 1px solid rgba(232, 90, 90, 0.3);
+    }
+    
+    .var-value {
+      font-size: 18px;
+      font-weight: 700;
+      font-family: 'Consolas', monospace;
+    }
+    
+    .var-value.red { color: var(--red); }
+    .var-value.green { color: var(--green); }
+    .var-value.blue { color: var(--blue); }
+    
+    .var-label {
+      font-size: 8px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+    
+    /* Issues list */
+    .issues-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    
+    .issue-item {
+      padding: 8px;
+      background: rgba(232, 90, 90, 0.06);
+      border: 1px solid rgba(232, 90, 90, 0.2);
+      border-radius: 3px;
+    }
+    
+    .issue-item.warning {
+      background: rgba(232, 144, 79, 0.06);
+      border-color: rgba(232, 144, 79, 0.2);
+    }
+    
+    .issue-item.info {
+      background: rgba(74, 144, 196, 0.06);
+      border-color: rgba(74, 144, 196, 0.2);
+    }
+    
+    .issue-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+    
+    .issue-detail {
+      font-size: 9px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    
+    .issue-amount {
+      font-family: 'Consolas', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 3px;
+    }
+    
+    .issue-amount.negative { color: var(--red); }
+    .issue-amount.positive { color: var(--green); }
+    
+    /* Footer */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 14px;
+    }
+    
+    .footer-text { font-size: 9px; color: var(--text-muted); letter-spacing: 1px; }
+    
+    /* Scanline */
+    .scanline {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(232, 90, 90, 0.12), transparent);
+      animation: scan 10s linear infinite;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    
+    @keyframes scan { 0% { top: -2px; } 100% { top: 100vh; } }
+    
+    /* Section divider in table */
+    .section-header {
+      background: rgba(0, 0, 0, 0.3) !important;
+      border-left: none !important;
+    }
+    
+    .section-header td {
+      padding: 6px 8px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+  </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
+</head>
+<body>
+  <div class="scanline"></div>
+  <canvas id="bgCanvas"></canvas>
+  
+  <div class="hub">
+    <!-- Header -->
+    <header class="glass header">
+      <div class="logo">
+        <div class="logo-icon">⚠</div>
+        <div class="title-group">
+          <h1>RECONCILIATION ALERT</h1>
+          <div class="subtitle">TAD HOBBS vs BANK DEPOSIT #9 • 01/05/2026</div>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="header-stat">
+          <div class="header-stat-value">$51,617</div>
+          <div class="header-stat-label">Tad Hobbs</div>
+        </div>
+        <div class="header-stat">
+          <div class="header-stat-value" style="color: var(--blue);">$47,877</div>
+          <div class="header-stat-label">Bank Deposit</div>
+        </div>
+        <div class="header-stat">
+          <div class="header-stat-value red">-$3,740</div>
+          <div class="header-stat-label">Variance</div>
+        </div>
+        <div class="alert-badge">
+          <div class="alert-dot"></div>
+          <span class="alert-text">7.2% VARIANCE</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Main -->
+    <main class="main">
+      <!-- Table -->
+      <div class="glass table-panel">
+        <div class="panel-header">
+          <span class="panel-title">UNIT RECONCILIATION</span>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot match"></div>Match</div>
+            <div class="legend-item"><div class="legend-dot mismatch"></div>Amount Diff</div>
+            <div class="legend-item"><div class="legend-dot missing"></div>Not in Bank</div>
+            <div class="legend-item"><div class="legend-dot extra"></div>Bank Only</div>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>TAD APT</th>
+                <th>TAD NAME</th>
+                <th class="right">TAD $</th>
+                <th>BANK APT</th>
+                <th>BANK NAME</th>
+                <th class="right">BANK $</th>
+                <th class="right">DIFF</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- MATCHED ENTRIES -->
+              <tr class="match">
+                <td class="apt">A1</td>
+                <td class="name">Arme</td>
+                <td class="amount tad">$1,930</td>
+                <td class="apt">A26</td>
+                <td class="name">Armie Duldulado</td>
+                <td class="amount bank">$1,930</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">A3</td>
+                <td class="name">Brown</td>
+                <td class="amount tad">$1,915</td>
+                <td class="apt">A01</td>
+                <td class="name">Shawn Brown</td>
+                <td class="amount bank">$1,915</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">107</td>
+                <td class="name">West</td>
+                <td class="amount tad">$1,520</td>
+                <td class="apt">A07</td>
+                <td class="name">Frederick West</td>
+                <td class="amount bank">$1,520</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">A4</td>
+                <td class="name">Jagg</td>
+                <td class="amount tad">$1,635</td>
+                <td class="apt">A29</td>
+                <td class="name">Javier Oceguera</td>
+                <td class="amount bank">$1,635</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">A2</td>
+                <td class="name">Chroma</td>
+                <td class="amount tad">$1,540</td>
+                <td class="apt">A20</td>
+                <td class="name">Clautide JeanCharles</td>
+                <td class="amount bank">$1,540</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">B8</td>
+                <td class="name">Murray</td>
+                <td class="amount tad">$1,755</td>
+                <td class="apt">B08</td>
+                <td class="name">Joshua Murray</td>
+                <td class="amount bank">$1,755</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">10</td>
+                <td class="name">Daming</td>
+                <td class="amount tad">$1,770</td>
+                <td class="apt">B15</td>
+                <td class="name">Irma Dominquez</td>
+                <td class="amount bank">$1,770</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">B30</td>
+                <td class="name">Reed</td>
+                <td class="amount tad">$1,945</td>
+                <td class="apt">B30</td>
+                <td class="name">John Richardson</td>
+                <td class="amount bank">$1,945</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">12</td>
+                <td class="name">Reed</td>
+                <td class="amount tad">$1,875</td>
+                <td class="apt">C28</td>
+                <td class="name">Jeannette Reed</td>
+                <td class="amount bank">$1,875</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">C8</td>
+                <td class="name">Glouk</td>
+                <td class="amount tad">$1,545</td>
+                <td class="apt">C34</td>
+                <td class="name">Robert Glock</td>
+                <td class="amount bank">$1,545</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">B27</td>
+                <td class="name">(unnamed)</td>
+                <td class="amount tad">$1,555</td>
+                <td class="apt">C32</td>
+                <td class="name">Penny Hazzard</td>
+                <td class="amount bank">$1,555</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">B9</td>
+                <td class="name">Simon</td>
+                <td class="amount tad">$1,890</td>
+                <td class="apt">D09</td>
+                <td class="name">Justin Simon</td>
+                <td class="amount bank">$1,890</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">EID</td>
+                <td class="name">Maher</td>
+                <td class="amount tad">$2,000</td>
+                <td class="apt">E10</td>
+                <td class="name">Brian Maher</td>
+                <td class="amount bank">$2,000</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">27</td>
+                <td class="name">Pandho</td>
+                <td class="amount tad">$2,055</td>
+                <td class="apt">E29</td>
+                <td class="name">Jane Malhabour-Pancho</td>
+                <td class="amount bank">$2,055</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">B3</td>
+                <td class="name">Williams</td>
+                <td class="amount tad">$1,970</td>
+                <td class="apt">F23</td>
+                <td class="name">Richard Williams Jr</td>
+                <td class="amount bank">$1,970</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              <tr class="match">
+                <td class="apt">F24</td>
+                <td class="name">Oberfell</td>
+                <td class="amount tad">$1,985</td>
+                <td class="apt">F24</td>
+                <td class="name">Edwin Obergfell Jr</td>
+                <td class="amount bank">$1,985</td>
+                <td class="diff zero">$0</td>
+                <td><span class="status-tag match">MATCH</span></td>
+              </tr>
+              
+              <!-- SECTION: AMOUNT MISMATCHES -->
+              <tr class="section-header"><td colspan="8">▼ AMOUNT DISCREPANCIES</td></tr>
+              
+              <tr class="mismatch">
+                <td class="apt">508</td>
+                <td class="name">(unnamed)</td>
+                <td class="amount tad">$1,998</td>
+                <td class="apt">A08</td>
+                <td class="name">Orlando Jurado</td>
+                <td class="amount bank">$747</td>
+                <td class="diff negative">-$1,251</td>
+                <td><span class="status-tag mismatch">SDHC</span></td>
+              </tr>
+              <tr class="mismatch">
+                <td class="apt">13</td>
+                <td class="name">Amoud</td>
+                <td class="amount tad">$1,040</td>
+                <td class="apt">C15</td>
+                <td class="name">Ziyad Hmod</td>
+                <td class="amount bank">$290</td>
+                <td class="diff negative">-$750</td>
+                <td><span class="status-tag mismatch">SDHC</span></td>
+              </tr>
+              <tr class="mismatch">
+                <td class="apt">17</td>
+                <td class="name">Piranian</td>
+                <td class="amount tad">$755</td>
+                <td class="apt">C08</td>
+                <td class="name">Leasel Piranian</td>
+                <td class="amount bank">$1,755</td>
+                <td class="diff positive">+$1,000</td>
+                <td><span class="status-tag mismatch">TYPO?</span></td>
+              </tr>
+              <tr class="mismatch">
+                <td class="apt">B1</td>
+                <td class="name">Bohmeh</td>
+                <td class="amount tad">$1,302</td>
+                <td class="apt">C20</td>
+                <td class="name">Christine Bowman</td>
+                <td class="amount bank">$1,890</td>
+                <td class="diff positive">+$588</td>
+                <td><span class="status-tag mismatch">SDHC</span></td>
+              </tr>
+              <tr class="mismatch">
+                <td class="apt">B3</td>
+                <td class="name">(unnamed)</td>
+                <td class="amount tad">$880</td>
+                <td class="apt">E13</td>
+                <td class="name">Samantha Salazar</td>
+                <td class="amount bank">$620</td>
+                <td class="diff negative">-$260</td>
+                <td><span class="status-tag mismatch">SDHC</span></td>
+              </tr>
+              <tr class="mismatch">
+                <td class="apt">B9</td>
+                <td class="name">Muira</td>
+                <td class="amount tad">$1,815</td>
+                <td class="apt">C09</td>
+                <td class="name">Daphne Murray</td>
+                <td class="amount bank">$1,875</td>
+                <td class="diff positive">+$60</td>
+                <td><span class="status-tag mismatch">DIFF</span></td>
+              </tr>
+              <tr class="mismatch">
+                <td class="apt">B3</td>
+                <td class="name">Brown</td>
+                <td class="amount tad">$2,120</td>
+                <td class="apt">E23</td>
+                <td class="name">Gloria Brown</td>
+                <td class="amount bank">$2,170</td>
+                <td class="diff positive">+$50</td>
+                <td><span class="status-tag mismatch">DIFF</span></td>
+              </tr>
+              <tr class="mismatch">
+                <td class="apt">29</td>
+                <td class="name">McCullough</td>
+                <td class="amount tad">$2,125</td>
+                <td class="apt">F02</td>
+                <td class="name">Brandon Mccullough</td>
+                <td class="amount bank">$2,195</td>
+                <td class="diff positive">+$70</td>
+                <td><span class="status-tag mismatch">DIFF</span></td>
+              </tr>
+              
+              <!-- SECTION: MISSING FROM BANK -->
+              <tr class="section-header"><td colspan="8">▼ NOT IN BANK DEPOSIT</td></tr>
+              
+              <tr class="missing">
+                <td class="apt">B8</td>
+                <td class="name">Murray (2nd)</td>
+                <td class="amount tad">$1,500</td>
+                <td class="apt">—</td>
+                <td class="name">—</td>
+                <td class="amount bank">—</td>
+                <td class="diff negative">-$1,500</td>
+                <td><span class="status-tag missing">MISSING</span></td>
+              </tr>
+              <tr class="missing">
+                <td class="apt">B24</td>
+                <td class="name">(unnamed)</td>
+                <td class="amount tad">$1,945</td>
+                <td class="apt">—</td>
+                <td class="name">—</td>
+                <td class="amount bank">—</td>
+                <td class="diff negative">-$1,945</td>
+                <td><span class="status-tag missing">MISSING</span></td>
+              </tr>
+              <tr class="missing">
+                <td class="apt">19</td>
+                <td class="name">(unnamed)</td>
+                <td class="amount tad">$905</td>
+                <td class="apt">—</td>
+                <td class="name">—</td>
+                <td class="amount bank">—</td>
+                <td class="diff negative">-$905</td>
+                <td><span class="status-tag missing">MISSING</span></td>
+              </tr>
+              <tr class="missing">
+                <td class="apt">21</td>
+                <td class="name">Do Houghto</td>
+                <td class="amount tad">$1,825</td>
+                <td class="apt">—</td>
+                <td class="name">—</td>
+                <td class="amount bank">—</td>
+                <td class="diff negative">-$1,825</td>
+                <td><span class="status-tag missing">MISSING</span></td>
+              </tr>
+              <tr class="missing">
+                <td class="apt">26</td>
+                <td class="name">Grant</td>
+                <td class="amount tad">$1,925</td>
+                <td class="apt">—</td>
+                <td class="name">—</td>
+                <td class="amount bank">—</td>
+                <td class="diff negative">-$1,925</td>
+                <td><span class="status-tag missing">MISSING</span></td>
+              </tr>
+              
+              <!-- SECTION: BANK ONLY -->
+              <tr class="section-header"><td colspan="8">▼ BANK ONLY (NOT ON TAD LIST)</td></tr>
+              
+              <tr class="extra">
+                <td class="apt">—</td>
+                <td class="name">—</td>
+                <td class="amount tad">—</td>
+                <td class="apt">B21</td>
+                <td class="name">Purvi Shah</td>
+                <td class="amount bank">$1,830</td>
+                <td class="diff positive">+$1,830</td>
+                <td><span class="status-tag extra">BANK ONLY</span></td>
+              </tr>
+              <tr class="extra">
+                <td class="apt">—</td>
+                <td class="name">—</td>
+                <td class="amount tad">—</td>
+                <td class="apt">B23</td>
+                <td class="name">Souphaphone Chantrirack</td>
+                <td class="amount bank">$1,800</td>
+                <td class="diff positive">+$1,800</td>
+                <td><span class="status-tag extra">BANK ONLY</span></td>
+              </tr>
+              <tr class="extra">
+                <td class="apt">—</td>
+                <td class="name">—</td>
+                <td class="amount tad">—</td>
+                <td class="apt">C11</td>
+                <td class="name">Andrew Malinis</td>
+                <td class="amount bank">$1,905</td>
+                <td class="diff positive">+$1,905</td>
+                <td><span class="status-tag extra">BANK ONLY</span></td>
+              </tr>
+              <tr class="extra">
+                <td class="apt">—</td>
+                <td class="name">—</td>
+                <td class="amount tad">—</td>
+                <td class="apt">C24</td>
+                <td class="name">Ashley Ross</td>
+                <td class="amount bank">$1,915</td>
+                <td class="diff positive">+$1,915</td>
+                <td><span class="status-tag extra">BANK ONLY</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Side Panel -->
+      <div class="side-panel">
+        <!-- Variance Breakdown -->
+        <div class="glass panel-section">
+          <div class="panel-header" style="padding: 0 0 8px 0; border-bottom: 1px solid var(--border);">
+            <span class="panel-title">VARIANCE BREAKDOWN</span>
+          </div>
+          <div class="variance-grid" style="margin-top: 10px;">
+            <div class="var-card">
+              <div class="var-value red">-$8,100</div>
+              <div class="var-label">NOT IN BANK</div>
+            </div>
+            <div class="var-card">
+              <div class="var-value green">+$7,450</div>
+              <div class="var-label">BANK ONLY</div>
+            </div>
+            <div class="var-card">
+              <div class="var-value red">-$493</div>
+              <div class="var-label">AMT DIFFS (NET)</div>
+            </div>
+            <div class="var-card">
+              <div class="var-value" style="color: var(--orange);">-$2,597</div>
+              <div class="var-label">UNRECONCILED*</div>
+            </div>
+            <div class="var-card highlight">
+              <div class="var-value red">-$3,740</div>
+              <div class="var-label">TOTAL VARIANCE</div>
+            </div>
+          </div>
+          <div style="font-size: 8px; color: var(--text-muted); margin-top: 6px;">
+            *Tad list states 30 entries/$51,617; only 29/$49,020 extracted
+          </div>
+        </div>
+        
+        <!-- Key Issues -->
+        <div class="glass panel-section" style="flex: 1; min-height: 0; display: flex; flex-direction: column;">
+          <div class="panel-header" style="padding: 0 0 8px 0; border-bottom: 1px solid var(--border);">
+            <span class="panel-title">KEY DISCREPANCIES</span>
+          </div>
+          <div class="issues-list" style="margin-top: 10px; flex: 1; overflow-y: auto;">
+            <div class="issue-item warning">
+              <div class="issue-title">⚠ PIRANIAN - Likely Typo</div>
+              <div class="issue-detail">Tad: $755 → Bank: $1,755<br>Missing leading "1" on Tad list?</div>
+              <div class="issue-amount positive">+$1,000</div>
+            </div>
+            <div class="issue-item">
+              <div class="issue-title">508/A08 - SDHC Difference</div>
+              <div class="issue-detail">Tad shows full rent, Bank shows resident portion only</div>
+              <div class="issue-amount negative">-$1,251</div>
+            </div>
+            <div class="issue-item">
+              <div class="issue-title">B24 - Not in Bank</div>
+              <div class="issue-detail">On Tad list, no matching bank entry. Verify deposit received.</div>
+              <div class="issue-amount negative">-$1,945</div>
+            </div>
+            <div class="issue-item">
+              <div class="issue-title">26 Grant - Not in Bank</div>
+              <div class="issue-detail">On Tad list, no matching bank entry. Verify deposit received.</div>
+              <div class="issue-amount negative">-$1,925</div>
+            </div>
+            <div class="issue-item info">
+              <div class="issue-title">4 Units in Bank Only</div>
+              <div class="issue-detail">B21, B23, C11, C24 not on Tad list. Different deposit batch?</div>
+              <div class="issue-amount positive">+$7,450</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="glass panel-section">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; text-align: center;">
+            <div>
+              <div style="font-size: 20px; font-weight: 700; color: var(--green);">16</div>
+              <div style="font-size: 8px; color: var(--text-muted);">MATCHED</div>
+            </div>
+            <div>
+              <div style="font-size: 20px; font-weight: 700; color: var(--orange);">8</div>
+              <div style="font-size: 8px; color: var(--text-muted);">AMT DIFF</div>
+            </div>
+            <div>
+              <div style="font-size: 20px; font-weight: 700; color: var(--red);">5</div>
+              <div style="font-size: 8px; color: var(--text-muted);">NOT IN BANK</div>
+            </div>
+            <div>
+              <div style="font-size: 20px; font-weight: 700; color: var(--blue);">4</div>
+              <div style="font-size: 8px; color: var(--text-muted);">BANK ONLY</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="glass footer">
+      <span class="footer-text">TAD HOBBS REV 1-10 vs BANK DEPOSIT #9 (01/05/2026) | ACCT: 66741997</span>
+      <span class="footer-text">16 MATCH | 8 DIFF | 5 MISSING | 4 EXTRA</span>
+    </footer>
+  </div>
+  
+  <script>
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+    
+    const particles = [];
+    for (let i = 0; i < 35; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.12,
+        vy: (Math.random() - 0.5) * 0.12,
+        size: Math.random() * 1.2 + 0.4,
+        opacity: Math.random() * 0.15 + 0.03
+      });
+    }
+    
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(232, 90, 90, ${p.opacity})`;
+        ctx.fill();
+        
+        particles.slice(i + 1).forEach(p2 => {
+          const dx = p.x - p2.x, dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 70) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(232, 90, 90, ${0.03 * (1 - dist / 70)})`;
+            ctx.stroke();
+          }
+        });
+      });
+      
+      requestAnimationFrame(animate);
+    }
+    
+    animate();
+  </script>
+</body>
+</html>

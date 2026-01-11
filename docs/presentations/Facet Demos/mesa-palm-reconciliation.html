@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MESA PALM | RECONCILIATION ANALYSIS</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --steel-dark: #0a0f14;
+      --steel-mid: #1a2530;
+      --text-primary: #e8eef4;
+      --text-secondary: #a0b0c0;
+      --text-muted: #6a7a88;
+      --blue: #4a90c4;
+      --blue-glow: rgba(74, 144, 196, 0.4);
+      --orange: #e8904f;
+      --orange-glow: rgba(232, 144, 79, 0.4);
+      --yellow: #f5c563;
+      --yellow-glow: rgba(245, 197, 99, 0.4);
+      --red: #e85a5a;
+      --red-glow: rgba(232, 90, 90, 0.4);
+      --green: #5ac47a;
+      --green-glow: rgba(90, 196, 122, 0.4);
+      --border: rgba(100, 120, 140, 0.35);
+    }
+    
+    html, body { height: 100%; overflow: hidden; }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: radial-gradient(ellipse at 30% 20%, #1a2530 0%, #0a0f14 50%, #050810 100%);
+      color: var(--text-primary);
+    }
+    
+    #bgCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+    
+    .hub {
+      position: relative;
+      z-index: 1;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 16px 24px;
+      gap: 14px;
+    }
+    
+    .glass {
+      background: linear-gradient(145deg, rgba(42, 53, 64, 0.65) 0%, rgba(26, 37, 48, 0.5) 100%);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .glass::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      clip-path: polygon(0 0, 100% 0, 99% 100%, 0 100%);
+    }
+    
+    .logo { display: flex; align-items: center; gap: 14px; }
+    
+    .logo-icon {
+      width: 38px; height: 38px;
+      border: 2px solid var(--red);
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 14px;
+      color: var(--red);
+      text-shadow: 0 0 12px var(--red-glow);
+      box-shadow: 0 0 20px var(--red-glow);
+    }
+    
+    .title-group h1 {
+      font-size: 18px; font-weight: 700;
+      letter-spacing: 3px; color: var(--text-primary);
+    }
+    
+    .title-group .subtitle {
+      font-size: 9px; letter-spacing: 2px;
+      color: var(--text-muted); margin-top: 2px;
+    }
+    
+    .header-stats { display: flex; gap: 20px; align-items: center; }
+    
+    .header-stat { text-align: center; }
+    
+    .header-stat-value {
+      font-size: 18px; font-weight: 700;
+      font-family: 'Consolas', monospace;
+    }
+    
+    .header-stat-value.blue { color: var(--blue); text-shadow: 0 0 12px var(--blue-glow); }
+    .header-stat-value.green { color: var(--green); text-shadow: 0 0 12px var(--green-glow); }
+    .header-stat-value.red { color: var(--red); text-shadow: 0 0 12px var(--red-glow); }
+    
+    .header-stat-label {
+      font-size: 8px; letter-spacing: 1.5px;
+      color: var(--text-muted); text-transform: uppercase;
+    }
+    
+    .alert-badge {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px;
+      background: rgba(232, 90, 90, 0.15);
+      border: 1px solid rgba(232, 90, 90, 0.4);
+      border-radius: 3px;
+      animation: alertPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes alertPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(232, 90, 90, 0.3); }
+      50% { box-shadow: 0 0 15px 5px rgba(232, 90, 90, 0.15); }
+    }
+    
+    .alert-dot {
+      width: 7px; height: 7px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    
+    .alert-text {
+      font-size: 10px; letter-spacing: 1.5px;
+      color: var(--red); font-weight: 600;
+    }
+    
+    /* Main */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 14px;
+      min-height: 0;
+    }
+    
+    /* Comparison grid */
+    .comparison-panel { display: flex; flex-direction: column; }
+    
+    .panel-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .panel-title {
+      font-size: 10px; letter-spacing: 2px;
+      color: var(--text-secondary); font-weight: 600;
+    }
+    
+    .legend {
+      display: flex; gap: 16px;
+    }
+    
+    .legend-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 9px; color: var(--text-muted);
+    }
+    
+    .legend-dot {
+      width: 8px; height: 8px; border-radius: 2px;
+    }
+    
+    .legend-dot.match { background: var(--green); }
+    .legend-dot.mismatch { background: var(--orange); }
+    .legend-dot.missing-bank { background: var(--red); }
+    .legend-dot.missing-tad { background: var(--blue); }
+    
+    .comparison-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+    
+    .comparison-grid::-webkit-scrollbar { width: 6px; }
+    .comparison-grid::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+    .comparison-grid::-webkit-scrollbar-thumb { background: rgba(74, 144, 196, 0.4); border-radius: 3px; }
+    
+    .comp-row {
+      display: grid;
+      grid-template-columns: 100px 1fr 80px 80px 60px;
+      gap: 10px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .comp-row:hover {
+      background: rgba(74, 144, 196, 0.1);
+    }
+    
+    .comp-row.match { border-left-color: var(--green); }
+    .comp-row.mismatch { border-left-color: var(--orange); }
+    .comp-row.missing-bank { border-left-color: var(--red); background: rgba(232, 90, 90, 0.08); }
+    .comp-row.missing-tad { border-left-color: var(--blue); background: rgba(74, 144, 196, 0.08); }
+    
+    .comp-row.active {
+      box-shadow: 0 0 15px rgba(74, 144, 196, 0.3);
+    }
+    
+    .comp-apt {
+      font-family: 'Consolas', monospace;
+      font-weight: 600; font-size: 12px;
+      color: var(--text-primary);
+    }
+    
+    .comp-name {
+      font-size: 11px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .comp-tad, .comp-bank {
+      font-family: 'Consolas', monospace;
+      font-size: 11px;
+      text-align: right;
+    }
+    
+    .comp-tad { color: var(--text-secondary); }
+    .comp-bank { color: var(--blue); }
+    
+    .comp-diff {
+      font-family: 'Consolas', monospace;
+      font-size: 11px;
+      text-align: right;
+      font-weight: 600;
+    }
+    
+    .comp-diff.positive { color: var(--green); }
+    .comp-diff.negative { color: var(--red); }
+    .comp-diff.zero { color: var(--text-muted); }
+    
+    /* Side panel */
+    .side-panel { display: flex; flex-direction: column; gap: 12px; }
+    
+    .panel-section { padding: 14px; }
+    
+    /* Discrepancy summary */
+    .disc-summary {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .disc-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+    }
+    
+    .disc-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+    
+    .disc-value {
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    
+    .disc-value.blue { color: var(--blue); }
+    .disc-value.green { color: var(--green); }
+    .disc-value.red { color: var(--red); }
+    
+    /* Key issues */
+    .issues-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .issue-item {
+      padding: 10px;
+      background: rgba(232, 90, 90, 0.08);
+      border: 1px solid rgba(232, 90, 90, 0.25);
+      border-radius: 3px;
+    }
+    
+    .issue-item.info {
+      background: rgba(74, 144, 196, 0.08);
+      border-color: rgba(74, 144, 196, 0.25);
+    }
+    
+    .issue-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    
+    .issue-detail {
+      font-size: 9px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+    
+    .issue-amount {
+      font-family: 'Consolas', monospace;
+      font-size: 12px;
+      color: var(--red);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    
+    .issue-amount.positive { color: var(--green); }
+    
+    /* Detail panel */
+    .detail-panel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .detail-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: var(--text-muted);
+    }
+    
+    .detail-content.has-data {
+      justify-content: flex-start;
+      align-items: stretch;
+      padding-top: 0;
+    }
+    
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .detail-apt {
+      font-size: 24px;
+      font-weight: 700;
+      font-family: 'Consolas', monospace;
+    }
+    
+    .detail-close {
+      width: 24px; height: 24px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    
+    .detail-comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    
+    .detail-box {
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 3px;
+      text-align: center;
+    }
+    
+    .detail-box-label {
+      font-size: 8px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    
+    .detail-box-value {
+      font-family: 'Consolas', monospace;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .detail-box-value.tad { color: var(--text-secondary); }
+    .detail-box-value.bank { color: var(--blue); }
+    
+    .detail-diff-box {
+      padding: 12px;
+      background: rgba(232, 90, 90, 0.1);
+      border: 1px solid rgba(232, 90, 90, 0.3);
+      border-radius: 3px;
+      text-align: center;
+    }
+    
+    .detail-diff-box.positive {
+      background: rgba(90, 196, 122, 0.1);
+      border-color: rgba(90, 196, 122, 0.3);
+    }
+    
+    .detail-diff-label {
+      font-size: 8px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    
+    .detail-diff-value {
+      font-family: 'Consolas', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--red);
+    }
+    
+    .detail-diff-value.positive { color: var(--green); }
+    
+    .detail-notes {
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 3px;
+    }
+    
+    .detail-notes-label {
+      font-size: 8px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    
+    .detail-notes-text {
+      font-size: 10px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    
+    /* Footer */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+    }
+    
+    .footer-text {
+      font-size: 9px;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+    
+    /* Scanline */
+    .scanline {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(232, 90, 90, 0.15), transparent);
+      animation: scan 8s linear infinite;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    
+    @keyframes scan {
+      0% { top: -2px; }
+      100% { top: 100vh; }
+    }
+  </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
+</head>
+<body>
+  <div class="scanline"></div>
+  <canvas id="bgCanvas"></canvas>
+  
+  <div class="hub">
+    <!-- Header -->
+    <header class="glass header">
+      <div class="logo">
+        <div class="logo-icon">⚠</div>
+        <div class="title-group">
+          <h1>RECONCILIATION ALERT</h1>
+          <div class="subtitle">TAD HOBBS LIST vs BANK DEPOSIT #9 • 01/05/2026</div>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="header-stat">
+          <div class="header-stat-value">$51,617</div>
+          <div class="header-stat-label">Tad Hobbs</div>
+        </div>
+        <div class="header-stat">
+          <div class="header-stat-value green">$47,877</div>
+          <div class="header-stat-label">Bank Deposit</div>
+        </div>
+        <div class="header-stat">
+          <div class="header-stat-value red">-$3,740</div>
+          <div class="header-stat-label">Variance</div>
+        </div>
+        <div class="alert-badge">
+          <div class="alert-dot"></div>
+          <span class="alert-text">DISCREPANCY</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Main -->
+    <main class="main">
+      <!-- Comparison Grid -->
+      <div class="glass comparison-panel">
+        <div class="panel-header">
+          <span class="panel-title">UNIT COMPARISON</span>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot match"></div>Match</div>
+            <div class="legend-item"><div class="legend-dot mismatch"></div>Amount Differs</div>
+            <div class="legend-item"><div class="legend-dot missing-bank"></div>Missing from Bank</div>
+            <div class="legend-item"><div class="legend-dot missing-tad"></div>Missing from Tad</div>
+          </div>
+        </div>
+        <div class="comparison-grid" id="compGrid"></div>
+      </div>
+      
+      <!-- Side Panel -->
+      <div class="side-panel">
+        <!-- Summary -->
+        <div class="glass panel-section">
+          <div class="panel-header" style="padding: 0 0 10px 0; border-bottom: 1px solid var(--border);">
+            <span class="panel-title">VARIANCE BREAKDOWN</span>
+          </div>
+          <div class="disc-summary" style="margin-top: 12px;">
+            <div class="disc-row">
+              <span class="disc-label">Missing from Bank</span>
+              <span class="disc-value red">-$8,100</span>
+            </div>
+            <div class="disc-row">
+              <span class="disc-label">Extra in Bank</span>
+              <span class="disc-value green">+$7,450</span>
+            </div>
+            <div class="disc-row">
+              <span class="disc-label">Amount Differences</span>
+              <span class="disc-value red">-$3,090</span>
+            </div>
+            <div class="disc-row" style="border: 1px solid var(--red); background: rgba(232, 90, 90, 0.1);">
+              <span class="disc-label" style="font-weight: 600;">Net Variance</span>
+              <span class="disc-value red">-$3,740</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Key Issues -->
+        <div class="glass panel-section">
+          <div class="panel-header" style="padding: 0 0 10px 0; border-bottom: 1px solid var(--border);">
+            <span class="panel-title">KEY DISCREPANCIES</span>
+          </div>
+          <div class="issues-list" style="margin-top: 12px;">
+            <div class="issue-item">
+              <div class="issue-title">508 / A08 Jurado</div>
+              <div class="issue-detail">Tad: $1,998 → Bank: $747</div>
+              <div class="issue-amount">-$1,251</div>
+            </div>
+            <div class="issue-item">
+              <div class="issue-title">B8 Murray (duplicate)</div>
+              <div class="issue-detail">Second entry not in bank deposit</div>
+              <div class="issue-amount">-$1,500</div>
+            </div>
+            <div class="issue-item">
+              <div class="issue-title">B24 (unnamed)</div>
+              <div class="issue-detail">Not found in bank deposit</div>
+              <div class="issue-amount">-$1,945</div>
+            </div>
+            <div class="issue-item">
+              <div class="issue-title">Grant</div>
+              <div class="issue-detail">Not found in bank deposit</div>
+              <div class="issue-amount">-$1,925</div>
+            </div>
+            <div class="issue-item info">
+              <div class="issue-title">Piranian</div>
+              <div class="issue-detail">Tad: $755 → Bank: $1,755</div>
+              <div class="issue-amount positive">+$1,000</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Detail Panel -->
+        <div class="glass panel-section detail-panel">
+          <div class="panel-header" style="padding: 0 0 10px 0; border-bottom: 1px solid var(--border);">
+            <span class="panel-title">UNIT DETAIL</span>
+          </div>
+          <div class="detail-content" id="detailContent">
+            <div style="font-size: 24px; opacity: 0.3; margin-bottom: 8px;">◇</div>
+            <div style="font-size: 10px; letter-spacing: 1px;">SELECT A UNIT</div>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="glass footer">
+      <span class="footer-text">RECONCILIATION: TAD HOBBS REV 1-10 vs BANK DEPOSIT #9</span>
+      <span class="footer-text">VARIANCE: $3,740 (7.2% of total)</span>
+    </footer>
+  </div>
+  
+  <script>
+    // Comparison data - mapped units
+    const comparisons = [
+      { apt: 'A1/A26', name: 'Arme/Armie Duldulado', tad: 1930, bank: 1930, status: 'match' },
+      { apt: 'A3/A01', name: 'Brown/Shawn Brown', tad: 1915, bank: 1915, status: 'match' },
+      { apt: '107/A07', name: 'West/Frederick West', tad: 1520, bank: 1520, status: 'match' },
+      { apt: 'A4/A29', name: 'Jagg/Javier Oceguera', tad: 1635, bank: 1635, status: 'match' },
+      { apt: '508/A08', name: '—/Orlando Jurado', tad: 1998, bank: 747, status: 'mismatch', note: 'SDHC portion recorded differently. Bank shows resident portion only ($747). Tad shows full amount ($1,998).' },
+      { apt: 'A2/A20', name: 'Chroma/Clautide JeanCharles', tad: 1540, bank: 1540, status: 'match' },
+      { apt: 'B8/B08', name: 'Murray/Joshua Murray', tad: 1755, bank: 1755, status: 'match' },
+      { apt: 'B8', name: 'Murray (duplicate)', tad: 1500, bank: 0, status: 'missing-bank', note: 'Second B8 Murray entry on Tad list not found in bank deposit.' },
+      { apt: '10/B15', name: 'Daming/Irma Dominquez', tad: 1770, bank: 1770, status: 'match', note: 'Bank shows 4 separate checks totaling $1,770' },
+      { apt: 'B30', name: 'Reed/John Richardson', tad: 1945, bank: 1945, status: 'match', note: 'Name discrepancy: Tad shows Reed, Bank shows Richardson' },
+      { apt: '12/C28', name: 'Reed/Jeannette Reed', tad: 1875, bank: 1875, status: 'match' },
+      { apt: '13/C15', name: 'Amoud/Ziyad Hmod', tad: 1040, bank: 290, status: 'mismatch', note: 'Significant difference. Tad shows SDHC-adjusted amount.' },
+      { apt: 'B9/C09', name: 'Muira/Daphne Murray', tad: 1815, bank: 1875, status: 'mismatch', note: 'Bank shows $60 more than Tad list.' },
+      { apt: 'B1/C20', name: 'Bohmeh/Christine Bowman', tad: 1302, bank: 1890, status: 'mismatch', note: 'Different tenants? Bank shows $588 more.' },
+      { apt: 'C8/C34', name: 'Glouk/Robert Glock', tad: 1545, bank: 1545, status: 'match' },
+      { apt: '17/C08', name: 'Piranian/Leasel Piranian', tad: 755, bank: 1755, status: 'mismatch', note: 'Bank shows $1,000 MORE than Tad. Possible typo on Tad list?' },
+      { apt: 'B24', name: '(unnamed)', tad: 1945, bank: 0, status: 'missing-bank', note: 'No matching entry found in bank deposit.' },
+      { apt: '19', name: '(unnamed)', tad: 905, bank: 0, status: 'missing-bank', note: 'No matching entry found in bank deposit.' },
+      { apt: 'B27/C32', name: '—/Penny Hazzard', tad: 1555, bank: 1555, status: 'match' },
+      { apt: '21', name: 'Do Houghto', tad: 1825, bank: 0, status: 'missing-bank', note: 'No matching entry found in bank deposit.' },
+      { apt: 'B9/D09', name: 'Simon/Justin Simon', tad: 1890, bank: 1890, status: 'match' },
+      { apt: 'EID/E10', name: 'Maher/Brian Maher', tad: 2000, bank: 2000, status: 'match' },
+      { apt: 'B3/E23', name: 'Brown/Gloria Brown', tad: 2120, bank: 2170, status: 'mismatch', note: 'Bank shows $50 more.' },
+      { apt: 'B3/E13', name: '—/Samantha Salazar', tad: 880, bank: 620, status: 'mismatch', note: 'Bank shows 2 partial payments ($500 + $120).' },
+      { apt: '26', name: 'Grant', tad: 1925, bank: 0, status: 'missing-bank', note: 'No matching entry found in bank deposit.' },
+      { apt: '27/E29', name: 'Pandho/Jane Malhabour-Pancho', tad: 2055, bank: 2055, status: 'match' },
+      { apt: 'B3/F23', name: 'Williams/Richard Williams Jr', tad: 1970, bank: 1970, status: 'match' },
+      { apt: '29/F02', name: 'McCullough/Brandon Mccullough', tad: 2125, bank: 2195, status: 'mismatch', note: 'Bank shows $70 more.' },
+      { apt: 'F24', name: 'Oberfell/Edwin Obergfell Jr', tad: 1985, bank: 1985, status: 'match' },
+      // Units only in bank
+      { apt: 'B23', name: 'Souphaphone Chantrirack', tad: 0, bank: 1800, status: 'missing-tad', note: 'In bank deposit but not on Tad list.' },
+      { apt: 'B21', name: 'Purvi Shah', tad: 0, bank: 1830, status: 'missing-tad', note: 'In bank deposit but not on Tad list.' },
+      { apt: 'C24', name: 'Ashley Ross', tad: 0, bank: 1915, status: 'missing-tad', note: 'In bank deposit but not on Tad list.' },
+      { apt: 'C11', name: 'Andrew Malinis', tad: 0, bank: 1905, status: 'missing-tad', note: 'In bank deposit but not on Tad list.' },
+    ];
+    
+    let selectedRow = null;
+    
+    function renderGrid() {
+      const grid = document.getElementById('compGrid');
+      grid.innerHTML = '';
+      
+      // Sort: missing-bank first, then mismatch, then missing-tad, then match
+      const order = { 'missing-bank': 0, 'mismatch': 1, 'missing-tad': 2, 'match': 3 };
+      const sorted = [...comparisons].sort((a, b) => order[a.status] - order[b.status]);
+      
+      sorted.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = `comp-row ${item.status}`;
+        row.dataset.index = index;
+        
+        const diff = item.bank - item.tad;
+        let diffClass = 'zero';
+        let diffText = '—';
+        if (diff > 0) { diffClass = 'positive'; diffText = `+$${diff.toLocaleString()}`; }
+        else if (diff < 0) { diffClass = 'negative'; diffText = `-$${Math.abs(diff).toLocaleString()}`; }
+        
+        row.innerHTML = `
+          <div class="comp-apt">${item.apt}</div>
+          <div class="comp-name">${item.name}</div>
+          <div class="comp-tad">${item.tad > 0 ? '$' + item.tad.toLocaleString() : '—'}</div>
+          <div class="comp-bank">${item.bank > 0 ? '$' + item.bank.toLocaleString() : '—'}</div>
+          <div class="comp-diff ${diffClass}">${diffText}</div>
+        `;
+        
+        row.addEventListener('click', () => selectRow(item, row));
+        grid.appendChild(row);
+      });
+    }
+    
+    function selectRow(item, rowEl) {
+      // Clear previous selection
+      document.querySelectorAll('.comp-row').forEach(r => r.classList.remove('active'));
+      rowEl.classList.add('active');
+      selectedRow = item;
+      
+      const content = document.getElementById('detailContent');
+      const diff = item.bank - item.tad;
+      const isPositive = diff >= 0;
+      
+      content.innerHTML = `
+        <div class="detail-header">
+          <div class="detail-apt">${item.apt}</div>
+        </div>
+        <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 12px;">${item.name}</div>
+        <div class="detail-comparison">
+          <div class="detail-box">
+            <div class="detail-box-label">TAD HOBBS</div>
+            <div class="detail-box-value tad">${item.tad > 0 ? '$' + item.tad.toLocaleString() : '—'}</div>
+          </div>
+          <div class="detail-box">
+            <div class="detail-box-label">BANK DEPOSIT</div>
+            <div class="detail-box-value bank">${item.bank > 0 ? '$' + item.bank.toLocaleString() : '—'}</div>
+          </div>
+        </div>
+        <div class="detail-diff-box ${isPositive && diff !== 0 ? 'positive' : ''}">
+          <div class="detail-diff-label">DIFFERENCE</div>
+          <div class="detail-diff-value ${isPositive ? 'positive' : ''}">${diff === 0 ? '$0' : (diff > 0 ? '+$' + diff.toLocaleString() : '-$' + Math.abs(diff).toLocaleString())}</div>
+        </div>
+        ${item.note ? `
+        <div class="detail-notes">
+          <div class="detail-notes-label">NOTES</div>
+          <div class="detail-notes-text">${item.note}</div>
+        </div>
+        ` : ''}
+      `;
+      content.classList.add('has-data');
+    }
+    
+    // Canvas
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    
+    const particles = [];
+    for (let i = 0; i < 40; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.15,
+        vy: (Math.random() - 0.5) * 0.15,
+        size: Math.random() * 1.5 + 0.5,
+        opacity: Math.random() * 0.2 + 0.05
+      });
+    }
+    
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(232, 90, 90, ${p.opacity})`;
+        ctx.fill();
+        
+        particles.slice(i + 1).forEach(p2 => {
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 80) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(232, 90, 90, ${0.04 * (1 - dist / 80)})`;
+            ctx.stroke();
+          }
+        });
+      });
+      
+      requestAnimationFrame(animate);
+    }
+    
+    renderGrid();
+    animate();
+  </script>
+</body>
+</html>
