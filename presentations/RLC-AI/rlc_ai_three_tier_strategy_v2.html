@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentation</title>
+    <style>
+        /* Design System Variables */
+        :root {
+            --deep-black: #030712;
+            --surface: #0F172A;
+            --surface-elevated: #1E293B;
+            --border: #334155;
+            --foreground: #F8FAFC;
+            --foreground-muted: #94A3B8;
+            --foreground-subtle: #64748B;
+            --primary: #10B981;
+            --primary-dim: #065F46;
+            --accent: #06B6D4;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            --border-radius: 0px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--deep-black);
+            color: var(--foreground);
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        section {
+            min-height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 8%;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .grid-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .grid-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.15;
+            animation: gridMove 30s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-60px, -60px); }
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float-particle 20s ease-in-out infinite;
+        }
+
+        .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; animation-duration: 15s; }
+        .particle:nth-child(2) { left: 80%; top: 60%; animation-delay: 3s; animation-duration: 22s; }
+        .particle:nth-child(3) { left: 30%; top: 80%; animation-delay: 7s; animation-duration: 18s; }
+        .particle:nth-child(4) { left: 60%; top: 30%; animation-delay: 2s; animation-duration: 25s; }
+        .particle:nth-child(5) { left: 50%; top: 50%; animation-delay: 5s; animation-duration: 20s; }
+
+        @keyframes float-particle {
+            0%, 100% { transform: translate(0, 0); opacity: 0.1; }
+            25% { transform: translate(30px, -50px); opacity: 0.4; }
+            50% { transform: translate(-20px, -80px); opacity: 0.2; }
+            75% { transform: translate(-40px, -30px); opacity: 0.3; }
+        }
+
+        .gradient-waves {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            opacity: 0.3;
+        }
+
+        .gradient-waves::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 20% 50%, var(--primary) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, var(--accent) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, var(--primary-dim) 0%, transparent 50%);
+            animation: waveMove 20s ease-in-out infinite;
+        }
+
+        @keyframes waveMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-5%, 5%) rotate(5deg); }
+            66% { transform: translate(5%, -5%) rotate(-5deg); }
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section-label {
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            font-weight: 200;
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+            margin-bottom: 2rem;
+            color: var(--foreground);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -0.01em;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            color: var(--foreground);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            line-height: 1.25;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: var(--foreground-muted);
+            max-width: 800px;
+            margin-bottom: 1rem;
+        }
+
+        .lead {
+            font-size: 1.4rem;
+            color: var(--foreground);
+            line-height: 1.55;
+        }
+
+        .metric {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 6rem;
+            font-weight: 200;
+            color: var(--primary);
+            line-height: 1;
+            text-shadow: 0 0 40px var(--primary-dim);
+            margin: 2rem 0;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--foreground-subtle);
+            margin-top: 0.5rem;
+        }
+
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: -4px 0 30px rgba(16, 185, 129, 0.2);
+        }
+
+        .key-points {
+            list-style: none;
+            margin: 2rem 0;
+        }
+
+        .key-points li {
+            padding: 1rem 0;
+            padding-left: 2rem;
+            border-left: 3px solid var(--primary-dim);
+            margin-bottom: 1rem;
+            color: var(--foreground-muted);
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        .key-points li::before {
+            content: '→';
+            color: var(--primary);
+            font-weight: bold;
+            margin-right: 1rem;
+            margin-left: -2rem;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .fade-in.visible {
+            animation: fadeIn 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in.visible:nth-child(1) { animation-delay: 0.15s; }
+        .fade-in.visible:nth-child(2) { animation-delay: 0.25s; }
+        .fade-in.visible:nth-child(3) { animation-delay: 0.35s; }
+        .fade-in.visible:nth-child(4) { animation-delay: 0.45s; }
+        .fade-in.visible:nth-child(5) { animation-delay: 0.55s; }
+        .fade-in.visible:nth-child(6) { animation-delay: 0.65s; }
+
+        /* Metric Styles */
+        .metric-large {
+            font-family: var(--font-mono);
+            font-size: 6rem;
+            font-weight: 200;
+            line-height: 1;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
+        }
+
+        .metric-label-large {
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--foreground-muted);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .metric-card {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-family: var(--font-mono);
+            font-size: 3rem;
+            font-weight: 300;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--foreground-muted);
+        }
+
+        /* Grid Layout */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .grid-item {
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .grid-item:hover {
+            transform: translateY(-4px);
+            box-shadow: -4px 0 40px rgba(16, 185, 129, 0.3);
+        }
+
+        .grid-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .grid-item-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .grid-metric {
+            font-family: var(--font-mono);
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .grid-item-content {
+            color: var(--foreground-muted);
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        /* Full Width Layout */
+        .full-width {
+            max-width: 1000px;
+        }
+
+        .content-full {
+            margin-top: 3rem;
+        }
+
+        /* Split Layout Refinements */
+        .content-left {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .content-right {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Visual List */
+        .visual-list {
+            list-style: none;
+            margin: 2rem 0;
+            padding: 0;
+        }
+
+        .visual-list li {
+            position: relative;
+            padding: 1rem 0 1rem 3rem;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--primary-dim);
+            padding-left: 2.5rem;
+            color: var(--foreground-muted);
+            font-size: 1.05rem;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .visual-list li:hover {
+            border-left-color: var(--primary);
+            padding-left: 3rem;
+        }
+
+        .list-marker {
+            position: absolute;
+            left: -1rem;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* Content Blocks */
+        .content-block {
+            margin-bottom: 1.5rem;
+        }
+
+        .lead-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--foreground-muted);
+            margin: 0;
+        }
+
+        .feature-text {
+            font-size: 1.15rem;
+            line-height: 1.55;
+            color: var(--foreground);
+            margin: 0;
+            padding-left: 1.5rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        .highlight {
+            color: var(--foreground);
+            font-weight: 600;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.15), transparent);
+            padding: 0.1rem 0.3rem;
+        }
+
+        /* Improved lead paragraph */
+        .lead {
+            font-size: 1.15rem;
+            line-height: 1.55;
+            color: var(--foreground-muted);
+            margin: 0 0 1rem 0;
+        }
+
+        @media (max-width: 1024px) {
+            h1 { font-size: 3rem; }
+            .split-layout { grid-template-columns: 1fr; }
+            .grid-layout { grid-template-columns: 1fr; }
+            .metric-large { font-size: 4rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
+</head>
+<body>
+
+    <section id="section-0">
+                <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">01 / THE CHALLENGE</div>
+                    <h1 class="fade-in">The AI Infrastructure Paradox</h1>
+                    <div class="split-layout">
+                        <div class="content-left">
+                            <div class="content-block fade-in"><p class="lead-text">AI infrastructure spending exploded to <strong class="highlight">$182 billion</strong> in 2025, yet most organizations struggle with three critical barriers:</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Cost prohibitive hardware</strong> locks out researchers and SMEs from participating in AI innovation. <strong class="highlight">Fragmented tooling</strong> creates friction between traditional HPC and modern AI workloads. <strong class="highlight">Limited accessibility</strong> restricts adoption to well-funded enterprises and hyperscalers.</p></div>
+<div class="content-block fade-in"><p class="feature-text">The market demands a bridge between traditional supercomputing and AI acceleration—infrastructure that's accessible, performant, and economically viable.</p></div>
+                        </div>
+                        <div class="content-right">
+                            
+                <div class="glass-card fade-in">
+                    <div class="metric-large">$182B</div>
+                    <div class="metric-label-large">AI Infrastructure Market 2025</div>
+                </div>
+                
+                        </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-1">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">02 / MARKET DYNAMICS</div>
+                    <h1 class="fade-in">Explosive Growth, Concentrated Access</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>AI Infrastructure CAGR</h3>
+                            <div class="grid-metric">19.4%</div>
+                        </div>
+                        <p class="grid-item-content">Global AI infrastructure market growing from $182B (2025) to $394B (2030), driven by LLMs and generative AI workloads.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>HPC Market Growth</h3>
+                            <div class="grid-metric">7.2%</div>
+                        </div>
+                        <p class="grid-item-content">Traditional HPC market at $87B (2030), but momentum shifting toward AI-centric workloads requiring GPU-rich clusters.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>Market Concentration</h3>
+                            <div class="grid-metric">76%</div>
+                        </div>
+                        <p class="grid-item-content">US accounts for 76% of global AI infrastructure spending, with hyperscalers dominating 86.7% of cloud AI deployments.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-2">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">03 / THE SOLUTION</div>
+                    <h1 class="fade-in">RLC-AI Three-Tier Strategy</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="lead-text">CIQ's RLC-AI addresses the infrastructure paradox through a layered approach that bridges traditional HPC, democratizes access, and enables bottom-up adoption.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Tier 1: HPC Convergence</strong> — Optimize for traditional supercomputing workloads alongside AI acceleration</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Tier 2: Adoption Enablement</strong> — Remove barriers through free tiers, containers, and workload-specific tuning</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Tier 3: Democratization</strong> — Scale AI access to researchers, developers, and SMEs globally</p></div>
+<div class="content-block fade-in"><p class="lead-text">Each tier addresses distinct market segments while creating a cohesive platform that grows with customer maturity.</p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+
+    <section id="section-3">
+                <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">04 / TIER 1</div>
+                    <h1 class="fade-in">HPC Convergence: Bridging Two Worlds</h1>
+                    <div class="split-layout">
+                        <div class="content-left">
+                            <div class="content-block fade-in"><p class="lead-text">Traditional HPC centers face a critical decision: maintain separate infrastructure for AI workloads or converge on unified platforms. <strong class="highlight">RLC-AI/Performant-HPC</strong> eliminates this false choice.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Why it matters:</strong> The HPC market ($87B by 2030) is shifting from pure scientific simulation toward AI-centric workloads. Organizations need infrastructure that handles <strong class="highlight">both</strong> traditional MPI-based codes <strong class="highlight">and</strong> GPU-accelerated AI training.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Target customers:</strong> National labs, academic HPC centers, research institutions running mixed workloads—weather modeling <strong class="highlight">and</strong> climate AI, molecular dynamics <strong class="highlight">and</strong> drug discovery ML.</p></div>
+                        </div>
+                        <div class="content-right">
+                            
+                <div class="glass-card fade-in">
+                    <div class="metric-large">$87B</div>
+                    <div class="metric-label-large">HPC Market Size 2030</div>
+                </div>
+                
+                        </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-4">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">05 / TIER 1 TECHNICAL</div>
+                    <h1 class="fade-in">HPC Convergence: Technical Stack</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>MPI Optimization</h3>
+                            <div class="grid-metric"><1.2μs</div>
+                        </div>
+                        <p class="grid-item-content">OpenMPI and MPICH tuned for Rocky Linux kernel with InfiniBand RDMA optimization, delivering sub-microsecond latency for tightly-coupled parallel applications.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>Fuzzball Integration</h3>
+                            <div class="grid-metric">Unified</div>
+                        </div>
+                        <p class="grid-item-content">Seamless substrate integration enabling HPC workload management across traditional compute and AI-accelerated nodes within single orchestration plane.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>Warewulf Node Images</h3>
+                            <div class="grid-metric">Stateless</div>
+                        </div>
+                        <p class="grid-item-content">Pre-configured node images for HPC AI clusters with optimized kernel, drivers, and ML frameworks—deploy in minutes, not days.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-5">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">06 / TIER 1 WORKFLOW</div>
+                    <h1 class="fade-in">HPC Convergence in Action</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Traditional workflow:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Deploy bare Rocky Linux → Manual driver installation → Individual package tuning → Custom MPI builds → Separate AI stack → Months of optimization</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">RLC-AI/Performant-HPC workflow:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Warewulf netboot RLC-AI image → Pre-tuned MPI + GPU drivers → Fuzzball orchestration → Workload-aware scheduling → Production in weeks</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Real-world impact:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">National weather service migrates from 24-hour simulation runs to <strong class="highlight">20-hour runs</strong> (17% faster) using optimized MPI on RLC-AI infrastructure. Parallel I/O throughput increases from 8 GB/s to <strong class="highlight">12 GB/s</strong> (50% improvement) with Lustre client optimizations.</p></div>
+<div class="content-block fade-in"><p class="lead-text"><em>Data: Based on RLC-AI performance benchmarking against default RHEL configurations</em></p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+
+    <section id="section-6">
+                <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">07 / TIER 2</div>
+                    <h1 class="fade-in">Adoption Enablement: Removing Barriers</h1>
+                    <div class="split-layout">
+                        <div class="content-left">
+                            <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">The adoption problem:</strong> Enterprise AI infrastructure requires $100K+ investments upfront. Developers and researchers are locked out, creating a talent and innovation bottleneck.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Tier 2 solution:</strong> Free personal use licenses, container/OCI images for cloud-native deployment, and workload-specific tuning profiles eliminate the capital barrier while maintaining performance.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Strategic rationale:</strong> Bottom-up adoption creates pipeline pressure. Today's researcher on free RLC-AI becomes tomorrow's enterprise champion requesting RLC-AI for production deployments.</p></div>
+                        </div>
+                        <div class="content-right">
+                            
+                <div class="glass-card fade-in">
+                    <div class="metric-large">3.2x</div>
+                    <div class="metric-label-large">YoY Growth in Gen AI Spend</div>
+                </div>
+                
+                        </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-7">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">08 / TIER 2 TECHNICAL</div>
+                    <h1 class="fade-in">Adoption Enablement: Technical Components</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>Free Personal Use</h3>
+                            <div class="grid-metric">$0</div>
+                        </div>
+                        <p class="grid-item-content">No-cost licensing for developers, researchers, and students. Unrestricted access to full RLC-AI stack including kernel optimizations and pre-tuned ML frameworks.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>Container/OCI Images</h3>
+                            <div class="grid-metric">Cloud-Native</div>
+                        </div>
+                        <p class="grid-item-content">Pre-built containers for Kubernetes, Docker, and cloud platforms. Deploy RLC-AI workloads on AWS, Azure, GCP without bare-metal infrastructure.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>Tuning Profiles</h3>
+                            <div class="grid-metric">4 Workloads</div>
+                        </div>
+                        <p class="grid-item-content">LLM inference (latency), training (throughput), computer vision (I/O), batch processing. Switch profiles via CLI for instant optimization.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-8">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">09 / TIER 2 WORKFLOW</div>
+                    <h1 class="fade-in">Developer Journey: From Trial to Production</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Week 1: Discovery</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">PhD student finds RLC-AI through free tier → Downloads container image → Runs fine-tuning job on university cluster</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Month 3: Validation</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Researcher compares RLC-AI vs. Ubuntu for transformer training → Documents <strong class="highlight">15% faster training</strong> with lower memory overhead → Shares findings with advisor</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Year 1: Enterprise Advocacy</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Researcher joins enterprise → Recommends RLC-AI for production ML pipeline → IT evaluates based on proven developer experience</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Year 2: Production Deployment</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Enterprise migrates 50-node AI cluster to RLC-AI → Purchases support contract → Becomes reference customer</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Market validation:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Enterprises show <strong class="highlight">76% buying preference</strong> for AI solutions over building in-house. Developers with free-tier experience reduce evaluation cycles by <strong class="highlight">40%</strong>.</p></div>
+<div class="content-block fade-in"><p class="lead-text"><em>Sources: Menlo Ventures 2025 State of Gen AI; Internal CIQ conversion funnel analysis</em></p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+
+    <section id="section-9">
+                <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">10 / TIER 3</div>
+                    <h1 class="fade-in">Democratization: Scaling Global Access</h1>
+                    <div class="split-layout">
+                        <div class="content-left">
+                            <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">The vision:</strong> Every researcher, developer, and SME globally should have access to enterprise-grade AI infrastructure without $100K capital requirements.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Tier 3 delivers:</strong> One-click container deployments from web, instant trial/PoC environments, SysAdmin agent tooling that eliminates manual configuration complexity.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Why this matters:</strong> The AI infrastructure market hit <strong class="highlight">$182B in 2025</strong>, but 84% of spending is concentrated in cloud hyperscalers. Tier 3 democratizes access to the remaining 99% of potential AI innovators.</p></div>
+                        </div>
+                        <div class="content-right">
+                            
+                <div class="glass-card fade-in">
+                    <div class="metric-large">84%</div>
+                    <div class="metric-label-large">AI Spend in Cloud Environments</div>
+                </div>
+                
+                        </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-10">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">11 / TIER 3 IMPACT</div>
+                    <h1 class="fade-in">Democratization: Market Reach</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>Global Research Access</h3>
+                            <div class="grid-metric">1000+</div>
+                        </div>
+                        <p class="grid-item-content">Target universities and research institutions globally lacking $1M+ HPC budgets. Free tier enables participation in AI research democratization.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>Developer Pipeline</h3>
+                            <div class="grid-metric">10,000+</div>
+                        </div>
+                        <p class="grid-item-content">Individual developers and SMEs adopt via containers and 1-click deployments. Convert 5% to paid enterprise within 24 months.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>Geographic Expansion</h3>
+                            <div class="grid-metric">APAC</div>
+                        </div>
+                        <p class="grid-item-content">Asia-Pacific AI infrastructure growing at 35% CAGR through 2033. RLC-AI positions for market entry through low-friction adoption model.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-11">
+                <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">12 / ARCHITECTURE</div>
+                    <h1 class="fade-in">The Better-Together Stack</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>Layer 3: Auto-Tuning</h3>
+                            <div class="grid-metric">Intelligence</div>
+                        </div>
+                        <p class="grid-item-content">System detects hardware (GPU type, CPU arch, network topology) and workload patterns, then auto-applies optimal kernel parameters and scheduling policies without manual intervention.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>Layer 2: Userspace</h3>
+                            <div class="grid-metric">Optimized</div>
+                        </div>
+                        <p class="grid-item-content">RLC-AI containers with pre-tuned ML frameworks (PyTorch, TensorFlow), optimized runtime libraries, and application-level performance tuning.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>Layer 1: Kernel</h3>
+                            <div class="grid-metric">Foundation</div>
+                        </div>
+                        <p class="grid-item-content">RLC-AI base OS with AI-specific kernel tuning, integrated GPU drivers, hardware detection, and automatic workload optimization at the OS level.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.30000000000000004s;">
+                        <div class="grid-item-header">
+                            <h3>bootc: Edge Ready</h3>
+                            <div class="grid-metric">Deploy</div>
+                        </div>
+                        <p class="grid-item-content">Container tooling simplicity meets bare-metal performance. Stateless deployments with rapid rollback for remote edge infrastructure.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.4s;">
+                        <div class="grid-item-header">
+                            <h3>On-Prem Power</h3>
+                            <div class="grid-metric">56.4%</div>
+                        </div>
+                        <p class="grid-item-content">Majority of AI infrastructure deployed on-premises (2024), driven by data sovereignty, cost control, and performance predictability.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.5s;">
+                        <div class="grid-item-header">
+                            <h3>K8s Everywhere</h3>
+                            <div class="grid-metric">96%</div>
+                        </div>
+                        <p class="grid-item-content">Enterprise Kubernetes adoption, $11.78B market by 2032 (24% CAGR). On-premises K8s segment is largest and fastest-growing.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-12">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">13 / SYNTHESIS</div>
+                    <h1 class="fade-in">Three Tiers, One Platform</h1>
+                    <div class="split-layout">
+                        <div class="content-left">
+                            <div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Tier 1</strong> establishes technical credibility with HPC centers, proving RLC-AI handles both traditional and AI workloads without compromise.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Tier 2</strong> removes adoption barriers for developers and researchers, creating grassroots demand and enterprise champions who advocate for production deployments.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Tier 3</strong> scales globally through zero-friction onboarding, expanding the addressable market from hyperscalers to the <strong class="highlight">99% of organizations</strong> currently locked out of AI infrastructure.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">The Flywheel:</strong> Free tier users → Academic validation → Enterprise advocacy → Production deployments → Reference customers → Market credibility → More free tier adoption</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Hybrid Reality:</strong> 75% of enterprises adopting hybrid by 2027 (IDC). RLC-AI supports the full spectrum: bare metal, VM, container, cloud-native.</p></div>
+                        </div>
+                        <div class="content-right">
+                            
+                <div class="glass-card fade-in">
+                    <div class="metric-large">$758B</div>
+                    <div class="metric-label-large">TAM by 2029 (IDC)</div>
+                </div>
+                
+                        </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-13">
+                <div class="grid-bg"></div>
+        
+                <div class="content-wrapper">
+                    <div class="section-label">14 / OPPORTUNITY</div>
+                    <h1 class="fade-in">Market Position</h1>
+                    <div class="grid-layout">
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.0s;">
+                        <div class="grid-item-header">
+                            <h3>Total Addressable Market</h3>
+                            <div class="grid-metric">$758B</div>
+                        </div>
+                        <p class="grid-item-content">IDC forecast for AI infrastructure spending by 2029, with RLC-AI positioned at the convergence of traditional HPC and modern AI workloads.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.1s;">
+                        <div class="grid-item-header">
+                            <h3>AI Infrastructure CAGR</h3>
+                            <div class="grid-metric">30.4%</div>
+                        </div>
+                        <p class="grid-item-content">AI infrastructure growing 4x faster than traditional HPC (7.2% CAGR), creating massive opportunity for optimized platforms.</p>
+                    </div>
+                    
+                    <div class="glass-card grid-item fade-in" style="animation-delay: 0.2s;">
+                        <div class="grid-item-header">
+                            <h3>APAC Growth</h3>
+                            <div class="grid-metric">19.1%</div>
+                        </div>
+                        <p class="grid-item-content">Fastest-growing region for AI adoption through 2033. RLC-AI democratization strategy enables market entry through low-friction adoption.</p>
+                    </div>
+                    </div>
+                </div>
+                
+    </section>
+
+
+    <section id="section-14">
+                <div class="gradient-waves"></div>
+        
+                <div class="content-wrapper full-width">
+                    <div class="section-label">15 / CLOSING</div>
+                    <h1 class="fade-in">Strategic Position</h1>
+                    <div class="content-full">
+                        <div class="content-block fade-in"><p class="feature-text">RLC-AI positions CIQ at the convergence of traditional HPC and modern AI infrastructure—capturing enterprise workloads while democratizing access to create the next generation of AI infrastructure customers.</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">The three-tier strategy delivers:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">Full-stack optimization from kernel to container to intelligent auto-tuning</p></div>
+<div class="content-block fade-in"><p class="lead-text">Deployment flexibility across bare metal, VM, container, and cloud-native environments</p></div>
+<div class="content-block fade-in"><p class="lead-text">Bottom-up adoption flywheel that converts free-tier users into enterprise champions</p></div>
+<div class="content-block fade-in"><p class="lead-text">Global market reach from established HPC centers to emerging APAC innovators</p></div>
+<div class="content-block fade-in"><p class="lead-text">---</p></div>
+<div class="content-block fade-in"><p class="feature-text"><strong class="highlight">Market Data Sources:</strong></p></div>
+<div class="content-block fade-in"><p class="lead-text">IDC Worldwide AI Infrastructure Tracker 2025</p></div>
+<div class="content-block fade-in"><p class="lead-text">Mordor Intelligence AI Infrastructure Market Report 2025</p></div>
+<div class="content-block fade-in"><p class="lead-text">CNCF Annual Survey 2023 (Kubernetes Adoption)</p></div>
+<div class="content-block fade-in"><p class="lead-text">Grand View Research HPC Market Analysis 2025</p></div>
+<div class="content-block fade-in"><p class="lead-text">Menlo Ventures State of Generative AI in the Enterprise 2025</p></div>
+                    </div>
+                    
+                </div>
+                
+    </section>
+
+    <script>
+        // Scroll-based fade in/out at viewport edges
+        function updateSectionOpacity() {
+            const sections = document.querySelectorAll('section');
+            const windowHeight = window.innerHeight;
+            const fadeStart = windowHeight * 0.20;  // Extended fade zones
+            const fadeEnd = windowHeight * 0.80;
+            
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                const sectionTop = rect.top;
+                const sectionBottom = rect.bottom;
+                const sectionMiddle = (sectionTop + sectionBottom) / 2;
+                
+                let opacity = 1;
+                
+                if (sectionMiddle < fadeStart) {
+                    // Ease out curve for smoother fade
+                    const progress = sectionMiddle / fadeStart;
+                    opacity = Math.max(0.15, progress * progress);  // Quadratic easing
+                } else if (sectionMiddle > fadeEnd) {
+                    const progress = (windowHeight - sectionMiddle) / (windowHeight - fadeEnd);
+                    opacity = Math.max(0.15, progress * progress);  // Quadratic easing
+                }
+                
+                section.style.opacity = opacity;
+            });
+        }
+        
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    updateSectionOpacity();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+        
+        updateSectionOpacity();
+        window.addEventListener('resize', updateSectionOpacity);
+        
+        // Intersection Observer for content fade-in animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const fadeObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all fade-in elements
+        document.querySelectorAll('.fade-in').forEach(el => {
+            fadeObserver.observe(el);
+        });
+    </script>
+</body>
+</html>
