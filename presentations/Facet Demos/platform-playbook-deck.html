@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Team Playbook | Two Bear Capital</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=JetBrains+Mono:wght@200;300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --deep-black: #0A0A14;
+            --surface: #0F1420;
+            --surface-elevated: #1A2030;
+            --border: #2D3A4C;
+            --foreground: #F8FAFC;
+            --foreground-muted: #94A3B8;
+            --foreground-subtle: #64748B;
+            --primary: #F59E0B;
+            --primary-dim: #B45309;
+            --primary-glow: rgba(245, 158, 11, 0.4);
+            --highlight: #22C55E;
+            --highlight-dim: #16A34A;
+            --accent: #00B4D8;
+            --purple: #8B5CF6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--deep-black);
+            color: var(--foreground);
+            overflow-x: hidden;
+            line-height: 1.5;
+            cursor: none;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        /* Custom cursor with glow */
+        .cursor-glow {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s ease;
+            mix-blend-mode: screen;
+        }
+
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+        }
+
+        section {
+            min-height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 8%;
+            overflow: hidden;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Animated grid background */
+        .grid-bg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .grid-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%; height: 200%;
+            background-image: 
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.1;
+            animation: gridMove 40s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-60px, -60px); }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: absolute;
+            width: 100%; height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px; height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .particle:nth-child(1) { top: 20%; left: 10%; animation: float1 18s ease-in-out infinite; }
+        .particle:nth-child(2) { top: 60%; left: 80%; animation: float2 22s ease-in-out infinite; }
+        .particle:nth-child(3) { top: 40%; left: 30%; animation: float3 20s ease-in-out infinite; }
+        .particle:nth-child(4) { top: 80%; left: 60%; animation: float1 25s ease-in-out infinite reverse; }
+        .particle:nth-child(5) { top: 10%; left: 70%; animation: float2 19s ease-in-out infinite; }
+        .particle:nth-child(6) { top: 70%; left: 20%; animation: float3 23s ease-in-out infinite; }
+        .particle:nth-child(7) { top: 30%; left: 90%; animation: float1 21s ease-in-out infinite; }
+
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+            25% { transform: translate(30px, -40px) scale(1.2); opacity: 0.8; }
+            50% { transform: translate(-20px, 30px) scale(0.8); opacity: 0.4; }
+            75% { transform: translate(40px, 20px) scale(1.1); opacity: 0.7; }
+        }
+
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.5; }
+            33% { transform: translate(-50px, -30px) rotate(120deg); opacity: 0.8; }
+            66% { transform: translate(40px, 50px) rotate(240deg); opacity: 0.6; }
+        }
+
+        @keyframes float3 {
+            0%, 100% { transform: translate(0, 0); opacity: 0.7; }
+            50% { transform: translate(60px, -60px); opacity: 0.3; }
+        }
+
+        /* Gradient waves background */
+        .gradient-waves {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(245, 158, 11, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0, 180, 216, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 40% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            animation: wavePulse 12s ease-in-out infinite;
+        }
+
+        @keyframes wavePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+        }
+
+        .section-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 40px;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 200;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+            color: var(--foreground);
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--foreground);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Green keyword highlighting */
+        .kw {
+            color: var(--highlight);
+            font-weight: 500;
+        }
+
+        /* Split layout */
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        .content-left {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Role cards for Team Structure */
+        .role-card {
+            border-left: 3px solid var(--primary);
+            padding: 0.75rem 0 0.75rem 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .role-card:hover {
+            border-left-color: var(--highlight);
+            padding-left: 2rem;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .role-card h4 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--foreground);
+            margin-bottom: 0.25rem;
+        }
+
+        .role-card p {
+            font-size: 0.9rem;
+            color: var(--foreground-muted);
+            line-height: 1.4;
+        }
+
+        /* Glassmorphic metric card */
+        .glass-card {
+            background: rgba(26, 32, 48, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            padding: 2.5rem;
+            box-shadow: -4px 0 40px rgba(245, 158, 11, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            box-shadow: -8px 0 60px rgba(245, 158, 11, 0.25);
+            transform: translateX(4px);
+        }
+
+        .metric-large {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 5rem;
+            font-weight: 200;
+            line-height: 1;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 40px rgba(245, 158, 11, 0.4);
+        }
+
+        .metric-label-large {
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--foreground-muted);
+        }
+
+        /* Grid layout with expandable cards */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .grid-item {
+            background: rgba(26, 32, 48, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--primary);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .grid-item:hover {
+            border-left-color: var(--highlight);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.2);
+        }
+
+        .grid-item.expanded {
+            grid-column: span 2;
+            border-left-color: var(--highlight);
+            background: rgba(34, 197, 94, 0.08);
+        }
+
+        .grid-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.75rem;
+        }
+
+        .grid-item-header h3 {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .grid-metric {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--primary);
+            text-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .grid-item-content {
+            color: var(--foreground-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .grid-item-expanded {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.4s ease;
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+
+        .grid-item.expanded .grid-item-expanded {
+            max-height: 200px;
+            opacity: 1;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .expand-hint {
+            font-size: 0.75rem;
+            color: var(--foreground-subtle);
+            margin-top: 0.75rem;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .grid-item:hover .expand-hint {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .grid-item.expanded .expand-hint {
+            display: none;
+        }
+
+        /* Full width layout */
+        .full-width {
+            max-width: 900px;
+        }
+
+        .content-full p {
+            font-size: 1.1rem;
+            color: var(--foreground-muted);
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+
+        /* Metrics grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .metric-card {
+            background: rgba(26, 32, 48, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.15);
+        }
+
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+            text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--foreground-muted);
+        }
+
+        /* Fade in animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .fade-in.visible {
+            animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in.visible:nth-child(1) { animation-delay: 0.1s; }
+        .fade-in.visible:nth-child(2) { animation-delay: 0.2s; }
+        .fade-in.visible:nth-child(3) { animation-delay: 0.3s; }
+        .fade-in.visible:nth-child(4) { animation-delay: 0.4s; }
+        .fade-in.visible:nth-child(5) { animation-delay: 0.5s; }
+        .fade-in.visible:nth-child(6) { animation-delay: 0.6s; }
+        .fade-in.visible:nth-child(7) { animation-delay: 0.7s; }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .split-layout { grid-template-columns: 1fr; gap: 2rem; }
+            h1 { font-size: 2.5rem; }
+            .metric-large { font-size: 4rem; }
+            .grid-item.expanded { grid-column: span 1; }
+            .metrics-grid { grid-template-columns: 1fr; }
+            body { cursor: auto; }
+            .cursor-glow, .cursor-dot { display: none; }
+        }
+    </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
+</head>
+<body>
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+
+    <!-- SECTION 1: Title -->
+    <section id="section-0">
+        <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        <div class="content-wrapper full-width">
+            <div class="section-label">TWO BEAR CAPITAL</div>
+            <h1 class="fade-in">Platform Team Playbook</h1>
+            <div class="content-full">
+                <p class="fade-in">Building <span class="kw">sustainable technology companies</span> requires more than capital.</p>
+                <p class="fade-in">Early-stage B2B founders face compounding challenges: <span class="kw">regulatory compliance</span>, sales infrastructure, technical debt, and leadership gaps.</p>
+                <p class="fade-in">This playbook codifies <span class="kw">systematic support</span> across the portfolio lifecycle.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: Challenge -->
+    <section id="section-1">
+        <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        <div class="content-wrapper">
+            <div class="section-label">01 / THE CHALLENGE</div>
+            <h1 class="fade-in">Why Startups Fail</h1>
+            <div class="split-layout">
+                <div class="content-left">
+                    <p class="fade-in" style="color: var(--foreground-muted); font-size: 1.05rem; line-height: 1.6;">
+                        <span class="kw">Failure modes are predictable.</span> Interventions are not.
+                    </p>
+                    <p class="fade-in" style="color: var(--foreground-muted); font-size: 1.05rem; line-height: 1.6;">
+                        <span class="kw">No Market Need</span> dominates. PMF assessment requires rigor, not intuition.
+                    </p>
+                    <p class="fade-in" style="color: var(--foreground-muted); font-size: 1.05rem; line-height: 1.6;">
+                        <span class="kw">Cyber breaches</span> disproportionately kill small companies. One incident can be existential.
+                    </p>
+                    <p class="fade-in" style="color: var(--foreground-muted); font-size: 1.05rem; line-height: 1.6;">
+                        <span class="kw">Attrition compounds.</span> Losing key people creates cascading failures.
+                    </p>
+                </div>
+                <div class="content-right">
+                    <div class="metrics-grid" style="grid-template-columns: 1fr;">
+                        <div class="metric-card fade-in">
+                            <div class="metric-value">42%</div>
+                            <div class="metric-label">No Market Need</div>
+                        </div>
+                        <div class="metric-card fade-in">
+                            <div class="metric-value">60%</div>
+                            <div class="metric-label">Fail Post-Breach</div>
+                        </div>
+                        <div class="metric-card fade-in">
+                            <div class="metric-value">25%</div>
+                            <div class="metric-label">Avg Attrition</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: Diagnostics -->
+    <section id="section-2">
+        <div class="grid-bg"></div>
+        <div class="content-wrapper">
+            <div class="section-label">02 / DIAGNOSTICS</div>
+            <h1 class="fade-in">Six Assessment Dimensions</h1>
+            <div class="grid-layout">
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>Financial Health</h3>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Runway</span>, burn rate, cash flow patterns</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Deep analysis of capital efficiency, debt structure, revenue quality metrics, and path to profitability scenarios.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>Leadership Capacity</h3>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Founder</span> assessment, succession, team gaps</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Evaluation of decision-making patterns, scaling readiness, executive team completeness, and board effectiveness.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>Product-Market Fit</h3>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Retention</span>, NPS, competitive position</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Cohort analysis, customer satisfaction trends, pricing power validation, and market positioning assessment.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>Compliance Posture</h3>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">NIST</span>, SOC 2, HIPAA, FedRAMP readiness</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Gap analysis against target frameworks, remediation roadmap, audit preparation status, and ongoing monitoring capabilities.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>Technical Infrastructure</h3>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Architecture</span>, tech debt, security</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Scalability analysis, security posture assessment, deployment practices, and infrastructure cost optimization.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>Go-to-Market</h3>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Sales process</span>, pipeline, CAC</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Sales motion maturity, conversion funnel analysis, channel strategy effectiveness, and unit economics validation.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: Platform Services -->
+    <section id="section-3">
+        <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        <div class="content-wrapper">
+            <div class="section-label">03 / PLATFORM SERVICES</div>
+            <h1 class="fade-in">Seven Support Pillars</h1>
+            <div class="grid-layout">
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>CRM Implementation</h3>
+                        <div class="grid-metric">+29%</div>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Pipeline visibility</span>, sales process</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">HubSpot/Salesforce setup, custom reporting dashboards, sales playbook development, and team training programs.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>Compliance Acceleration</h3>
+                        <div class="grid-metric">SOC 2</div>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">NIST frameworks</span>, audit prep</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">OSCAP implementation guides, policy templates, evidence collection automation, and auditor relationship management.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>Executive Coaching</h3>
+                        <div class="grid-metric">1:1</div>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Founder development</span>, transitions</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Leadership transitions, board dynamics, conflict resolution, executive presence development, and team scaling strategies.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>GovCon Navigation</h3>
+                        <div class="grid-metric">SBIR</div>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Federal contracting</span> pathways</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Proposal development support, compliance requirements mapping, agency relationship building, and contract vehicle guidance.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>HPC/AI Infrastructure</h3>
+                        <div class="grid-metric">GPU</div>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Compute optimization</span>, cost mgmt</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Inference tuning, cluster configuration, cloud cost optimization, and performance benchmarking across providers.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>Operational Templates</h3>
+                        <div class="grid-metric">15+</div>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Board decks</span>, models, processes</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Financial models, hiring playbooks, vendor agreements, investor update templates, and board meeting frameworks.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>Talent Network</h3>
+                        <div class="grid-metric">EIR</div>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Executive-in-residence</span>, fractional</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Fractional executive placements, technical advisor matching, board member recruiting, and interim leadership coverage.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: Success Factors -->
+    <section id="section-4">
+        <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        <div class="content-wrapper">
+            <div class="section-label">04 / SUCCESS FACTORS</div>
+            <h1 class="fade-in">Three Pillars</h1>
+            <div class="split-layout">
+                <div class="content-left">
+                    <div class="role-card fade-in">
+                        <h4><span class="kw">Measurable Outcomes</span></h4>
+                        <p>Every engagement produces quantifiable results. NPS, time-to-compliance, cycle compression.</p>
+                    </div>
+                    <div class="role-card fade-in">
+                        <h4><span class="kw">Documentation Discipline</span></h4>
+                        <p>Institutional knowledge survives transitions. Playbooks, SOPs, decision logs.</p>
+                    </div>
+                    <div class="role-card fade-in">
+                        <h4><span class="kw">Leadership Development</span></h4>
+                        <p>Technical founders require coaching. Executive presence, board management, scaling.</p>
+                    </div>
+                </div>
+                <div class="content-right" style="justify-content: center;">
+                    <div class="glass-card fade-in">
+                        <div class="metric-large">+90</div>
+                        <div class="metric-label-large">Founder NPS Target</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: Implementation -->
+    <section id="section-5">
+        <div class="grid-bg"></div>
+        <div class="content-wrapper full-width">
+            <div class="section-label">05 / IMPLEMENTATION</div>
+            <h1 class="fade-in">30-60-90 Day Onboarding</h1>
+            <div class="content-full">
+                <div class="role-card fade-in">
+                    <h4><span class="kw">Days 1-30:</span> Foundation</h4>
+                    <p>Complete diagnostics. Establish baselines. Identify critical gaps. Build founder relationship.</p>
+                </div>
+                <div class="role-card fade-in">
+                    <h4><span class="kw">Days 31-60:</span> Activation</h4>
+                    <p>Deploy priority services. Initiate CRM or compliance work. Begin coaching cadence. Network introductions.</p>
+                </div>
+                <div class="role-card fade-in">
+                    <h4><span class="kw">Days 61-90:</span> Optimization</h4>
+                    <p>Measure outcomes vs baselines. Refine delivery. Establish rhythm. Document learnings.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7: Team Structure -->
+    <section id="section-6">
+        <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        <div class="content-wrapper">
+            <div class="section-label">06 / TEAM STRUCTURE</div>
+            <h1 class="fade-in">Platform Organization</h1>
+            <div class="split-layout">
+                <div class="content-left">
+                    <div class="role-card fade-in">
+                        <h4><span class="kw">Platform Lead</span></h4>
+                        <p>Strategy, resource allocation, outcomes</p>
+                    </div>
+                    <div class="role-card fade-in">
+                        <h4><span class="kw">Compliance Specialist</span></h4>
+                        <p>NIST, SOC 2, HIPAA, FedRAMP, audits</p>
+                    </div>
+                    <div class="role-card fade-in">
+                        <h4><span class="kw">GTM Advisor</span></h4>
+                        <p>Sales, CRM, pipeline, pricing</p>
+                    </div>
+                    <div class="role-card fade-in">
+                        <h4><span class="kw">Technical Advisor</span></h4>
+                        <p>Architecture, infra, security</p>
+                    </div>
+                </div>
+                <div class="content-right" style="justify-content: center;">
+                    <div class="glass-card fade-in">
+                        <div class="metric-large">RACI</div>
+                        <div class="metric-label-large">Accountability Framework</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8: Toolkit -->
+    <section id="section-7">
+        <div class="grid-bg"></div>
+        <div class="content-wrapper">
+            <div class="section-label">07 / TOOLKIT</div>
+            <h1 class="fade-in">15 Diagnostic Checklists</h1>
+            <div class="grid-layout" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Financial</span> Health</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Runway, burn, revenue quality, debt</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Founder</span> Assessment</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Style, decisions, growth capacity</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Team</span> Composition</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Gaps, culture, succession risk</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">PMF</span> Analysis</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Retention, NPS, positioning</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Sales</span> Process</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Pipeline, conversion, cycle</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Marketing</span> Efficiency</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">CAC, channels, brand</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Tech</span> Architecture</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Scale, security, debt</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Compliance</span> Readiness</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">NIST, SOC 2, HIPAA gaps</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Board</span> Effectiveness</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Composition, dynamics, value</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Investor</span> Relations</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Cadence, reporting quality</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Customer</span> Success</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Onboarding, retention, expansion</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Ops</span> Maturity</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Processes, docs, tooling</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Culture</span> Health</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Values, engagement, attrition</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Risk</span> Assessment</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Market, execution, regulatory</p></div>
+                </div>
+                <div class="grid-item fade-in" style="padding: 1rem;" onclick="toggleExpand(this)">
+                    <h3 style="font-size: 0.9rem;"><span class="kw">Exit</span> Readiness</h3>
+                    <div class="grid-item-expanded"><p style="color: var(--foreground-muted); font-size: 0.8rem;">Data room, diligence, narrative</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 9: Benchmarking -->
+    <section id="section-8">
+        <div class="grid-bg">
+            <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+        </div>
+        <div class="content-wrapper">
+            <div class="section-label">08 / BENCHMARKING</div>
+            <h1 class="fade-in">Learning from the Best</h1>
+            <div class="grid-layout" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>Andreessen Horowitz</h3>
+                        <div class="grid-metric">150</div>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Enterprise scale</span> platform team</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">25 executive coaches. Ranked #4 founder value-add. Full-service support infrastructure across all functions.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>First Round Capital</h3>
+                        <div class="grid-metric">Network</div>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Community-driven</span> model</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Founder network as primary asset. Peer learning circles. Content-driven brand. Relationship-first philosophy.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+                <div class="grid-item fade-in" onclick="toggleExpand(this)">
+                    <div class="grid-item-header">
+                        <h3>Lux Capital</h3>
+                        <div class="grid-metric">Domain</div>
+                    </div>
+                    <p class="grid-item-content"><span class="kw">Technical expertise</span> focus</p>
+                    <div class="grid-item-expanded">
+                        <p style="color: var(--foreground-muted); font-size: 0.85rem;">Domain specialists for bio, energy, space. Technical credibility as differentiator. Hard tech specialization.</p>
+                    </div>
+                    <div class="expand-hint">Click to expand</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 10: Improvement -->
+    <section id="section-9">
+        <div class="grid-bg"></div>
+        <div class="content-wrapper">
+            <div class="section-label">09 / IMPROVEMENT</div>
+            <h1 class="fade-in">Feedback Loops</h1>
+            <div class="split-layout">
+                <div class="content-left">
+                    <div class="role-card fade-in">
+                        <h4><span class="kw">Quarterly NPS</span></h4>
+                        <p>Anonymous surveys. Benchmark vs Apple (+72). Target +90.</p>
+                    </div>
+                    <div class="role-card fade-in">
+                        <h4><span class="kw">Post-Mortems</span></h4>
+                        <p>Every intervention documented. What worked, failed, learned.</p>
+                    </div>
+                    <div class="role-card fade-in">
+                        <h4><span class="kw">Knowledge Base</span></h4>
+                        <p>Searchable solutions. Pattern matching. Compounding memory.</p>
+                    </div>
+                    <div class="role-card fade-in">
+                        <h4><span class="kw">Annual Review</span></h4>
+                        <p>Full playbook refresh. New frameworks, updated benchmarks.</p>
+                    </div>
+                </div>
+                <div class="content-right" style="justify-content: center;">
+                    <div class="glass-card fade-in">
+                        <div class="metric-large">NPS</div>
+                        <div class="metric-label-large">Quarterly Measurement</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 11: Vision -->
+    <section id="section-10">
+        <div class="gradient-waves"></div>
+        <div class="content-wrapper full-width">
+            <div class="section-label">THE PATH FORWARD</div>
+            <h1 class="fade-in">Beyond Capital</h1>
+            <div class="content-full">
+                <p class="fade-in">The most valuable resource a VC can provide is not capital. It is <span class="kw">judgment</span>, <span class="kw">relationships</span>, and <span class="kw">operational leverage</span>.</p>
+                <p class="fade-in">Two Bear Capital builds enduring technology companies by deploying <span class="kw">systematic support</span> at every stage.</p>
+                <p class="fade-in">From first diagnostic to successful exit, the platform team operates as an <span class="kw">embedded extension</span> of each portfolio company.</p>
+                <p class="fade-in" style="color: var(--primary); font-weight: 500; margin-top: 2rem;">This is venture capital as it should be practiced.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Mouse-following glow effect
+        const cursorGlow = document.getElementById('cursorGlow');
+        const cursorDot = document.getElementById('cursorDot');
+        
+        let mouseX = 0, mouseY = 0;
+        let glowX = 0, glowY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            // Dot follows instantly
+            cursorDot.style.left = mouseX + 'px';
+            cursorDot.style.top = mouseY + 'px';
+        });
+        
+        // Smooth glow follow with lag
+        function animateGlow() {
+            const dx = mouseX - glowX;
+            const dy = mouseY - glowY;
+            
+            glowX += dx * 0.08;
+            glowY += dy * 0.08;
+            
+            cursorGlow.style.left = glowX + 'px';
+            cursorGlow.style.top = glowY + 'px';
+            
+            requestAnimationFrame(animateGlow);
+        }
+        animateGlow();
+        
+        // Hide cursor when leaving window
+        document.addEventListener('mouseleave', () => {
+            cursorGlow.style.opacity = '0';
+            cursorDot.style.opacity = '0';
+        });
+        
+        document.addEventListener('mouseenter', () => {
+            cursorGlow.style.opacity = '1';
+            cursorDot.style.opacity = '1';
+        });
+
+        // Click to expand cards
+        function toggleExpand(element) {
+            const wasExpanded = element.classList.contains('expanded');
+            
+            // Close all expanded cards in same grid
+            const parent = element.parentElement;
+            parent.querySelectorAll('.grid-item.expanded').forEach(item => {
+                item.classList.remove('expanded');
+            });
+            
+            // Toggle current card
+            if (!wasExpanded) {
+                element.classList.add('expanded');
+            }
+        }
+
+        // Scroll-triggered fade-in animations
+        const fadeObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            fadeObserver.observe(el);
+        });
+
+        // Edge fade effect on scroll
+        const sections = document.querySelectorAll('section');
+        
+        function updateSectionOpacity() {
+            const viewportHeight = window.innerHeight;
+            const fadeZone = viewportHeight * 0.2;
+            
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                const sectionMiddle = rect.top + rect.height / 2;
+                
+                let opacity = 1;
+                
+                if (sectionMiddle < fadeZone) {
+                    const progress = sectionMiddle / fadeZone;
+                    opacity = Math.max(0.15, progress * progress);
+                } else if (sectionMiddle > viewportHeight - fadeZone) {
+                    const progress = (viewportHeight - sectionMiddle) / fadeZone;
+                    opacity = Math.max(0.15, progress * progress);
+                }
+                
+                section.style.opacity = opacity;
+            });
+        }
+
+        window.addEventListener('scroll', () => {
+            requestAnimationFrame(updateSectionOpacity);
+        });
+        
+        updateSectionOpacity();
+    </script>
+</body>
+</html>

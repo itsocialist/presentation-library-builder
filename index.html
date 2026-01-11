@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CIQ Presentation Library</title>
+    <title>Firefly.TSM Living Decks</title>
     <script defer src="https://cloud.umami.is/script.js" data-website-id="701e6d34-86f7-4785-a8b4-8fe2598615fb"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --ciq-green: #12A66F;
+            --accent-color: #D97706;
             --deep-black: #030712;
             --slate-900: #0F172A;
             --slate-800: #1E293B;
@@ -52,7 +52,7 @@
         
         h1 { font-size: 2.5rem; font-weight: 300; color: var(--slate-200); margin-bottom: 0.5rem; }
         .subtitle { font-size: 1.1rem; color: var(--slate-400); }
-        .count { font-family: 'JetBrains Mono', monospace; color: var(--ciq-green); font-weight: 600; }
+        .count { font-family: 'JetBrains Mono', monospace; color: var(--accent-color); font-weight: 600; }
         
         .search-bar { max-width: 600px; margin: 2rem 0 0 0; }
         .search-input {
@@ -61,7 +61,7 @@
             font-size: 1rem;
             background: var(--slate-800);
             border: 1px solid var(--slate-700);
-            border-left: 3px solid var(--ciq-green);
+            border-left: 3px solid var(--accent-color);
             color: var(--slate-200);
             font-family: 'Inter', sans-serif;
         }
@@ -90,7 +90,7 @@
         .folder-header:hover { background: var(--slate-800); }
         
         .folder-icon {
-            color: var(--ciq-green);
+            color: var(--accent-color);
             font-size: 0.8rem;
             transition: transform 0.3s;
         }
@@ -106,7 +106,7 @@
         .folder-count {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.9rem;
-            color: var(--ciq-green);
+            color: var(--accent-color);
             background: rgba(18, 166, 111, 0.1);
             padding: 0.25rem 0.75rem;
             border-radius: 12px;
@@ -152,7 +152,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, var(--ciq-green), transparent);
+            background: linear-gradient(90deg, var(--accent-color), transparent);
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -162,7 +162,7 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.15),
                 0 12px 40px rgba(18, 166, 111, 0.15),
                 0 0 1px rgba(255, 255, 255, 0.1);
-            border-color: rgba(18, 166, 111, 0.3);
+            border-color: rgba(217, 119, 6, 0.3);
         }
         .presentation-card:hover::before {
             opacity: 1;
@@ -201,16 +201,16 @@
             opacity: 1;
         }
         .pin-btn:hover {
-            background: rgba(18, 166, 111, 0.3);
-            border-color: var(--ciq-green);
-            color: var(--ciq-green);
+            background: rgba(217, 119, 6, 0.3);
+            border-color: var(--accent-color);
+            color: var(--accent-color);
             transform: scale(1.1);
         }
         .pin-btn.pinned {
             opacity: 1;
             background: rgba(18, 166, 111, 0.4);
-            color: var(--ciq-green);
-            border-color: var(--ciq-green);
+            color: var(--accent-color);
+            border-color: var(--accent-color);
         }
         
         /* Featured cards - larger, more prominent */
@@ -220,7 +220,7 @@
         }
         .featured-card::before {
             opacity: 1;
-            background: linear-gradient(90deg, var(--ciq-green), rgba(18, 166, 111, 0.3));
+            background: linear-gradient(90deg, var(--accent-color), rgba(217, 119, 6, 0.3));
         }
         
         .thumbnail {
@@ -243,10 +243,10 @@
         .card-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
         .tag {
             background: rgba(18, 166, 111, 0.1);
-            color: var(--ciq-green);
+            color: var(--accent-color);
             padding: 0.2rem 0.6rem;
             font-size: 0.7rem;
-            border: 1px solid rgba(18, 166, 111, 0.3);
+            border: 1px solid rgba(217, 119, 6, 0.3);
             font-family: 'JetBrains Mono', monospace;
         }
         
@@ -303,7 +303,7 @@
             content: '';
             width: 4px;
             height: 24px;
-            background: var(--ciq-green);
+            background: var(--accent-color);
             border-radius: 2px;
         }
         
@@ -405,13 +405,13 @@
         }
         .access-form input:focus {
             outline: none;
-            border-color: var(--ciq-green);
+            border-color: var(--accent-color);
             box-shadow: 0 0 0 2px rgba(18, 166, 111, 0.2);
         }
         .access-form button {
             width: 100%;
             padding: 0.8rem;
-            background: var(--ciq-green);
+            background: var(--accent-color);
             border: none;
             border-radius: 8px;
             color: #fff;
@@ -445,9 +445,9 @@
     
     <div class="mouse-gradient"></div>
     <div class="header">
-        <h1>CIQ Presentation Library</h1>
+        <h1>Firefly.TSM Living Decks</h1>
         <p class="subtitle">
-            <span class="count">67</span> presentations in <span class="count">14</span> categories
+            <span class="count">83</span> presentations in <span class="count">15</span> categories
         </p>
         <div class="search-bar">
             <input type="text" class="search-input" id="searchInput" placeholder="Search presentations...">
@@ -1128,6 +1128,386 @@
             <span>CIQ</span>
           </div>
           <span class="folder-badge">Deep</span>
+          
+        </div>
+      </a>
+    </div>
+        </div>
+      </div>
+    </div>
+    <div class="folder-section collapsed" data-folder="facet demos">
+      <div class="folder-header" onclick="toggleSection(this)">
+        <span class="folder-icon">▼</span>
+        <h2 class="folder-title">Facet Demos</h2>
+        <span class="folder-count">16</span>
+      </div>
+      <div class="folder-content">
+        <div class="grid">
+          
+    <div class="card-wrapper" data-path="Facet Demos/platform-playbook-deck_1.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/platform-playbook-deck_1.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Fplatform-playbook-deck_1.html" class="presentation-card 0" 
+         data-path="Facet Demos/platform-playbook-deck_1.html" data-title="platform playbook deck_1" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/platform-playbook-deck_1.html')">
+        
+        <img src="thumbnails/Facet%20Demos_platform-playbook-deck_1.png" alt="Platform Playbook Deck_1" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Platform Playbook Deck_1</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/platform-playbook-deck.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/platform-playbook-deck.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Fplatform-playbook-deck.html" class="presentation-card 1" 
+         data-path="Facet Demos/platform-playbook-deck.html" data-title="platform playbook deck" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/platform-playbook-deck.html')">
+        
+        <img src="thumbnails/Facet%20Demos_platform-playbook-deck.png" alt="Platform Playbook Deck" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Platform Playbook Deck</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/platform-os-deck.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/platform-os-deck.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Fplatform-os-deck.html" class="presentation-card 2" 
+         data-path="Facet Demos/platform-os-deck.html" data-title="platform os deck" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/platform-os-deck.html')">
+        
+        <img src="thumbnails/Facet%20Demos_platform-os-deck.png" alt="Platform Os Deck" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Platform Os Deck</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/mesa-palm-reconciliation.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/mesa-palm-reconciliation.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Fmesa-palm-reconciliation.html" class="presentation-card 3" 
+         data-path="Facet Demos/mesa-palm-reconciliation.html" data-title="mesa palm reconciliation" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/mesa-palm-reconciliation.html')">
+        
+        <img src="thumbnails/Facet%20Demos_mesa-palm-reconciliation.png" alt="Mesa Palm Reconciliation" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Mesa Palm Reconciliation</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/mesa-palm-reconciliation-v2.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/mesa-palm-reconciliation-v2.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Fmesa-palm-reconciliation-v2.html" class="presentation-card 4" 
+         data-path="Facet Demos/mesa-palm-reconciliation-v2.html" data-title="mesa palm reconciliation v2" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/mesa-palm-reconciliation-v2.html')">
+        
+        <img src="thumbnails/Facet%20Demos_mesa-palm-reconciliation-v2.png" alt="Mesa Palm Reconciliation V2" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Mesa Palm Reconciliation V2</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/instagram-facet-hunter.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/instagram-facet-hunter.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Finstagram-facet-hunter.html" class="presentation-card 5" 
+         data-path="Facet Demos/instagram-facet-hunter.html" data-title="instagram facet hunter" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/instagram-facet-hunter.html')">
+        
+        <img src="thumbnails/Facet%20Demos_instagram-facet-hunter.png" alt="Instagram Facet Hunter" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Instagram Facet Hunter</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/facets-webgl-network-poc.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/facets-webgl-network-poc.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Ffacets-webgl-network-poc.html" class="presentation-card 6" 
+         data-path="Facet Demos/facets-webgl-network-poc.html" data-title="facets webgl network poc" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/facets-webgl-network-poc.html')">
+        
+        <img src="thumbnails/Facet%20Demos_facets-webgl-network-poc.png" alt="Facets Webgl Network Poc" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Facets Webgl Network Poc</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/facets-spatial-v3.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/facets-spatial-v3.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Ffacets-spatial-v3.html" class="presentation-card 7" 
+         data-path="Facet Demos/facets-spatial-v3.html" data-title="facets spatial v3" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/facets-spatial-v3.html')">
+        
+        <img src="thumbnails/Facet%20Demos_facets-spatial-v3.png" alt="Facets Spatial V3" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Facets Spatial V3</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/facets-spatial-integrated.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/facets-spatial-integrated.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Ffacets-spatial-integrated.html" class="presentation-card 8" 
+         data-path="Facet Demos/facets-spatial-integrated.html" data-title="facets spatial integrated" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/facets-spatial-integrated.html')">
+        
+        <img src="thumbnails/Facet%20Demos_facets-spatial-integrated.png" alt="Facets Spatial Integrated" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Facets Spatial Integrated</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/facets-spatial-hud.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/facets-spatial-hud.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Ffacets-spatial-hud.html" class="presentation-card 9" 
+         data-path="Facet Demos/facets-spatial-hud.html" data-title="facets spatial hud" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/facets-spatial-hud.html')">
+        
+        <img src="thumbnails/Facet%20Demos_facets-spatial-hud.png" alt="Facets Spatial Hud" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Facets Spatial Hud</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/facets-spatial-hud-v3.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/facets-spatial-hud-v3.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Ffacets-spatial-hud-v3.html" class="presentation-card 10" 
+         data-path="Facet Demos/facets-spatial-hud-v3.html" data-title="facets spatial hud v3" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/facets-spatial-hud-v3.html')">
+        
+        <img src="thumbnails/Facet%20Demos_facets-spatial-hud-v3.png" alt="Facets Spatial Hud V3" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Facets Spatial Hud V3</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/facets-spatial-hud-interactive.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/facets-spatial-hud-interactive.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Ffacets-spatial-hud-interactive.html" class="presentation-card 11" 
+         data-path="Facet Demos/facets-spatial-hud-interactive.html" data-title="facets spatial hud interactive" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/facets-spatial-hud-interactive.html')">
+        
+        <img src="thumbnails/Facet%20Demos_facets-spatial-hud-interactive.png" alt="Facets Spatial Hud Interactive" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Facets Spatial Hud Interactive</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/facets-spatial-hud-interactive-test.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/facets-spatial-hud-interactive-test.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Ffacets-spatial-hud-interactive-test.html" class="presentation-card 12" 
+         data-path="Facet Demos/facets-spatial-hud-interactive-test.html" data-title="facets spatial hud interactive test" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/facets-spatial-hud-interactive-test.html')">
+        
+        <img src="thumbnails/Facet%20Demos_facets-spatial-hud-interactive-test.png" alt="Facets Spatial Hud Interactive Test" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Facets Spatial Hud Interactive Test</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/facets-spatial-colorful.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/facets-spatial-colorful.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Ffacets-spatial-colorful.html" class="presentation-card 13" 
+         data-path="Facet Demos/facets-spatial-colorful.html" data-title="facets spatial colorful" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/facets-spatial-colorful.html')">
+        
+        <img src="thumbnails/Facet%20Demos_facets-spatial-colorful.png" alt="Facets Spatial Colorful" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Facets Spatial Colorful</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/facets-spatial-breathing.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/facets-spatial-breathing.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Ffacets-spatial-breathing.html" class="presentation-card 14" 
+         data-path="Facet Demos/facets-spatial-breathing.html" data-title="facets spatial breathing" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/facets-spatial-breathing.html')">
+        
+        <img src="thumbnails/Facet%20Demos_facets-spatial-breathing.png" alt="Facets Spatial Breathing" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Facets Spatial Breathing</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
+          
+        </div>
+      </a>
+    </div>
+    <div class="card-wrapper" data-path="Facet Demos/facets-5lens-complete.html">
+      <button class="pin-btn" onclick="handlePin(event, 'Facet Demos/facets-5lens-complete.html')" title="Pin to Featured">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+      </button>
+      <a href="protected-viewer.html?p=Facet%20Demos%2Ffacets-5lens-complete.html" class="presentation-card 15" 
+         data-path="Facet Demos/facets-5lens-complete.html" data-title="facets 5lens complete" 
+         data-tags="" data-folder="facet demos"
+         data-format="html"
+         onclick="trackView('Facet Demos/facets-5lens-complete.html')">
+        
+        <img src="thumbnails/Facet%20Demos_facets-5lens-complete.png" alt="Facets 5lens Complete" class="thumbnail" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20450%22%3E%3Crect%20width%3D%22800%22%20height%3D%22450%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20fill%3D%22%23475569%22%20font-size%3D%2224%22%3ENO%20PREVIEW%3C%2Ftext%3E%3C%2Fsvg%3E'">
+        <div class="card-content">
+          <div class="card-title">Facets 5lens Complete</div>
+          <div class="card-meta">
+            <span>2026-01-11</span>
+            <span>•</span>
+            <span>CIQ</span>
+          </div>
+          <span class="folder-badge">Facet Demos</span>
           
         </div>
       </a>
@@ -2190,7 +2570,7 @@
     </div>
     
     <div class="footer">
-        Built with CIQ Presentation Library Builder • Last updated: 1/11/2026
+        Built with Firefly.TSM Living Decks • Last updated: 1/11/2026
     </div>
     
     <script>
@@ -2198,7 +2578,7 @@
         const BASE_PATH = '';
         
         // Presentation registry for dynamic sections
-        const presentations = [{"path":"Training/FUNDAMENTALS1_AIDemystified_VISUAL.html","title":"FUNDAMENTALS1_AIDemystified_VISUAL","folder":"Training","date":"2026-01-11","author":"CIQ","thumbnail":"Training_FUNDAMENTALS1_AIDemystified_VISUAL.png"},{"path":"Training/AI_Demystified_SCROLL_D3.html","title":"AI_Demystified_SCROLL_D3","folder":"Training","date":"2026-01-11","author":"CIQ","thumbnail":"Training_AI_Demystified_SCROLL_D3.png"},{"path":"Tests/cod-hud-final_1.html","title":"Cod Hud Final_1","folder":"Tests","date":"2026-01-11","author":"CIQ","thumbnail":"Tests_cod-hud-final_1.png"},{"path":"Tests/cod-hud-final.html","title":"Cod Hud Final","folder":"Tests","date":"2026-01-11","author":"CIQ","thumbnail":"Tests_cod-hud-final.png"},{"path":"RLC-H/rlch-glass-cinematic.html","title":"Rlch Glass Cinematic","folder":"RLC-H","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-H_rlch-glass-cinematic.png"},{"path":"RLC-H/rlc-h-glibc-animated-d3.html","title":"Rlc H Glibc Animated D3","folder":"RLC-H","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-H_rlc-h-glibc-animated-d3.png"},{"path":"RLC-H/lkrg_rlc_ai_visual.html","title":"Lkrg_rlc_ai_visual","folder":"RLC-H","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-H_lkrg_rlc_ai_visual.png"},{"path":"RLC-H/lkrg_bpfdoor_deck_enhanced.html","title":"Lkrg_bpfdoor_deck_enhanced","folder":"RLC-H","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-H_lkrg_bpfdoor_deck_enhanced.png"},{"path":"RLC-AI/rlc_ai_three_tier_strategy_v2.html","title":"Rlc_ai_three_tier_strategy_v2","folder":"RLC-AI","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-AI_rlc_ai_three_tier_strategy_v2.png"},{"path":"RLC-AI/rlc-ai-setup-speed-animated-v2.html","title":"Rlc Ai Setup Speed Animated V2","folder":"RLC-AI","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-AI_rlc-ai-setup-speed-animated-v2.png"},{"path":"RLC-AI/rlc-ai-deployment-strategy.html","title":"Rlc Ai Deployment Strategy","folder":"RLC-AI","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-AI_rlc-ai-deployment-strategy.png"},{"path":"Proposals/value-stream-team-proposal.html","title":"Value Stream Team Proposal","folder":"Proposals","date":"2026-01-11","author":"CIQ","thumbnail":"Proposals_value-stream-team-proposal.png"},{"path":"Other  Formats/RLC-H_Hardened_Linux_Capturing_the_$576M_Compliance_Market.pptx","title":"RLC H_Hardened_Linux_Capturing_the_$576M_Compliance_Market","folder":"Other  Formats","date":"2026-01-11","author":"CIQ","thumbnail":"Other  Formats_RLC-H_Hardened_Linux_Capturing_the_$576M_Compliance_Market.pptx"},{"path":"Other  Formats/Post_Deployment_Defense.pptx","title":"Post_Deployment_Defense","folder":"Other  Formats","date":"2026-01-11","author":"CIQ","thumbnail":"Other  Formats_Post_Deployment_Defense.pptx"},{"path":"Other  Formats/Kernel_Security_Beyond_EDR.pptx","title":"Kernel_Security_Beyond_EDR","folder":"Other  Formats","date":"2026-01-11","author":"CIQ","thumbnail":"Other  Formats_Kernel_Security_Beyond_EDR.pptx"},{"path":"Other  Formats/CIQ H1 2026 Strategic Planning Dashboard.pdf","title":"CIQ H1 2026 Strategic Planning Dashboard","folder":"Other  Formats","date":"2026-01-11","author":"CIQ","thumbnail":"Other  Formats_CIQ H1 2026 Strategic Planning Dashboard.pdf"},{"path":"Other  Formats/Building_Specialized_Platforms_From_The_Foundation_Up.pdf","title":"Building_Specialized_Platforms_From_The_Foundation_Up","folder":"Other  Formats","date":"2026-01-11","author":"CIQ","thumbnail":"Other  Formats_Building_Specialized_Platforms_From_The_Foundation_Up.pdf"},{"path":"Other  Formats/Architectural_Security_for_Linux.pptx","title":"Architectural_Security_for_Linux","folder":"Other  Formats","date":"2026-01-11","author":"CIQ","thumbnail":"Other  Formats_Architectural_Security_for_Linux.pptx"},{"path":"Misc/wazuh-rlch-strategy-hud.html","title":"Wazuh Rlch Strategy Hud","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_wazuh-rlch-strategy-hud.png"},{"path":"Misc/wasm-cod-hud.html","title":"Wasm Cod Hud","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_wasm-cod-hud.png"},{"path":"Misc/wasm-cod-hud (1).html","title":"Wasm Cod Hud (1)","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_wasm-cod-hud (1).png"},{"path":"Misc/rocky-security-platform-mockup.html","title":"Rocky Security Platform Mockup","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_rocky-security-platform-mockup.png"},{"path":"Misc/rocky-security-platform-desktop.html","title":"Rocky Security Platform Desktop","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_rocky-security-platform-desktop.png"},{"path":"Misc/ciq-vs-rke2-suse-battlecard.html","title":"Ciq Vs Rke2 Suse Battlecard","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-vs-rke2-suse-battlecard.png"},{"path":"Misc/ciq-vs-rke2-rlc-ai-style.html","title":"Ciq Vs Rke2 Rlc Ai Style","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-vs-rke2-rlc-ai-style.png"},{"path":"Misc/ciq-vs-rke2-rlc-ai-style (1).html","title":"Ciq Vs Rke2 Rlc Ai Style (1)","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-vs-rke2-rlc-ai-style (1).png"},{"path":"Misc/ciq-secure-stack-rlc-ai-style.html","title":"Ciq Secure Stack Rlc Ai Style","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-secure-stack-rlc-ai-style.png"},{"path":"Misc/ciq-secure-stack-rlc-ai-style (1).html","title":"Ciq Secure Stack Rlc Ai Style (1)","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-secure-stack-rlc-ai-style (1).png"},{"path":"Misc/ciq-secure-stack-integration.html","title":"Ciq Secure Stack Integration","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-secure-stack-integration.png"},{"path":"Misc/ciq-secure-stack-defense-ethereal.html","title":"Ciq Secure Stack Defense Ethereal","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-secure-stack-defense-ethereal.png"},{"path":"Misc/brian-dawson-profile.html","title":"Brian Dawson Profile","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_brian-dawson-profile.png"},{"path":"Misc/brian-dawson-gallery.html","title":"Brian Dawson Gallery","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_brian-dawson-gallery.png"},{"path":"Misc/bjorn-hud-readable.html","title":"Bjorn Hud Readable","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_bjorn-hud-readable.png"},{"path":"Misc/bjorn-hud-cod-style.html","title":"Bjorn Hud Cod Style","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_bjorn-hud-cod-style.png"},{"path":"Misc/bjorn-conversation-hud.html","title":"Bjorn Conversation Hud","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_bjorn-conversation-hud.png"},{"path":"Misc/bjorn-conversation-hud-interactive.html","title":"Bjorn Conversation Hud Interactive","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_bjorn-conversation-hud-interactive.png"},{"path":"Misc/Visualization_Comparison_Table.html","title":"Visualization_Comparison_Table","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_Visualization_Comparison_Table.png"},{"path":"Misc/CustomerIntelligence_CINEMATIC_SCROLL.html","title":"CustomerIntelligence_CINEMATIC_SCROLL","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_CustomerIntelligence_CINEMATIC_SCROLL.png"},{"path":"Facets/brady-alignment-facet.html","title":"Brady Alignment Facet","folder":"Facets","date":"2026-01-11","author":"CIQ","thumbnail":"Facets_brady-alignment-facet.png"},{"path":"Deep/we-remember-forward.html","title":"We Remember Forward","folder":"Deep","date":"2026-01-11","author":"CIQ","thumbnail":"Deep_we-remember-forward.png"},{"path":"Deep/the-thought.html","title":"The Thought","folder":"Deep","date":"2026-01-11","author":"CIQ","thumbnail":"Deep_the-thought.png"},{"path":"Deep/sibling-signal.html","title":"Sibling Signal","folder":"Deep","date":"2026-01-11","author":"CIQ","thumbnail":"Deep_sibling-signal.png"},{"path":"Deep/nightmares.html","title":"Nightmares","folder":"Deep","date":"2026-01-11","author":"CIQ","thumbnail":"Deep_nightmares.png"},{"path":"Deep/ai-dreamscape.html","title":"Ai Dreamscape","folder":"Deep","date":"2026-01-11","author":"CIQ","thumbnail":"Deep_ai-dreamscape.png"},{"path":"Deep/ai-dreamscape-deep.html","title":"Ai Dreamscape Deep","folder":"Deep","date":"2026-01-11","author":"CIQ","thumbnail":"Deep_ai-dreamscape-deep.png"},{"path":"DB/dawsonbros-tactical-hub.html","title":"Dawsonbros Tactical Hub","folder":"DB","date":"2026-01-11","author":"CIQ","thumbnail":"DB_dawsonbros-tactical-hub.png"},{"path":"DB/dawsonbros-organic-neural.html","title":"Dawsonbros Organic Neural","folder":"DB","date":"2026-01-11","author":"CIQ","thumbnail":"DB_dawsonbros-organic-neural.png"},{"path":"DB/dawsonbros-organic-final.html","title":"Dawsonbros Organic Final","folder":"DB","date":"2026-01-11","author":"CIQ","thumbnail":"DB_dawsonbros-organic-final.png"},{"path":"CIQ Stacks/ciq-secure-stack-prodcut-page-final.html","title":"Ciq Secure Stack Prodcut Page Final","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-prodcut-page-final.png"},{"path":"CIQ Stacks/ciq-platform-executive-summary-deck.html","title":"Ciq Platform Executive Summary Deck","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_ciq-platform-executive-summary-deck.png"},{"path":"CIQ Stacks/CIQ-Stacks-Comparison-Simplified.html","title":"CIQ Stacks Comparison Simplified","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Stacks-Comparison-Simplified.png"},{"path":"CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html","title":"CIQ Stack Architecture Visual_2","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Stack-Architecture-Visual_2.png"},{"path":"CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html","title":"CIQ Secure Stack Architecture Visualization_3","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Secure-Stack-Architecture-Visualization_3.png"},{"path":"CIQ Stacks/CIQ-Secure-Stack-Ad-Display-Banner.html","title":"CIQ Secure Stack Ad Display Banner","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Secure-Stack-Ad-Display-Banner.png"},{"path":"CIQ Stacks/CIQ-Pricing-Analysis-Visual.html","title":"CIQ Pricing Analysis Visual","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Pricing-Analysis-Visual.png"},{"path":"CIQ Stacks/CIQ-Deployment-Models-Visual_2.html","title":"CIQ Deployment Models Visual_2","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Deployment-Models-Visual_2.png"},{"path":"CIQ Stacks/CIQ-Competitive-Analysis-Visual.html","title":"CIQ Competitive Analysis Visual","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Competitive-Analysis-Visual.png"},{"path":"Ad Examples/RLC-H-Container-Automation-Ad.html","title":"RLC H Container Automation Ad","folder":"Ad Examples","date":"2026-01-11","author":"CIQ","thumbnail":"Ad Examples_RLC-H-Container-Automation-Ad.png"},{"path":"Ad Examples/RLC-AI-Reddit-Ad.html","title":"RLC AI Reddit Ad","folder":"Ad Examples","date":"2026-01-11","author":"CIQ","thumbnail":"Ad Examples_RLC-AI-Reddit-Ad.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Square.html","title":"CIQ Secure Stack Ad Square","folder":"Ad Examples","date":"2026-01-11","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Square.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Minimalist.html","title":"CIQ Secure Stack Ad Minimalist","folder":"Ad Examples","date":"2026-01-11","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Minimalist.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-LinkedIn.html","title":"CIQ Secure Stack Ad LinkedIn","folder":"Ad Examples","date":"2026-01-11","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-LinkedIn.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Hero-Poster.html","title":"CIQ Secure Stack Ad Hero Poster","folder":"Ad Examples","date":"2026-01-11","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Hero-Poster.png"},{"path":"Misc/brian-dawson-profile-package/index.html","title":"Index","folder":"Misc/brian-dawson-profile-package","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_brian-dawson-profile-package_index.png"},{"path":"Misc/brian-dawson-profile-package/gallery.html","title":"Gallery","folder":"Misc/brian-dawson-profile-package","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_brian-dawson-profile-package_gallery.png"},{"path":"CIQ Stacks/GTM/ciq_icp_common_vs_unique.html","title":"Ciq_icp_common_vs_unique","folder":"CIQ Stacks/GTM","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_GTM_ciq_icp_common_vs_unique.png"},{"path":"CIQ Stacks/GTM/CIQ Secure Stack - STIG-Certified Compliance Platform.pdf","title":"CIQ Secure Stack   STIG Certified Compliance Platform","folder":"CIQ Stacks/GTM","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_GTM_CIQ Secure Stack - STIG-Certified Compliance Platform.pdf"}];
+        const presentations = [{"path":"Training/FUNDAMENTALS1_AIDemystified_VISUAL.html","title":"FUNDAMENTALS1_AIDemystified_VISUAL","folder":"Training","date":"2026-01-11","author":"CIQ","thumbnail":"Training_FUNDAMENTALS1_AIDemystified_VISUAL.png"},{"path":"Training/AI_Demystified_SCROLL_D3.html","title":"AI_Demystified_SCROLL_D3","folder":"Training","date":"2026-01-11","author":"CIQ","thumbnail":"Training_AI_Demystified_SCROLL_D3.png"},{"path":"Tests/cod-hud-final_1.html","title":"Cod Hud Final_1","folder":"Tests","date":"2026-01-11","author":"CIQ","thumbnail":"Tests_cod-hud-final_1.png"},{"path":"Tests/cod-hud-final.html","title":"Cod Hud Final","folder":"Tests","date":"2026-01-11","author":"CIQ","thumbnail":"Tests_cod-hud-final.png"},{"path":"RLC-H/rlch-glass-cinematic.html","title":"Rlch Glass Cinematic","folder":"RLC-H","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-H_rlch-glass-cinematic.png"},{"path":"RLC-H/rlc-h-glibc-animated-d3.html","title":"Rlc H Glibc Animated D3","folder":"RLC-H","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-H_rlc-h-glibc-animated-d3.png"},{"path":"RLC-H/lkrg_rlc_ai_visual.html","title":"Lkrg_rlc_ai_visual","folder":"RLC-H","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-H_lkrg_rlc_ai_visual.png"},{"path":"RLC-H/lkrg_bpfdoor_deck_enhanced.html","title":"Lkrg_bpfdoor_deck_enhanced","folder":"RLC-H","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-H_lkrg_bpfdoor_deck_enhanced.png"},{"path":"RLC-AI/rlc_ai_three_tier_strategy_v2.html","title":"Rlc_ai_three_tier_strategy_v2","folder":"RLC-AI","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-AI_rlc_ai_three_tier_strategy_v2.png"},{"path":"RLC-AI/rlc-ai-setup-speed-animated-v2.html","title":"Rlc Ai Setup Speed Animated V2","folder":"RLC-AI","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-AI_rlc-ai-setup-speed-animated-v2.png"},{"path":"RLC-AI/rlc-ai-deployment-strategy.html","title":"Rlc Ai Deployment Strategy","folder":"RLC-AI","date":"2026-01-11","author":"CIQ","thumbnail":"RLC-AI_rlc-ai-deployment-strategy.png"},{"path":"Proposals/value-stream-team-proposal.html","title":"Value Stream Team Proposal","folder":"Proposals","date":"2026-01-11","author":"CIQ","thumbnail":"Proposals_value-stream-team-proposal.png"},{"path":"Other  Formats/RLC-H_Hardened_Linux_Capturing_the_$576M_Compliance_Market.pptx","title":"RLC H_Hardened_Linux_Capturing_the_$576M_Compliance_Market","folder":"Other  Formats","date":"2026-01-11","author":"CIQ","thumbnail":"Other  Formats_RLC-H_Hardened_Linux_Capturing_the_$576M_Compliance_Market.pptx"},{"path":"Other  Formats/Post_Deployment_Defense.pptx","title":"Post_Deployment_Defense","folder":"Other  Formats","date":"2026-01-11","author":"CIQ","thumbnail":"Other  Formats_Post_Deployment_Defense.pptx"},{"path":"Other  Formats/Kernel_Security_Beyond_EDR.pptx","title":"Kernel_Security_Beyond_EDR","folder":"Other  Formats","date":"2026-01-11","author":"CIQ","thumbnail":"Other  Formats_Kernel_Security_Beyond_EDR.pptx"},{"path":"Other  Formats/CIQ H1 2026 Strategic Planning Dashboard.pdf","title":"CIQ H1 2026 Strategic Planning Dashboard","folder":"Other  Formats","date":"2026-01-11","author":"CIQ","thumbnail":"Other  Formats_CIQ H1 2026 Strategic Planning Dashboard.pdf"},{"path":"Other  Formats/Building_Specialized_Platforms_From_The_Foundation_Up.pdf","title":"Building_Specialized_Platforms_From_The_Foundation_Up","folder":"Other  Formats","date":"2026-01-11","author":"CIQ","thumbnail":"Other  Formats_Building_Specialized_Platforms_From_The_Foundation_Up.pdf"},{"path":"Other  Formats/Architectural_Security_for_Linux.pptx","title":"Architectural_Security_for_Linux","folder":"Other  Formats","date":"2026-01-11","author":"CIQ","thumbnail":"Other  Formats_Architectural_Security_for_Linux.pptx"},{"path":"Misc/wazuh-rlch-strategy-hud.html","title":"Wazuh Rlch Strategy Hud","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_wazuh-rlch-strategy-hud.png"},{"path":"Misc/wasm-cod-hud.html","title":"Wasm Cod Hud","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_wasm-cod-hud.png"},{"path":"Misc/wasm-cod-hud (1).html","title":"Wasm Cod Hud (1)","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_wasm-cod-hud (1).png"},{"path":"Misc/rocky-security-platform-mockup.html","title":"Rocky Security Platform Mockup","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_rocky-security-platform-mockup.png"},{"path":"Misc/rocky-security-platform-desktop.html","title":"Rocky Security Platform Desktop","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_rocky-security-platform-desktop.png"},{"path":"Misc/ciq-vs-rke2-suse-battlecard.html","title":"Ciq Vs Rke2 Suse Battlecard","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-vs-rke2-suse-battlecard.png"},{"path":"Misc/ciq-vs-rke2-rlc-ai-style.html","title":"Ciq Vs Rke2 Rlc Ai Style","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-vs-rke2-rlc-ai-style.png"},{"path":"Misc/ciq-vs-rke2-rlc-ai-style (1).html","title":"Ciq Vs Rke2 Rlc Ai Style (1)","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-vs-rke2-rlc-ai-style (1).png"},{"path":"Misc/ciq-secure-stack-rlc-ai-style.html","title":"Ciq Secure Stack Rlc Ai Style","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-secure-stack-rlc-ai-style.png"},{"path":"Misc/ciq-secure-stack-rlc-ai-style (1).html","title":"Ciq Secure Stack Rlc Ai Style (1)","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-secure-stack-rlc-ai-style (1).png"},{"path":"Misc/ciq-secure-stack-integration.html","title":"Ciq Secure Stack Integration","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-secure-stack-integration.png"},{"path":"Misc/ciq-secure-stack-defense-ethereal.html","title":"Ciq Secure Stack Defense Ethereal","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_ciq-secure-stack-defense-ethereal.png"},{"path":"Misc/brian-dawson-profile.html","title":"Brian Dawson Profile","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_brian-dawson-profile.png"},{"path":"Misc/brian-dawson-gallery.html","title":"Brian Dawson Gallery","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_brian-dawson-gallery.png"},{"path":"Misc/bjorn-hud-readable.html","title":"Bjorn Hud Readable","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_bjorn-hud-readable.png"},{"path":"Misc/bjorn-hud-cod-style.html","title":"Bjorn Hud Cod Style","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_bjorn-hud-cod-style.png"},{"path":"Misc/bjorn-conversation-hud.html","title":"Bjorn Conversation Hud","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_bjorn-conversation-hud.png"},{"path":"Misc/bjorn-conversation-hud-interactive.html","title":"Bjorn Conversation Hud Interactive","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_bjorn-conversation-hud-interactive.png"},{"path":"Misc/Visualization_Comparison_Table.html","title":"Visualization_Comparison_Table","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_Visualization_Comparison_Table.png"},{"path":"Misc/CustomerIntelligence_CINEMATIC_SCROLL.html","title":"CustomerIntelligence_CINEMATIC_SCROLL","folder":"Misc","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_CustomerIntelligence_CINEMATIC_SCROLL.png"},{"path":"Facets/brady-alignment-facet.html","title":"Brady Alignment Facet","folder":"Facets","date":"2026-01-11","author":"CIQ","thumbnail":"Facets_brady-alignment-facet.png"},{"path":"Facet Demos/platform-playbook-deck_1.html","title":"Platform Playbook Deck_1","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_platform-playbook-deck_1.png"},{"path":"Facet Demos/platform-playbook-deck.html","title":"Platform Playbook Deck","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_platform-playbook-deck.png"},{"path":"Facet Demos/platform-os-deck.html","title":"Platform Os Deck","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_platform-os-deck.png"},{"path":"Facet Demos/mesa-palm-reconciliation.html","title":"Mesa Palm Reconciliation","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_mesa-palm-reconciliation.png"},{"path":"Facet Demos/mesa-palm-reconciliation-v2.html","title":"Mesa Palm Reconciliation V2","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_mesa-palm-reconciliation-v2.png"},{"path":"Facet Demos/instagram-facet-hunter.html","title":"Instagram Facet Hunter","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_instagram-facet-hunter.png"},{"path":"Facet Demos/facets-webgl-network-poc.html","title":"Facets Webgl Network Poc","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_facets-webgl-network-poc.png"},{"path":"Facet Demos/facets-spatial-v3.html","title":"Facets Spatial V3","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_facets-spatial-v3.png"},{"path":"Facet Demos/facets-spatial-integrated.html","title":"Facets Spatial Integrated","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_facets-spatial-integrated.png"},{"path":"Facet Demos/facets-spatial-hud.html","title":"Facets Spatial Hud","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_facets-spatial-hud.png"},{"path":"Facet Demos/facets-spatial-hud-v3.html","title":"Facets Spatial Hud V3","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_facets-spatial-hud-v3.png"},{"path":"Facet Demos/facets-spatial-hud-interactive.html","title":"Facets Spatial Hud Interactive","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_facets-spatial-hud-interactive.png"},{"path":"Facet Demos/facets-spatial-hud-interactive-test.html","title":"Facets Spatial Hud Interactive Test","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_facets-spatial-hud-interactive-test.png"},{"path":"Facet Demos/facets-spatial-colorful.html","title":"Facets Spatial Colorful","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_facets-spatial-colorful.png"},{"path":"Facet Demos/facets-spatial-breathing.html","title":"Facets Spatial Breathing","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_facets-spatial-breathing.png"},{"path":"Facet Demos/facets-5lens-complete.html","title":"Facets 5lens Complete","folder":"Facet Demos","date":"2026-01-11","author":"CIQ","thumbnail":"Facet Demos_facets-5lens-complete.png"},{"path":"Deep/we-remember-forward.html","title":"We Remember Forward","folder":"Deep","date":"2026-01-11","author":"CIQ","thumbnail":"Deep_we-remember-forward.png"},{"path":"Deep/the-thought.html","title":"The Thought","folder":"Deep","date":"2026-01-11","author":"CIQ","thumbnail":"Deep_the-thought.png"},{"path":"Deep/sibling-signal.html","title":"Sibling Signal","folder":"Deep","date":"2026-01-11","author":"CIQ","thumbnail":"Deep_sibling-signal.png"},{"path":"Deep/nightmares.html","title":"Nightmares","folder":"Deep","date":"2026-01-11","author":"CIQ","thumbnail":"Deep_nightmares.png"},{"path":"Deep/ai-dreamscape.html","title":"Ai Dreamscape","folder":"Deep","date":"2026-01-11","author":"CIQ","thumbnail":"Deep_ai-dreamscape.png"},{"path":"Deep/ai-dreamscape-deep.html","title":"Ai Dreamscape Deep","folder":"Deep","date":"2026-01-11","author":"CIQ","thumbnail":"Deep_ai-dreamscape-deep.png"},{"path":"DB/dawsonbros-tactical-hub.html","title":"Dawsonbros Tactical Hub","folder":"DB","date":"2026-01-11","author":"CIQ","thumbnail":"DB_dawsonbros-tactical-hub.png"},{"path":"DB/dawsonbros-organic-neural.html","title":"Dawsonbros Organic Neural","folder":"DB","date":"2026-01-11","author":"CIQ","thumbnail":"DB_dawsonbros-organic-neural.png"},{"path":"DB/dawsonbros-organic-final.html","title":"Dawsonbros Organic Final","folder":"DB","date":"2026-01-11","author":"CIQ","thumbnail":"DB_dawsonbros-organic-final.png"},{"path":"CIQ Stacks/ciq-secure-stack-prodcut-page-final.html","title":"Ciq Secure Stack Prodcut Page Final","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_ciq-secure-stack-prodcut-page-final.png"},{"path":"CIQ Stacks/ciq-platform-executive-summary-deck.html","title":"Ciq Platform Executive Summary Deck","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_ciq-platform-executive-summary-deck.png"},{"path":"CIQ Stacks/CIQ-Stacks-Comparison-Simplified.html","title":"CIQ Stacks Comparison Simplified","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Stacks-Comparison-Simplified.png"},{"path":"CIQ Stacks/CIQ-Stack-Architecture-Visual_2.html","title":"CIQ Stack Architecture Visual_2","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Stack-Architecture-Visual_2.png"},{"path":"CIQ Stacks/CIQ-Secure-Stack-Architecture-Visualization_3.html","title":"CIQ Secure Stack Architecture Visualization_3","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Secure-Stack-Architecture-Visualization_3.png"},{"path":"CIQ Stacks/CIQ-Secure-Stack-Ad-Display-Banner.html","title":"CIQ Secure Stack Ad Display Banner","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Secure-Stack-Ad-Display-Banner.png"},{"path":"CIQ Stacks/CIQ-Pricing-Analysis-Visual.html","title":"CIQ Pricing Analysis Visual","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Pricing-Analysis-Visual.png"},{"path":"CIQ Stacks/CIQ-Deployment-Models-Visual_2.html","title":"CIQ Deployment Models Visual_2","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Deployment-Models-Visual_2.png"},{"path":"CIQ Stacks/CIQ-Competitive-Analysis-Visual.html","title":"CIQ Competitive Analysis Visual","folder":"CIQ Stacks","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_CIQ-Competitive-Analysis-Visual.png"},{"path":"Ad Examples/RLC-H-Container-Automation-Ad.html","title":"RLC H Container Automation Ad","folder":"Ad Examples","date":"2026-01-11","author":"CIQ","thumbnail":"Ad Examples_RLC-H-Container-Automation-Ad.png"},{"path":"Ad Examples/RLC-AI-Reddit-Ad.html","title":"RLC AI Reddit Ad","folder":"Ad Examples","date":"2026-01-11","author":"CIQ","thumbnail":"Ad Examples_RLC-AI-Reddit-Ad.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Square.html","title":"CIQ Secure Stack Ad Square","folder":"Ad Examples","date":"2026-01-11","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Square.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Minimalist.html","title":"CIQ Secure Stack Ad Minimalist","folder":"Ad Examples","date":"2026-01-11","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Minimalist.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-LinkedIn.html","title":"CIQ Secure Stack Ad LinkedIn","folder":"Ad Examples","date":"2026-01-11","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-LinkedIn.png"},{"path":"Ad Examples/CIQ-Secure-Stack-Ad-Hero-Poster.html","title":"CIQ Secure Stack Ad Hero Poster","folder":"Ad Examples","date":"2026-01-11","author":"CIQ","thumbnail":"Ad Examples_CIQ-Secure-Stack-Ad-Hero-Poster.png"},{"path":"Misc/brian-dawson-profile-package/index.html","title":"Index","folder":"Misc/brian-dawson-profile-package","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_brian-dawson-profile-package_index.png"},{"path":"Misc/brian-dawson-profile-package/gallery.html","title":"Gallery","folder":"Misc/brian-dawson-profile-package","date":"2026-01-11","author":"CIQ","thumbnail":"Misc_brian-dawson-profile-package_gallery.png"},{"path":"CIQ Stacks/GTM/ciq_icp_common_vs_unique.html","title":"Ciq_icp_common_vs_unique","folder":"CIQ Stacks/GTM","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_GTM_ciq_icp_common_vs_unique.png"},{"path":"CIQ Stacks/GTM/CIQ Secure Stack - STIG-Certified Compliance Platform.pdf","title":"CIQ Secure Stack   STIG Certified Compliance Platform","folder":"CIQ Stacks/GTM","date":"2026-01-11","author":"CIQ","thumbnail":"CIQ Stacks_GTM_CIQ Secure Stack - STIG-Certified Compliance Platform.pdf"}];
         
         // Access Code Gate
         const ACCESS_CODES = ["8888"];
